@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import {
-  ArrowUpRight,
-  ShieldCheck,
-  Award,
   Building2,
   ArrowRight
 } from 'lucide-vue-next'
@@ -12,34 +9,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const sectionRef = ref<HTMLElement | null>(null)
 let ctx: gsap.Context | null = null
-
-// Core Values 01-04 (I-G-E-N)
-const coreValues = [
-  {
-    num: '01',
-    code: 'INNOVATION',
-    title: 'นวัตกรรมสร้างสรรค์',
-    desc: 'มุ่งมั่นวิจัยและพัฒนาผลิตภัณฑ์ให้เป็นนวัตกรรมใหม่เพื่อเป็นทางเลือกที่มีประสิทธิภาพสูงสุด ภายใต้แบรนด์ "IGENCO" ซึ่งเป็นระบบ Web Application ที่ได้รับการการันตีคุณภาพ'
-  },
-  {
-    num: '02',
-    code: 'GROWTH',
-    title: 'เติบโตเคียงข้างลูกค้า',
-    desc: 'การบริหารองค์กรที่ยึดความสำเร็จของลูกค้าเป็นที่ตั้ง ทำงานอย่างใกล้ชิดและใส่ใจทุกขั้นตอน เพื่อให้ระบบงานขององค์กรลูกค้าสามารถขยายตัวได้อย่างมั่นคงและยั่งยืน'
-  },
-  {
-    num: '03',
-    code: 'EXCELLENCE',
-    title: 'มาตรฐานคุณภาพเป็นเลิศ',
-    desc: 'ยึดมั่นในมาตรฐานวิศวกรรมซอฟต์แวร์ระดับสากล ISO/IEC 29110 จาก TÜV NORD ทั้งกระบวนการบริหารโครงการ (Project Management) และการพัฒนาซอฟต์แวร์ (Software Implementation)'
-  },
-  {
-    num: '04',
-    code: 'NETWORK & CARE',
-    title: 'ความร่วมมือและความใส่ใจ',
-    desc: 'ส่งมอบงานระบบและบริการที่เหนือความประทับใจ ด้วยพลังแห่งความร่วมมือของทีมงานและการบริการด้วยความจริงใจ เอาใจใส่ในทุกรายละเอียดทั้งก่อนและหลังส่งมอบงาน'
-  }
-]
 
 // 4 Service Capabilities
 const capabilities = [
@@ -267,105 +236,6 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-        </div>
-      </div>
-
-      <!-- ========================================================
-           3. VISION & POLICY (EDITORIAL MANIFESTO)
-      ========================================================= -->
-      <div id="policy" class="editorial-reveal py-20 sm:py-28 border-b border-black/10 dark:border-white/10 scroll-mt-24">
-        <div class="max-w-4xl space-y-8">
-          <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
-            PHILOSOPHY & POLICY // นโยบายบริษัทและปรัชญาการทำงาน
-          </div>
-
-          <h2 class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC] leading-[1.12]">
-            "การทำงานอย่างใกล้ชิดกับลูกค้า ใส่ใจในทุกขั้นตอน เพื่อส่งมอบงานที่เหนือความประทับใจ"
-          </h2>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6">
-            <div class="space-y-2">
-              <h3 class="text-base font-bold text-[#0A1A12] dark:text-white">
-                การทำงานอย่างใกล้ชิด
-              </h3>
-              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
-                ใส่ใจทุกขั้นตอนของกระบวนการพัฒนาระบบ เพื่อให้มั่นใจว่างบประมาณและฟังก์ชันการทำงานตรงตามเป้าหมายขององค์กรอย่างแท้จริง
-              </p>
-            </div>
-
-            <div class="space-y-2">
-              <h3 class="text-base font-bold text-[#0A1A12] dark:text-white">
-                ผลิตภัณฑ์แบรนด์ IGENCO
-              </h3>
-              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
-                วิจัยและพัฒนาผลิตภัณฑ์ให้เป็นนวัตกรรมใหม่เพื่อเป็นทางเลือกที่มีประสิทธิภาพในรูปแบบ Web Application ที่ได้รับการการันตีคุณภาพ
-              </p>
-            </div>
-
-            <div class="space-y-2">
-              <h3 class="text-base font-bold text-[#0A1A12] dark:text-white">
-                ความต่อเนื่องและยั่งยืน
-              </h3>
-              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
-                มุ่งมั่นสร้างความไว้วางใจระยะยาว ด้วยการรับประกันและการสนับสนุนทางเทคนิคอย่างรวดเร็วและมืออาชีพ
-              </p>
-            </div>
-          </div>
-
-          <div class="pt-2">
-            <NuxtLink
-              to="/news/2#section-philosophy"
-              class="inline-flex items-center gap-1.5 text-xs font-mono font-bold tracking-wider uppercase text-[#00A852] dark:text-[#00FF88] hover:underline"
-            >
-              <span>อ่านนโยบายและแนวคิดการบริหารงานเพิ่มเติม</span>
-              <ArrowUpRight class="w-3.5 h-3.5" />
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================
-           4. CORE VALUES: TYPOGRAPHIC 01–04 WITH DIVIDERS
-      ========================================================= -->
-      <div id="values" class="editorial-reveal py-20 sm:py-28 border-b border-black/10 dark:border-white/10 scroll-mt-24">
-        <div class="space-y-4 mb-14">
-          <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
-            CORE VALUES // ค่านิยมและวัฒนธรรมองค์กร
-          </div>
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC]">
-            ค่านิยม 4 เสาหลัก (I - G - E - N)
-          </h2>
-          <p class="text-base text-[#475569] dark:text-[#94A3B8] max-w-2xl">
-            หลักยึดเหนี่ยวในการทำงานของบุคลากร IGENCO ทุกคน เพื่อขับเคลื่อนองค์กรและส่งมอบคุณค่าสูงสุดแก่ลูกค้า
-          </p>
-        </div>
-
-        <!-- 01 - 04 Typographic Clean Rows / Columns with Dividers -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 pt-6">
-          <div
-            v-for="val in coreValues"
-            :key="val.num"
-            class="pt-6 border-t-2 border-black/10 dark:border-white/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-colors space-y-4 group"
-          >
-            <div class="flex items-baseline justify-between">
-              <span class="text-4xl sm:text-5xl font-mono font-extrabold text-[#00A852] dark:text-[#00FF88]">
-                {{ val.num }}
-              </span>
-              <span class="text-xs font-mono tracking-widest uppercase opacity-50">
-                {{ val.code }}
-              </span>
-            </div>
-
-            <div class="space-y-1">
-              <h3 class="text-lg font-bold text-[#0A1A12] dark:text-white group-hover:text-[#00A852] dark:group-hover:text-[#00FF88] transition-colors">
-                {{ val.title }}
-              </h3>
-            </div>
-
-            <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
-              {{ val.desc }}
-            </p>
-          </div>
         </div>
       </div>
 
