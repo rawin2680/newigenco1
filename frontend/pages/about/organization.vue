@@ -166,6 +166,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'ฝ่ายการตลาด',
         en: 'Marketing Division',
         icon: Megaphone,
+        image: '/images/about/marketing-avatar.jpg',
         desc: 'วางแผนกลยุทธ์การตลาด สื่อสารแบรนด์ และวิเคราะห์ตลาด',
         responsibilities: [
           'สื่อสารภาพลักษณ์แบรนด์โซลูชัน IGENCO',
