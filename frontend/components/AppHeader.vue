@@ -1,11 +1,73 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { Contrast, Menu, X, ArrowUpRight } from 'lucide-vue-next'
+import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { Contrast, Menu, X, ArrowUpRight, Home, Box, Newspaper, Mail } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
 const { toggleTheme } = useTheme()
 const isMobileMenuOpen = ref(false)
 const isScrolled = ref(false)
+
+const navLinks = [
+  { name: 'หน้าแรก', href: '/#top', sectionId: 'top', icon: Home },
+  { name: 'สินค้าและบริการ', href: '/#products', sectionId: 'products', icon: Box },
+  { name: 'ข่าวสารและกิจกรรม', href: '/#news', sectionId: 'news', icon: Newspaper },
+  { name: 'ติดต่อเรา', href: '/#contact', sectionId: 'contact', icon: Mail },
+]
+
+// Glassy Navigation Tabs State
+const navContainerRef = ref<HTMLElement | null>(null)
+const tabRefs = ref<HTMLElement[]>([])
+const activeIndex = ref(0)
+const hoveredIndex = ref<number | null>(null)
+
+const pillStyle = reactive({
+  left: 0,
+  width: 0,
+  opacity: 0,
+  isReady: false
+})
+
+const updatePill = () => {
+  if (!import.meta.client || !navContainerRef.value) return
+  const targetIdx = hoveredIndex.value !== null ? hoveredIndex.value : activeIndex.value
+  const targetTab = tabRefs.value[targetIdx]
+
+  if (targetTab && navContainerRef.value) {
+    const containerRect = navContainerRef.value.getBoundingClientRect()
+    const tabRect = targetTab.getBoundingClientRect()
+
+    pillStyle.left = tabRect.left - containerRect.left
+    pillStyle.width = tabRect.width
+    pillStyle.opacity = 1
+    pillStyle.isReady = true
+  }
+}
+
+const onTabEnter = (idx: number) => {
+  hoveredIndex.value = idx
+  updatePill()
+}
+
+const onTabLeave = () => {
+  hoveredIndex.value = null
+  updatePill()
+}
+
+const onTabClick = (idx: number, sectionId: string) => {
+  activeIndex.value = idx
+  hoveredIndex.value = null
+  updatePill()
+
+  if (import.meta.client) {
+    const section = document.getElementById(sectionId)
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+}
+
+// Scroll tracking for header shadow & active tab sync
+let sectionObserver: IntersectionObserver | null = null
 
 const onScroll = () => {
   if (typeof window !== 'undefined') {
@@ -16,22 +78,49 @@ const onScroll = () => {
 onMounted(() => {
   if (import.meta.client) {
     window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', updatePill, { passive: true })
     onScroll()
+
+    nextTick(() => {
+      setTimeout(updatePill, 100)
+    })
+
+    // Sync active tab with user scroll position
+    const sectionIds = ['top', 'products', 'news', 'contact']
+    sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id
+            const idx = sectionIds.indexOf(id)
+            if (idx !== -1 && hoveredIndex.value === null) {
+              activeIndex.value = idx
+              updatePill()
+            }
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '-20% 0px -55% 0px',
+        threshold: 0
+      }
+    )
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id)
+      if (el) sectionObserver?.observe(el)
+    })
   }
 })
 
 onBeforeUnmount(() => {
   if (import.meta.client) {
     window.removeEventListener('scroll', onScroll)
+    window.removeEventListener('resize', updatePill)
+    sectionObserver?.disconnect()
   }
 })
-
-const navLinks = [
-  { name: 'หน้าแรก', href: '/#top' },
-  { name: 'สินค้าและบริการ', href: '/#products' },
-  { name: 'ข่าวสารและกิจกรรม', href: '/#news' },
-  { name: 'ติดต่อเรา', href: '/#contact' },
-]
 </script>
 
 <template>
@@ -58,15 +147,49 @@ const navLinks = [
         </span>
       </NuxtLink>
 
-      <!-- Desktop Navigation Menu -->
-      <nav class="hidden md:flex items-center gap-8">
+      <!-- Desktop Glassy Navigation Tabs (Apple VisionOS Liquid Glass Style) -->
+      <nav
+        ref="navContainerRef"
+        class="hidden md:flex relative items-center p-1.5 rounded-full liquid-glass-tray transition-all duration-300"
+        @mouseleave="onTabLeave"
+      >
+        <!-- Liquid Glass Active / Hover Highlight Pill (Shared Layout Animation with Spring Damping) -->
+        <div
+          class="liquid-glass-pill absolute top-1.5 bottom-1.5 pointer-events-none rounded-full"
+          :style="{
+            transform: `translateX(${pillStyle.left}px)`,
+            width: `${pillStyle.width}px`,
+            opacity: pillStyle.opacity,
+            transition: pillStyle.isReady ? 'transform 0.38s cubic-bezier(0.25, 1, 0.5, 1), width 0.38s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease' : 'none'
+          }"
+        />
+
+        <!-- Tab Items -->
         <NuxtLink
-          v-for="link in navLinks"
+          v-for="(link, idx) in navLinks"
           :key="link.name"
+          :ref="(el) => { if (el) tabRefs[idx] = (el as any).$el || el }"
           :to="link.href"
-          class="text-sm font-medium text-[#022C22]/80 dark:text-[#F4FBF7]/80 hover:text-[#00C864] dark:hover:text-[#00FF88] transition-colors py-1"
+          :class="[
+            'relative z-10 flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-colors duration-250 select-none cursor-pointer',
+            (hoveredIndex !== null ? hoveredIndex === idx : activeIndex === idx)
+              ? 'text-[#022C22] dark:text-[#00FF88] font-bold'
+              : 'text-[#022C22]/70 dark:text-[#F4FBF7]/70 hover:text-[#022C22] dark:hover:text-white'
+          ]"
+          @mouseenter="onTabEnter(idx)"
+          @click="onTabClick(idx, link.sectionId)"
         >
-          {{ link.name }}
+          <!-- Vector Icon (Lucide Icon) -->
+          <component
+            :is="link.icon"
+            :class="[
+              'w-3.5 h-3.5 transition-transform duration-250',
+              (hoveredIndex !== null ? hoveredIndex === idx : activeIndex === idx)
+                ? 'scale-110 text-[#00C864] dark:text-[#00FF88]'
+                : 'opacity-70'
+            ]"
+          />
+          <span>{{ link.name }}</span>
         </NuxtLink>
       </nav>
 
@@ -85,7 +208,7 @@ const navLinks = [
         <!-- Main CTA Button -->
         <NuxtLink
           to="/#contact"
-          class="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center gap-1.5 shadow-md hover:shadow-lg"
+          class="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center gap-1.5 shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
         >
           <span>สอบถาม / ขอคำปรึกษา</span>
           <ArrowUpRight class="w-4 h-4" />
@@ -124,10 +247,11 @@ const navLinks = [
         v-for="link in navLinks"
         :key="link.name"
         :to="link.href"
-        class="block text-base font-semibold text-[#022C22] dark:text-[#F4FBF7] py-2"
+        class="flex items-center gap-2.5 text-base font-semibold text-[#022C22] dark:text-[#F4FBF7] py-2"
         @click="isMobileMenuOpen = false"
       >
-        {{ link.name }}
+        <component :is="link.icon" class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
+        <span>{{ link.name }}</span>
       </NuxtLink>
       <NuxtLink
         to="/#contact"
@@ -139,3 +263,49 @@ const navLinks = [
     </div>
   </header>
 </template>
+
+<style scoped>
+/* 1. Glassmorphic Outer Tray */
+.liquid-glass-tray {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 44, 34, 0.08),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 2px 0 rgba(0, 44, 34, 0.04);
+}
+
+:global(.dark) .liquid-glass-tray {
+  background: rgba(3, 16, 11, 0.68);
+  border: 1px solid rgba(0, 255, 136, 0.16);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 2px 0 rgba(0, 255, 136, 0.25),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* 2. Specular Border & Inner Shadow (Liquid Glass Droplet Pill) */
+.liquid-glass-pill {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 253, 244, 0.9) 100%);
+  border: 1px solid rgba(0, 200, 100, 0.32);
+  box-shadow: 
+    0 6px 20px -3px rgba(0, 200, 100, 0.28),
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -1.5px 2px 0 rgba(0, 44, 34, 0.12),
+    inset 1px 0 1.5px 0 rgba(255, 255, 255, 0.8),
+    inset -1px 0 1.5px 0 rgba(255, 255, 255, 0.8);
+}
+
+:global(.dark) .liquid-glass-pill {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.18) 0%, rgba(2, 44, 34, 0.6) 100%);
+  border: 1px solid rgba(0, 255, 136, 0.45);
+  box-shadow: 
+    0 6px 22px -3px rgba(0, 255, 136, 0.3),
+    inset 0 1.5px 2px 0 rgba(255, 255, 136, 0.35),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.5),
+    inset 1px 0 1.5px 0 rgba(0, 255, 136, 0.2),
+    inset -1px 0 1.5px 0 rgba(0, 255, 136, 0.2);
+}
+</style>
