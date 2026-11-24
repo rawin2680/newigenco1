@@ -232,7 +232,7 @@ const policyPillars = [
         </div>
 
         <NuxtLink to="/about/values" class="inline-flex items-center gap-2 text-sm font-bold text-[#00A852] dark:text-[#00FF88] hover:underline">
-          <span>อ่านค่านิยมและวัฒนธรรมองค์กร (I-G-E-N) ต่อไป</span>
+          <span>อ่านค่านิยมและวัฒนธรรมองค์กร (SMART) ต่อไป</span>
           <ArrowUpRight class="w-4 h-4" />
         </NuxtLink>
       </div>

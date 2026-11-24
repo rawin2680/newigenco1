@@ -20,9 +20,9 @@ const exploreTopics = [
   {
     num: '02',
     icon: Sparkles,
-    title: 'ค่านิยมหลัก 4 เสาหลัก (I - G - E - N)',
+    title: 'ค่านิยมและวัฒนธรรมองค์กร (SMART)',
     en: 'CORE VALUES & CULTURE',
-    desc: 'ดีเอ็นเอการทำงาน Innovation, Growth, Excellence, และ Network & Care ขับเคลื่อนวิศวกรรมซอฟต์แวร์ไทย',
+    desc: 'แนวคิด Small & Smart พร้อมรับการเปลี่ยนแปลง และค่านิยม 5 เสาหลัก S - M - A - R - T',
     href: '/about/values',
     linkText: 'ดูค่านิยมองค์กร'
   },

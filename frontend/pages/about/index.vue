@@ -32,7 +32,7 @@ useHead({
           <span>•</span>
           <NuxtLink to="/about/policy" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">นโยบายบริษัท</NuxtLink>
           <span>•</span>
-          <NuxtLink to="/about/values" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">ค่านิยม I-G-E-N</NuxtLink>
+          <NuxtLink to="/about/values" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">ค่านิยม SMART</NuxtLink>
           <span>•</span>
           <NuxtLink to="/about/organization" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">โครงสร้างองค์กร</NuxtLink>
           <span>•</span>
