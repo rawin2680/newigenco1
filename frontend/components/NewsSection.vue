@@ -187,7 +187,7 @@ const toggleAiSummary = (id: number) => {
          NEWS CARDS GRID: EXACTLY 3 CARDS AT A TIME
          Glassmorphism & Dynamic Glow with Direct Navigation
     ========================================================== -->
-    <div class="relative min-h-[540px]">
+    <div class="relative">
       <Transition name="news-page" mode="out-in">
         <div
           :key="`${activeCategory}-${currentPage}`"
@@ -330,7 +330,7 @@ const toggleAiSummary = (id: number) => {
          BOTTOM PAGINATION BAR (< 1 2 >)
          แสดงอย่างเด่นชัดเมื่อมีข่าวมากกว่า 3 รายการ
     ========================================================== -->
-    <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 pt-8 border-t border-current/10">
+    <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-current/10">
       <div class="text-xs font-mono opacity-65">
         แสดงข่าว {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredNews.length) }} จากทั้งหมด {{ filteredNews.length }} รายการ
       </div>
