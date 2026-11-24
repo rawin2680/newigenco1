@@ -192,6 +192,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'ฝ่ายส่งเสริมการขาย',
         en: 'Sales Promotion',
         icon: Award,
+        image: '/images/about/sales-promotion-avatar.jpg',
         desc: 'จัดแคมเปญ ส่งเสริมการขาย และสร้างความสัมพันธ์ลูกค้าระยะยาว',
         responsibilities: [
           'วางแผนแพ็กเกจโซลูชันและสิทธิประโยชน์สำหรับลูกค้าองค์กร',
