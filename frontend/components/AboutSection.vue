@@ -2,14 +2,10 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import {
   ArrowUpRight,
-  ChevronRight,
   ShieldCheck,
   Award,
   Calendar,
   Building2,
-  Users,
-  Briefcase,
-  Lock,
   ArrowRight
 } from 'lucide-vue-next'
 import gsap from 'gsap'
@@ -118,15 +114,6 @@ const capabilities = [
     th: 'แอพพลิเคชั่นทางธุรกิจเฉพาะองค์กร',
     desc: 'พัฒนาโซลูชันทางธุรกิจที่ปรับแต่งเฉพาะตามความต้องการขององค์กร ช่วยเพิ่มประสิทธิภาพและลดความซ้ำซ้อน'
   }
-]
-
-// Management Structure
-const managementStructure = [
-  { role: 'คณะกรรมการบริหาร', en: 'Executive Board', detail: 'กำหนดวิสัยทัศน์ นโยบาย และทิศทางการเติบโตขององค์กร' },
-  { role: 'ฝ่ายสถาปัตยกรรมและการพัฒนาซอฟต์แวร์', en: 'Software Engineering', detail: 'ออกแบบสถาปัตยกรรมระบบและเขียนโค้ด Web Application ระดับ Enterprise' },
-  { role: 'ฝ่ายโครงสร้างคลาวด์และเครือข่าย', en: 'IT Infrastructure & Cloud', detail: 'บริหารจัดการระบบแม่ข่าย ความปลอดภัยทางไซเบอร์ และเน็ตเวิร์ก' },
-  { role: 'ฝ่ายควบคุมคุณภาพและมาตรฐาน', en: 'QA & Compliance', detail: 'ตรวจสอบคุณภาพซอฟต์แวร์ตามกรอบมาตรฐานสากล ISO/IEC 29110' },
-  { role: 'ฝ่ายการตลาดและลูกค้าสัมพันธ์', en: 'Sales & Client Success', detail: 'ประสานงานและดูแลให้คำปรึกษาแก่ลูกค้าอย่างใกล้ชิดทุกขั้นตอน' }
 ]
 
 onMounted(() => {
@@ -478,131 +465,6 @@ onBeforeUnmount(() => {
               </p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- ========================================================
-           6. CORPORATE INFORMATION: 3 EDITORIAL COLUMNS
-           (โครงสร้างองค์กร สมัครงาน และการคุ้มครองข้อมูลส่วนบุคคล)
-      ========================================================= -->
-      <div class="editorial-reveal pt-20 sm:pt-28">
-        <div class="space-y-4 mb-16">
-          <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
-            CORPORATE GOVERNANCE // ข้อมูลองค์กรและการกำกับดูแล
-          </div>
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC]">
-            โครงสร้างการบริหารและการดำเนินงาน
-          </h2>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          
-          <!-- Column 1: Organization Structure (6 Cols) -->
-          <div id="organization" class="lg:col-span-6 space-y-6 scroll-mt-28">
-            <div class="border-b border-black/10 dark:border-white/10 pb-4">
-              <h3 class="text-xl font-bold text-[#0A1A12] dark:text-white flex items-center gap-2">
-                <Users class="w-5 h-5 text-[#00A852] dark:text-[#00FF88]" />
-                <span>แผนผังการบริหาร (Organization Structure)</span>
-              </h3>
-              <p class="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
-                โครงสร้างสายงานที่ชัดเจน คล่องตัว และมีมาตรฐานการควบคุมคุณภาพ
-              </p>
-            </div>
-
-            <div class="space-y-3">
-              <div
-                v-for="(team, index) in managementStructure"
-                :key="team.role"
-                class="p-4 rounded-xl border border-black/5 dark:border-white/5 hover:border-black/15 dark:hover:border-white/15 transition-colors space-y-1"
-              >
-                <div class="flex items-center justify-between">
-                  <div class="text-sm font-bold text-[#0A1A12] dark:text-white">
-                    0{{ index + 1 }}. {{ team.role }}
-                  </div>
-                  <div class="text-xs font-mono opacity-50">{{ team.en }}</div>
-                </div>
-                <div class="text-xs text-[#64748B] dark:text-[#94A3B8]">
-                  {{ team.detail }}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Column 2 & 3: Careers & PDPA (6 Cols Split) -->
-          <div class="lg:col-span-6 space-y-12">
-            
-            <!-- Careers (สมัครงาน) -->
-            <div id="careers" class="space-y-4 scroll-mt-28">
-              <div class="border-b border-black/10 dark:border-white/10 pb-4">
-                <h3 class="text-xl font-bold text-[#0A1A12] dark:text-white flex items-center gap-2">
-                  <Briefcase class="w-5 h-5 text-[#00A852] dark:text-[#00FF88]" />
-                  <span>ร่วมงานกับเรา (Careers)</span>
-                </h3>
-                <p class="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
-                  เปิดรับบุคลากรรุ่นใหม่ที่พร้อมเติบโตและสร้างสรรค์ระบบงานที่มีคุณค่า
-                </p>
-              </div>
-
-              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
-                เราสนับสนุนบรรยากาศการทำงานที่เป็นมืออาชีพ เรียนรู้เทคโนโลยีสมัยใหม่ และการทำงานเป็นทีม เปิดรับตำแหน่ง:
-              </p>
-
-              <div class="grid grid-cols-2 gap-2 text-xs font-mono font-medium">
-                <div class="p-2.5 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5">• Full-Stack Developer</div>
-                <div class="p-2.5 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5">• System Analyst (SA)</div>
-                <div class="p-2.5 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5">• DevOps & Cloud Engineer</div>
-                <div class="p-2.5 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5">• Business Development</div>
-              </div>
-
-              <div class="pt-2 text-xs font-mono opacity-80 flex flex-wrap items-center justify-between gap-2">
-                <span>ติดต่อฝ่ายบุคคล: <strong>hr@igenco.co.th</strong> | โทร. 0-2523-3959</span>
-                <NuxtLink
-                  to="/#contact"
-                  class="font-bold text-[#00A852] dark:text-[#00FF88] hover:underline flex items-center gap-1"
-                >
-                  <span>ส่งเรซูเม่</span>
-                  <ArrowUpRight class="w-3.5 h-3.5" />
-                </NuxtLink>
-              </div>
-            </div>
-
-            <!-- PDPA & Privacy (การคุ้มครองข้อมูลส่วนบุคคล) -->
-            <div id="privacy-policy" class="space-y-4 scroll-mt-28">
-              <div class="border-b border-black/10 dark:border-white/10 pb-4">
-                <h3 class="text-xl font-bold text-[#0A1A12] dark:text-white flex items-center gap-2">
-                  <Lock class="w-5 h-5 text-[#00A852] dark:text-[#00FF88]" />
-                  <span>การคุ้มครองข้อมูลส่วนบุคคล (PDPA)</span>
-                </h3>
-                <p class="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
-                  การปฏิบัติตามกฎหมายและมาตรฐานความปลอดภัยทางสารสนเทศ
-                </p>
-              </div>
-
-              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
-                บริษัท ไอเจนโก้ จำกัด ให้ความสำคัญสูงสุดต่อการรักษาความมั่นคงปลอดภัยของข้อมูลส่วนบุคคลและข้อมูลองค์กรตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)
-              </p>
-
-              <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                <NuxtLink
-                  to="/privacy-policy"
-                  class="flex-1 p-3 rounded-xl border border-black/10 dark:border-white/10 hover:border-[#00C864] dark:hover:border-[#00FF88] flex items-center justify-between text-xs font-semibold text-[#0A1A12] dark:text-white transition-all group"
-                >
-                  <span>นโยบายความเป็นส่วนตัว (Privacy Policy)</span>
-                  <ChevronRight class="w-4 h-4 text-[#00A852] dark:text-[#00FF88] group-hover:translate-x-1 transition-transform" />
-                </NuxtLink>
-
-                <NuxtLink
-                  to="/cookie-policy"
-                  class="flex-1 p-3 rounded-xl border border-black/10 dark:border-white/10 hover:border-[#00C864] dark:hover:border-[#00FF88] flex items-center justify-between text-xs font-semibold text-[#0A1A12] dark:text-white transition-all group"
-                >
-                  <span>นโยบายการใช้คุกกี้ (Cookie Policy)</span>
-                  <ChevronRight class="w-4 h-4 text-[#00A852] dark:text-[#00FF88] group-hover:translate-x-1 transition-transform" />
-                </NuxtLink>
-              </div>
-            </div>
-
-          </div>
-
         </div>
       </div>
 
