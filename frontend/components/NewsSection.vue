@@ -39,10 +39,26 @@ const displayedNews = computed(() => {
   return filteredNews.value.slice(startIndex, startIndex + itemsPerPage)
 })
 
+const scrollToNewsTop = () => {
+  if (import.meta.client) {
+    const el = document.getElementById('news')
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      if (rect.top < -50) {
+        window.scrollTo({
+          top: window.scrollY + rect.top - 80,
+          behavior: 'smooth'
+        })
+      }
+    }
+  }
+}
+
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
     activeAiSummaryId.value = null
+    scrollToNewsTop()
   }
 }
 
@@ -50,12 +66,16 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++
     activeAiSummaryId.value = null
+    scrollToNewsTop()
   }
 }
 
 const goToPage = (page: number) => {
-  currentPage.value = page
-  activeAiSummaryId.value = null
+  if (currentPage.value !== page) {
+    currentPage.value = page
+    activeAiSummaryId.value = null
+    scrollToNewsTop()
+  }
 }
 
 // -------------------------------------------------------------
@@ -167,17 +187,18 @@ const toggleAiSummary = (id: number) => {
          NEWS CARDS GRID: EXACTLY 3 CARDS AT A TIME
          Glassmorphism & Dynamic Glow with Direct Navigation
     ========================================================== -->
-    <TransitionGroup
-      name="news-card"
-      tag="div"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch"
-    >
-      <article
-        v-for="(item, idx) in displayedNews"
-        :key="item.id"
-        class="spatial-glass rounded-3xl overflow-hidden relative group transition-all duration-300 hover:-translate-y-2.5 flex flex-col justify-between border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] hover:shadow-[0_20px_45px_rgba(0,200,100,0.18)] hover-lift"
-        @mousemove="onCardMouseMove($event, item.id)"
-      >
+    <div class="relative min-h-[540px]">
+      <Transition name="news-page" mode="out-in">
+        <div
+          :key="`${activeCategory}-${currentPage}`"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch"
+        >
+          <article
+            v-for="(item, idx) in displayedNews"
+            :key="item.id"
+            class="spatial-glass rounded-3xl overflow-hidden relative group transition-all duration-300 hover:-translate-y-2.5 flex flex-col justify-between border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] hover:shadow-[0_20px_45px_rgba(0,200,100,0.18)] hover-lift"
+            @mousemove="onCardMouseMove($event, item.id)"
+          >
         <!-- Mouse-Tracking Dynamic Glow Spotlight -->
         <div
           class="pointer-events-none absolute -inset-px rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
@@ -286,7 +307,9 @@ const toggleAiSummary = (id: number) => {
           <span class="text-[11px] font-mono opacity-50">IGENCO // 0{{ item.id }}</span>
         </div>
       </article>
-    </TransitionGroup>
+        </div>
+      </Transition>
+    </div>
 
     <!-- Empty State (กรณีไม่พบข้อมูลในหมวดที่เลือก) -->
     <div
@@ -370,19 +393,16 @@ const toggleAiSummary = (id: number) => {
 </template>
 
 <style scoped>
-.news-card-enter-active,
-.news-card-leave-active {
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+.news-page-enter-active,
+.news-page-leave-active {
+  transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.news-card-enter-from {
+.news-page-enter-from {
   opacity: 0;
-  transform: translateY(20px) scale(0.96);
+  transform: translateY(12px) scale(0.99);
 }
-.news-card-leave-to {
+.news-page-leave-to {
   opacity: 0;
-  transform: scale(0.94);
-}
-.news-card-move {
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(-8px) scale(0.99);
 }
 </style>

@@ -215,20 +215,21 @@ const inquireProduct = (title: string) => {
     </div>
 
     <!-- Product Cards Grid: Modern Filterable Cards with Fluid Spring Motion -->
-    <TransitionGroup
-      name="catalog-card"
-      tag="div"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
-    >
-      <div
-        v-for="(product, idx) in filteredProducts"
-        :key="product.id"
-        class="product-card spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2.5 transition-all duration-300 border border-current/10 relative"
-        :style="{
-          '--brand-accent': product.accentColor,
-          '--brand-glow': product.glowColor
-        }"
-      >
+    <div class="relative min-h-[500px]">
+      <Transition name="catalog-page" mode="out-in">
+        <div
+          :key="activeCategory"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+        >
+          <div
+            v-for="(product, idx) in filteredProducts"
+            :key="product.id"
+            class="product-card spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2.5 transition-all duration-300 border border-current/10 relative"
+            :style="{
+              '--brand-accent': product.accentColor,
+              '--brand-glow': product.glowColor
+            }"
+          >
         <!-- Top Image Frame: Equal Aspect Ratio (16/10) with Clean Border & Ambient Glow -->
         <div class="relative aspect-[16/10] w-full overflow-hidden bg-black/15 border-b border-current/10">
           <img
@@ -327,7 +328,8 @@ const inquireProduct = (title: string) => {
           </div>
         </div>
       </div>
-    </TransitionGroup>
+    </Transition>
+  </div>
 
     <!-- Product Detail Modal Drawer -->
     <Teleport to="body">
@@ -468,19 +470,16 @@ const inquireProduct = (title: string) => {
 }
 
 /* Fluid Transition for Category Switching */
-.catalog-card-enter-active,
-.catalog-card-leave-active {
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+.catalog-page-enter-active,
+.catalog-page-leave-active {
+  transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.catalog-card-enter-from {
+.catalog-page-enter-from {
   opacity: 0;
-  transform: translateY(20px) scale(0.96);
+  transform: translateY(12px) scale(0.99);
 }
-.catalog-card-leave-to {
+.catalog-page-leave-to {
   opacity: 0;
-  transform: scale(0.94);
-}
-.catalog-card-move {
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(-8px) scale(0.99);
 }
 </style>
