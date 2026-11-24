@@ -29,10 +29,11 @@ const solutionOptions = [
   'i-SmartFlow',
   'Regist.ai',
   'HR.ai',
-  'บริการพัฒนาระบบ',
-  'ขอใบเสนอราคา',
-  'ขอนัดหมายสาธิตระบบ',
-  'อื่น ๆ'
+  'Software OnDemand',
+  'OutSource Service',
+  'iMme Application',
+  'i-RealEstate',
+  'iPOS'
 ]
 
 const form = ref({
