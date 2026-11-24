@@ -257,7 +257,7 @@ const scrollToTop = () => {
             </NuxtLink>
 
             <p class="text-sm text-slate-300 leading-relaxed max-w-sm">
-              บริษัท ไอเจนโก้ จำกัด (IGENCO CO., LTD.) มุ่งมั่นส่งมอบระบบซอฟต์แวร์บริหารจัดการระดับองค์กร โครงสร้างฐานข้อมูลความปลอดภัยสูง และนวัตกรรมดิจิทัลที่ขับเคลื่อนธุรกิจสู่ความสำเร็จ
+              บริษัท ไอเจนโก้ จำกัด (IGENCO.Co.,Ltd) มุ่งมั่นส่งมอบระบบซอฟต์แวร์บริหารจัดการระดับองค์กร โครงสร้างฐานข้อมูลความปลอดภัยสูง และนวัตกรรมดิจิทัลที่ขับเคลื่อนธุรกิจสู่ความสำเร็จ
             </p>
 
             <!-- ISO Certification Badge Card -->
@@ -275,7 +275,7 @@ const scrollToTop = () => {
             <!-- Tax ID -->
             <div class="text-xs font-mono text-slate-400 flex items-center gap-2">
               <FileText class="w-3.5 h-3.5 text-[#00FF88]" />
-              <span>เลขประจำตัวผู้เสียภาษี : 0105553000748</span>
+              <span>เลขประจำตัวผู้เสียภาษี : 0115553003741</span>
             </div>
           </div>
 
@@ -358,7 +358,7 @@ const scrollToTop = () => {
             </ul>
           </div>
 
-          <!-- Column 4: Contact & Location in Bang Khen / Don Mueang (3.5 Cols) -->
+          <!-- Column 4: Contact & Location in Don Mueang (3.5 Cols) -->
           <div class="lg:col-span-4 space-y-4">
             <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-[#00FF88]">
               HEADQUARTERS // ที่ตั้งสำนักงาน
@@ -368,7 +368,7 @@ const scrollToTop = () => {
             <div class="flex items-start gap-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
               <MapPin class="w-4 h-4 text-[#00FF88] shrink-0 mt-1" />
               <span>
-                88/35 อาคารบูรพาโฮมออฟฟิศ ซอยพหลโยธิน 69/1 แยก 1 แขวงอนุสาวรีย์ เขตบางเขน กรุงเทพมหานคร 10220 (ย่านบางเขน - ดอนเมือง)
+                89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร 10210
               </span>
             </div>
 
@@ -377,31 +377,34 @@ const scrollToTop = () => {
               <div class="text-xs font-semibold text-slate-400">เบอร์โทรศัพท์ติดต่อ (คลิกเพื่อโทรหรือคัดลอก) :</div>
               <div class="flex flex-wrap items-center gap-2">
                 <a
-                  href="tel:025233959"
+                  href="tel:025233559"
+                  title="โทร 0-2523-3559 (ชั้น 2)"
                   class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
                 >
                   <Phone class="w-3 h-3 text-[#00FF88]" />
-                  <span>0-2523-3959</span>
+                  <span>0-2523-3559 (ชั้น 2)</span>
                 </a>
                 <a
-                  href="tel:025233960"
+                  href="tel:025233560"
+                  title="โทร 0-2523-3560 (ชั้น 3)"
                   class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all"
                 >
-                  0-2523-3960
+                  0-2523-3560 (ชั้น 3)
                 </a>
                 <a
-                  href="tel:0615294050"
+                  href="tel:0635254850"
+                  title="โทร 063-5254850"
                   class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all"
                 >
-                  061-529-4050
+                  063-5254850
                 </a>
 
                 <!-- One-Click Copy Phone Button -->
                 <button
                   type="button"
-                  title="คัดลอกเบอร์โทรหลัก"
-                  class="p-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] transition-all text-xs"
-                  @click="copyToClipboard('02-523-3959, 061-529-4050', 'phone')"
+                  title="คัดลอกเบอร์โทรติดต่อทั้งหมด"
+                  class="p-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] transition-all text-xs cursor-pointer"
+                  @click="copyToClipboard('0-2523-3559, 0-2523-3560, 063-5254850', 'phone')"
                 >
                   <Check v-if="copiedPhone" class="w-3.5 h-3.5 text-[#00FF88]" />
                   <Copy v-else class="w-3.5 h-3.5" />
@@ -414,18 +417,18 @@ const scrollToTop = () => {
               <div class="text-xs font-semibold text-slate-400">อีเมลติดต่อฝ่ายขายและบริการ :</div>
               <div class="flex items-center gap-2">
                 <a
-                  href="mailto:sale@igenco.com"
+                  href="mailto:sales@igenco.co.th"
                   class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
                 >
                   <Mail class="w-3.5 h-3.5 text-[#00FF88]" />
-                  <span>sale@igenco.com</span>
+                  <span>sales@igenco.co.th</span>
                 </a>
                 <!-- One-Click Copy Email Button -->
                 <button
                   type="button"
                   title="คัดลอกอีเมล"
-                  class="p-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] transition-all text-xs"
-                  @click="copyToClipboard('sale@igenco.com', 'email')"
+                  class="p-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] transition-all text-xs cursor-pointer"
+                  @click="copyToClipboard('sales@igenco.co.th', 'email')"
                 >
                   <Check v-if="copiedEmail" class="w-3.5 h-3.5 text-[#00FF88]" />
                   <Copy v-else class="w-3.5 h-3.5" />
@@ -441,7 +444,7 @@ const scrollToTop = () => {
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400 font-mono">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-[#00FF88] animate-pulse" />
-            <span>© 2026 บริษัท ไอเจนโก้ จำกัด (IGENCO CO., LTD.) — ALL RIGHTS RESERVED</span>
+            <span>© 2026 บริษัท ไอเจนโก้ จำกัด (IGENCO.Co.,Ltd) — ALL RIGHTS RESERVED</span>
           </div>
 
           <div class="flex items-center gap-4">

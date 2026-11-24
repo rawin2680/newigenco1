@@ -142,7 +142,7 @@ const submitApplication = () => {
             ส่งข้อมูลสมัครงาน / ฝากเรซูเม่
           </h2>
           <p class="text-sm text-[#475569] dark:text-[#94A3B8]">
-            ทีมงานฝ่ายบุคคลจะติดต่อกลับเพื่อนัดสัมภาษณ์ หรือสามารถส่งอีเมลตรงพร้อมแนบ Resume มาที่ <strong>hr@igenco.co.th</strong> หรือโทร <strong>0-2521-3999</strong>
+            ทีมงานฝ่ายบุคคลจะติดต่อกลับเพื่อนัดสัมภาษณ์ หรือสามารถส่งอีเมลตรงพร้อมแนบ Resume มาที่ <strong>hr@igenco.co.th</strong> หรือโทร <strong>0-2523-3559, 063-5254850</strong>
           </p>
         </div>
 
