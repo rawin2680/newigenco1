@@ -26,22 +26,22 @@ export interface ProductItem {
 const products: ProductItem[] = [
   {
     id: 1,
-    title: 'Verdant AI Core V4',
+    title: 'Regist.ai (ระบบบริหารการลงทะเบียนอัจฉริยะ)',
     category: 'ซอฟต์แวร์อัจฉริยะ',
-    desc: 'ระบบประมวลผลข้อมูลอัจฉริยะแบบเรียลไทม์ พร้อมเชื่อมต่อ API และระบบวิเคราะห์อัตโนมัติ',
-    detailedDesc: 'แพลตฟอร์มสมองกลอัจฉริยะระดับองค์กร ขับเคลื่อนด้วยโมเดล Neural Core ล่าสุด รองรับการเชื่อมต่อกับระบบฐานข้อมูลเดิมอย่างไร้รอยต่อ วิเคราะห์ข้อมูลมหาศาลและสร้างคำตอบทางธุรกิจได้ในเสี้ยววินาที',
-    price: 'ติดต่อฝ่ายขาย',
-    tags: ['Cloud Native', 'API Ready', 'Zero-Latency'],
+    desc: 'ระบบบริหารการลงทะเบียนและจัดการคิวอัจฉริยะ ตอบโจทย์งานสัมมนา ฝึกอบรม โรงพยาบาล และร้านอาหาร ทั้ง Online / Offline',
+    detailedDesc: 'ระบบบริหารการลงทะเบียนอัจฉริยะ Regist.ai "ตอบโจทย์ทุกการลงทะเบียน" ช่วยอำนวยความสะดวกในการจัดงานสัมมนา ฝึกอบรม และเผยแพร่ความรู้ เปิดรับลงทะเบียนทั้ง Online / Offline พร้อมเชื่อมต่อฐานข้อมูลร่วมกับ Joomla และ WordPress ได้อย่างไร้รอยต่อ มาพร้อมระบบ i-Queue สำหรับบริหารจัดการคิวงานบริการแบบ New Normal ทั้งงานฉีดวัคซีนและร้านอาหาร',
+    price: 'ติดตั้งพร้อมใช้ใน 1 สัปดาห์',
+    tags: ['Online / Offline', 'i-Queue System', 'Joomla / WP Ready', 'PDPA Ready'],
     specs: [
-      { label: 'สถาปัตยกรรม', value: 'Neural Cloud Mesh / Microservices' },
-      { label: 'ความเร็วประมวลผล', value: '< 18ms Latency' },
-      { label: 'มาตรฐานความปลอดภัย', value: 'ISO 27001 / SOC 2 Type II' },
-      { label: 'การเชื่อมต่อ', value: 'REST API, GraphQL, gRPC' }
+      { label: 'การรองรับระบบ', value: 'Web-based (Online & Offline) & Responsive' },
+      { label: 'การเชื่อมต่อ CMS', value: 'Joomla, WordPress, Google Forms, REST API' },
+      { label: 'ระบบบริหารคิว', value: 'i-Queue หลายช่องบริการ & Restaurant Flow' },
+      { label: 'มาตรฐานความปลอดภัย', value: 'PDPA Compliant / QR Code E-Ticket' }
     ],
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
-    accentColor: '#00C864',
-    glowColor: 'rgba(0, 200, 100, 0.22)',
-    icon: 'Cpu'
+    image: '/images/products/regist-ai-workflow.jpg',
+    accentColor: '#9333EA',
+    glowColor: 'rgba(147, 51, 234, 0.25)',
+    icon: 'Box'
   },
   {
     id: 2,
@@ -439,20 +439,28 @@ const inquireProduct = (title: string) => {
               <div class="text-sm font-mono font-bold text-[#00C864] dark:text-[#00FF88]">
                 ราคา / ค่าบริการ: {{ selectedProduct.price }}
               </div>
-              <div class="flex items-center gap-3 w-full sm:w-auto">
+              <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                <NuxtLink
+                  v-if="selectedProduct.id === 1"
+                  to="/news/6"
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center justify-center gap-1.5 shadow-md hover:scale-105 active:scale-95"
+                >
+                  <span>ดูหน้าแนะนำระบบฉบับเต็ม</span>
+                  <ArrowUpRight class="w-3.5 h-3.5" />
+                </NuxtLink>
                 <button
                   type="button"
-                  class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 transition-all"
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 transition-all"
                   @click="closeProductDetail"
                 >
                   ปิดหน้าต่าง
                 </button>
                 <button
                   type="button"
-                  class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_8px_24px_rgba(0,200,100,0.3)]"
+                  class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_8px_24px_rgba(0,200,100,0.3)]"
                   @click="inquireProduct(selectedProduct.title)"
                 >
-                  <span>ปรึกษาและสอบถามสินค้านี้ทันที</span>
+                  <span>สอบถามสินค้านี้</span>
                   <ArrowUpRight class="w-4 h-4" />
                 </button>
               </div>

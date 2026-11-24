@@ -64,6 +64,7 @@ const navLinks: NavItem[] = [
     icon: Box,
     hasDropdown: true,
     children: [
+      { name: 'Regist.ai (ระบบลงทะเบียน & i-Queue)', href: '/news/6', desc: 'ระบบลงทะเบียนสัมมนา & i-Queue คิวโรงพยาบาลและร้านอาหาร' },
       { name: 'i-SMARTSOFT (e-Office ครบวงจร)', href: '/news/5', desc: '10 โมดูลบริหารงานสำนักงานอิเล็กทรอนิกส์' },
       { name: 'I-SERFF (ระบบยื่นแบบ คปภ.)', href: '/news/3', desc: 'ระบบยื่นขอความเห็นชอบอัตราเบี้ยและกรมธรรม์' },
       { name: 'EFMS (ระบบจัดเก็บข้อมูลการเงิน สคฝ.)', href: '/news/4', desc: 'ระบบเชื่อมโยงและนำส่งรายงานสถาบันการเงิน' },

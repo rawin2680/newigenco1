@@ -25,7 +25,12 @@ import {
   User,
   Copy,
   ExternalLink,
-  Phone
+  Phone,
+  Download,
+  FileText,
+  QrCode,
+  Tag,
+  ArrowUpRight
 } from 'lucide-vue-next'
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
@@ -664,6 +669,396 @@ useHead(() => ({
                   <Phone class="w-4 h-4" />
                   <span>โทร. 09 6294 9236</span>
                 </a>
+              </div>
+
+              <!-- Special Regist.ai & i-Queue Interactive Showcase (Article ID 6) -->
+              <div v-if="article.id === 6" class="space-y-10 pt-4">
+                
+                <!-- 1. Promotion Banner Card -->
+                <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-purple-900/30 via-[#00C864]/10 to-transparent border border-purple-500/30 shadow-xl relative overflow-hidden">
+                  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="space-y-2">
+                      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        <Tag class="w-3.5 h-3.5" />
+                        <span>SPECIAL PROMOTION // โปรโมชันพิเศษ</span>
+                      </div>
+                      <h4 class="text-xl sm:text-2xl font-display font-extrabold text-[#022C22] dark:text-white">
+                        ไอรีจิส "ตอบโจทย์ทุกการลงทะเบียน"
+                      </h4>
+                      <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                        แพ็กเกจพิเศษสำหรับองค์กร หน่วยงานภาครัฐ มหาวิทยาลัย สมาคม และบริษัทที่ต้องการเปิดระบบลงทะเบียนสัมมนา
+                      </p>
+                      <ul class="pt-2 space-y-1.5 text-xs sm:text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                        <li class="flex items-center gap-2">
+                          <CheckCircle2 class="w-4 h-4 shrink-0 text-[#00C864] dark:text-[#00FF88]" />
+                          <span><strong>ฟรี!</strong> ค่าจดทะเบียนหรือต่ออายุโดเมน (Domain) ถึงสิ้นเดือนกันยายน</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                          <CheckCircle2 class="w-4 h-4 shrink-0 text-[#00C864] dark:text-[#00FF88]" />
+                          <span>ติดตั้งและพร้อมเปิดใช้งานได้รวดเร็ว <strong>ภายใน 1 สัปดาห์</strong></span>
+                        </li>
+                        <li class="flex items-center gap-2 text-xs opacity-75">
+                          <span>* เงื่อนไขเป็นไปตามที่บริษัทกำหนด</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row md:flex-col gap-2.5 w-full md:w-auto shrink-0">
+                      <a
+                        href="https://www.i-regist.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="px-5 py-3 rounded-xl bg-purple-600 text-white hover:bg-purple-700 text-xs font-bold font-mono transition-all flex items-center justify-center gap-2 shadow-lg hover:scale-105"
+                      >
+                        <span>เข้าสู่เว็บไซต์ i-regist.com</span>
+                        <ExternalLink class="w-4 h-4" />
+                      </a>
+                      <a
+                        href="tel:025325151"
+                        class="px-5 py-3 rounded-xl bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] text-xs font-bold font-mono transition-all flex items-center justify-center gap-2 shadow-lg hover:scale-105"
+                      >
+                        <Phone class="w-4 h-4" />
+                        <span>โทร. 02-532-5151</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Online Registration Workflow Showcase (3 Steps vs 6 Steps) -->
+                <div class="p-6 sm:p-8 rounded-3xl spatial-glass border border-purple-500/20 shadow-xl space-y-6">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-current/10 pb-4">
+                    <div>
+                      <div class="text-xs font-mono font-bold text-purple-500 dark:text-purple-400 uppercase tracking-wider flex items-center gap-2">
+                        <QrCode class="w-4 h-4" />
+                        <span>REGISTRATION WORKFLOW // ขั้นตอนการลงทะเบียนออนไลน์</span>
+                      </div>
+                      <h4 class="text-xl sm:text-2xl font-bold mt-1 text-[#022C22] dark:text-white">
+                        ลงทะเบียนออนไลน์ง่ายๆ ด้วยตัวคุณเอง
+                      </h4>
+                    </div>
+                    <button
+                      type="button"
+                      class="px-4 py-2 rounded-xl border border-current/20 hover:bg-purple-500/20 text-xs font-mono font-bold flex items-center gap-2 transition-all self-start sm:self-auto"
+                      @click="openLightbox('/images/products/regist-ai-workflow.jpg', 'ขั้นตอนการลงทะเบียนออนไลน์ง่ายๆ ด้วยตัวคุณเอง', 'กรณีไม่มีค่าลงทะเบียน 3 ขั้นตอน และกรณีมีค่าลงทะเบียน 6 ขั้นตอน')"
+                    >
+                      <ZoomIn class="w-4 h-4 text-purple-400" />
+                      <span>ซูมดูแผนผังเต็ม</span>
+                    </button>
+                  </div>
+
+                  <!-- Workflow Image Banner -->
+                  <div
+                    class="rounded-2xl overflow-hidden border border-current/10 cursor-pointer group relative bg-black/10"
+                    @click="openLightbox('/images/products/regist-ai-workflow.jpg', 'ขั้นตอนการลงทะเบียนออนไลน์ง่ายๆ ด้วยตัวคุณเอง', 'กรณีไม่มีค่าลงทะเบียน 3 ขั้นตอน และกรณีมีค่าลงทะเบียน 6 ขั้นตอน')"
+                  >
+                    <img
+                      src="/images/products/regist-ai-workflow.jpg"
+                      alt="Regist.ai Online Registration Workflow"
+                      class="w-full h-auto object-contain group-hover:scale-[1.01] transition-transform duration-300"
+                    >
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-xs font-mono font-bold">
+                      <Maximize2 class="w-4 h-4" />
+                      <span>คลิกเพื่อดูขนาดใหญ่</span>
+                    </div>
+                  </div>
+
+                  <!-- Dual Comparison Cards: 3 Steps vs 6 Steps -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+                    <!-- Option A: Free / No Fee (3 Steps) -->
+                    <div class="p-5 rounded-2xl bg-white/50 dark:bg-black/40 border border-sky-500/30 space-y-3">
+                      <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-sky-500/20 text-sky-600 dark:text-sky-300">
+                          กรณีไม่มีค่าลงทะเบียน (3 ขั้นตอน)
+                        </span>
+                        <span class="text-xs font-mono opacity-60">FREE ACCESS</span>
+                      </div>
+                      <ol class="space-y-2 text-xs sm:text-sm opacity-90 list-decimal list-inside leading-relaxed">
+                        <li><strong>ลงทะเบียน:</strong> สมาชิกหรือบุคคลทั่วไปกรอกข้อมูลลงทะเบียนผ่านระบบ Regist.ai</li>
+                        <li><strong>ตรวจสอบ E-mail:</strong> ผู้ลงทะเบียนทำการตรวจสอบข้อมูลการตอบรับทาง E-mail</li>
+                        <li><strong>พิมพ์แบบฟอร์ม QR Code:</strong> พิมพ์ใบตอบรับที่มี QR Code เพื่อใช้สแกน Check-in เข้างาน</li>
+                      </ol>
+                    </div>
+
+                    <!-- Option B: Paid Registration (6 Steps) -->
+                    <div class="p-5 rounded-2xl bg-white/50 dark:bg-black/40 border border-purple-500/30 space-y-3">
+                      <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/20 text-purple-600 dark:text-purple-300">
+                          กรณีมีค่าลงทะเบียน (6 ขั้นตอน)
+                        </span>
+                        <span class="text-xs font-mono opacity-60">PAYMENT FLOW</span>
+                      </div>
+                      <ol class="space-y-2 text-xs sm:text-sm opacity-90 list-decimal list-inside leading-relaxed">
+                        <li><strong>ลงทะเบียน:</strong> กรอกข้อมูลลงทะเบียนผ่านระบบ Regist.ai</li>
+                        <li><strong>พิมพ์ใบแจ้งชำระเงิน:</strong> รับแบบฟอร์มผ่านหน้าจอหรือ E-mail</li>
+                        <li><strong>ชำระเงิน:</strong> ชำระโดยโอนเงินหรือนำไปชำระที่ธนาคาร</li>
+                        <li><strong>แนบหลักฐาน:</strong> ถ่ายรูปสลิปและแนบหลักฐานกลับเข้ามาในระบบ</li>
+                        <li><strong>ตรวจสอบ E-mail:</strong> รับการยืนยันการตรวจสอบยอดชำระ</li>
+                        <li><strong>พิมพ์แบบฟอร์ม QR Code:</strong> รับ e-Ticket สำหรับสแกนเข้างาน</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. i-Queue by Regist.ai Deep Dive -->
+                <div class="p-6 sm:p-8 rounded-3xl spatial-glass border border-[#00C864]/20 shadow-xl space-y-8">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-current/10 pb-4">
+                    <div>
+                      <div class="text-xs font-mono font-bold text-[#00C864] dark:text-[#00FF88] uppercase tracking-wider flex items-center gap-2">
+                        <Sparkles class="w-4 h-4" />
+                        <span>I-QUEUE MANAGEMENT // ระบบบริหารคิวอัจฉริยะ (NEW NORMAL)</span>
+                      </div>
+                      <h4 class="text-xl sm:text-2xl font-bold mt-1 text-[#022C22] dark:text-white">
+                        i-Queue by Regist.ai
+                      </h4>
+                      <p class="text-xs sm:text-sm opacity-80 mt-1">
+                        ระบบจัดการคิวแบบ New Normal ช่วยลดความเสี่ยงในการสัมผัสหน้าจอกดบัตรคิว สามารถใช้ใน Tablet / Smart Phone
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      class="px-4 py-2 rounded-xl border border-current/20 hover:bg-[#00C864]/20 text-xs font-mono font-bold flex items-center gap-2 transition-all self-start sm:self-auto"
+                      @click="openLightbox('/images/products/iqueue-banner.jpg', 'i-Queue by Regist.ai ระบบบริหารคิวแบบ New Normal', 'ลดความเสี่ยงสัมผัสหน้าจอ รองรับ Tablet / Smartphone และ PDPA')"
+                    >
+                      <ZoomIn class="w-4 h-4 text-[#00C864]" />
+                      <span>ซูมดูภาพรวมคิว</span>
+                    </button>
+                  </div>
+
+                  <!-- i-Queue Banner Image -->
+                  <div
+                    class="rounded-2xl overflow-hidden border border-current/10 cursor-pointer group relative bg-black/10"
+                    @click="openLightbox('/images/products/iqueue-banner.jpg', 'i-Queue by Regist.ai ระบบการจัดการคิว', 'เหมาะสำหรับ โรงพยาบาล, ร้านอาหาร, โรงพยาบาลสนาม, คลินิก')"
+                  >
+                    <img
+                      src="/images/products/iqueue-banner.jpg"
+                      alt="i-Queue by Regist.ai Overview"
+                      class="w-full h-auto object-contain group-hover:scale-[1.01] transition-transform duration-300"
+                    >
+                  </div>
+
+                  <!-- 2 Queue Models: Hospital/Vaccine vs Restaurant -->
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+                    
+                    <!-- Queue Model 1: Hospital / Vaccination Multi-Stage Continuous Queue -->
+                    <div class="p-6 rounded-2xl bg-white/50 dark:bg-black/40 border border-current/10 space-y-4 flex flex-col justify-between">
+                      <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                          <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">
+                            รูปแบบที่ 1 : หลายช่องบริการต่อเนื่อง
+                          </span>
+                          <span class="text-xs font-mono opacity-60">HOSPITAL & CLINIC</span>
+                        </div>
+                        <h5 class="text-base sm:text-lg font-bold text-[#022C22] dark:text-white">
+                          ขั้นตอนการจัดคิวหน้างาน (เช่น ฉีดวัคซีน / ตรวจสุขภาพ)
+                        </h5>
+                        <p class="text-xs sm:text-sm opacity-80 leading-relaxed">
+                          เมื่อผู้รับบริการ Check-in จะได้เลขคิวเดียว โดยเจ้าหน้าที่สามารถเรียกคิวเดียวกันตามจุดบริการต่างๆ ได้อย่างต่อเนื่อง 5 จุด:
+                        </p>
+                        <ul class="text-xs space-y-1.5 opacity-90 font-mono">
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#00C864]" />
+                            <span>จุดที่ 1: พิมพ์แบบฟอร์มยินยอม / คัดกรองซักประวัติ</span>
+                          </li>
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#00C864]" />
+                            <span>จุดที่ 2: ชั่งน้ำหนัก วัดความดันโลหิต</span>
+                          </li>
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#00C864]" />
+                            <span>จุดที่ 3: รับการฉีดวัคซีน / ตรวจรักษา</span>
+                          </li>
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#00C864]" />
+                            <span>จุดที่ 4: ตรวจสอบก่อนกลับ พร้อมรับเอกสาร</span>
+                          </li>
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#00C864]" />
+                            <span>จุดที่ 5: พักสังเกตอาการ 30 นาที</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div
+                        class="mt-4 rounded-xl overflow-hidden border border-current/15 cursor-pointer group relative bg-black/10"
+                        @click="openLightbox('/images/products/iqueue-hospital-flowchart.png', 'ขั้นตอนการจัดคิวหน้างาน (ฉีดวัคซีน / ตรวจสุขภาพ)', 'ระบบ Check-in, Queue Management & 5 จุดบริการ')"
+                      >
+                        <img
+                          src="/images/products/iqueue-hospital-flowchart.png"
+                          alt="Hospital Queue Flowchart"
+                          class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        >
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-xs font-mono font-bold">
+                          <ZoomIn class="w-4 h-4" />
+                          <span>คลิกดูภาพขยาย</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Queue Model 2: Restaurant Single-Point Queue Flow -->
+                    <div class="p-6 rounded-2xl bg-white/50 dark:bg-black/40 border border-current/10 space-y-4 flex flex-col justify-between">
+                      <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                          <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-600 dark:text-amber-300">
+                            รูปแบบที่ 2 : หนึ่งช่องบริการ (ร้านอาหาร)
+                          </span>
+                          <span class="text-xs font-mono opacity-60">RESTAURANT & SERVICE</span>
+                        </div>
+                        <h5 class="text-base sm:text-lg font-bold text-[#022C22] dark:text-white">
+                          ขั้นตอนการใช้งานระบบจัดคิว (ร้านอาหาร / ศูนย์บริการ)
+                        </h5>
+                        <p class="text-xs sm:text-sm opacity-80 leading-relaxed">
+                          เมื่อผู้รับบริการกดบัตรคิว เจ้าหน้าที่สามารถเรียกคิวเข้ารับบริการผ่าน Smart TV พร้อมระบบบริหารจัดการโต๊ะ:
+                        </p>
+                        <ul class="text-xs space-y-1.5 opacity-90 font-mono">
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                            <span>ขั้นตอนที่ 1: กดบัตรคิวหน้าร้านบน Tablet / Smartphone (ใส่ชื่อลูกค้าและจำนวนที่นั่ง)</span>
+                          </li>
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                            <span>ขั้นตอนที่ 2: เจ้าหน้าที่เรียกคิวผ่าน Tablet/Smartphone แสดงบน Smart TV</span>
+                          </li>
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                            <span>ขั้นตอนที่ 3: จอเรียกคิวระบุเบอร์โต๊ะ (เช่น "เชิญคุณ วี หมายเลข 5 ที่โต๊ะ 7 ค่ะ")</span>
+                          </li>
+                          <li class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                            <span>ฟังก์ชันเสริม: ระบบแจ้งเตือนโต๊ะที่กำลังจะครบกำหนดเวลา (เช่น 1 ชม.)</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div
+                        class="mt-4 rounded-xl overflow-hidden border border-current/15 cursor-pointer group relative bg-black/10"
+                        @click="openLightbox('/images/products/iqueue-restaurant-flowchart.jpg', 'ขั้นตอนการใช้งานระบบจัดคิว (ร้านอาหาร)', 'ออกบัตรคิวบน Tablet, เรียกคิวออกจอ Smart TV และแจ้งเตือนโต๊ะ')"
+                      >
+                        <img
+                          src="/images/products/iqueue-restaurant-flowchart.jpg"
+                          alt="Restaurant Queue Flowchart"
+                          class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        >
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-xs font-mono font-bold">
+                          <ZoomIn class="w-4 h-4" />
+                          <span>คลิกดูภาพขยาย</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- 4. Official Brochures & System Download Section -->
+                <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-900/20 via-emerald-950/20 to-purple-900/10 border border-purple-500/30 shadow-xl space-y-6">
+                  <div class="space-y-2">
+                    <div class="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
+                      <Download class="w-4 h-4" />
+                      <span>OFFICIAL DOWNLOADS // เอกสารแนะนำระบบและโบรชัวร์</span>
+                    </div>
+                    <h4 class="text-xl sm:text-2xl font-bold text-[#022C22] dark:text-white">
+                      ดาวน์โหลดเอกสารคุณสมบัติระบบไอรีจิส
+                    </h4>
+                    <p class="text-xs sm:text-sm opacity-80">
+                      สามารถดาวน์โหลดเอกสารข้อกำหนดทางเทคนิคและโบรชัวร์ฉบับเต็มเพื่อประกอบการพิจารณาจัดซื้อจัดจ้าง
+                    </p>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <a
+                      href="https://www.i-regist.com/index.php/brochure-i-regist/member-management-system"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="p-4 rounded-2xl bg-white/60 dark:bg-black/60 border border-purple-500/30 hover:border-purple-400 hover:scale-[1.02] transition-all flex items-center justify-between group shadow-sm"
+                    >
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+                          <FileText class="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div class="text-sm font-bold group-hover:text-purple-400 transition-colors">
+                            ดาวน์โหลดคุณสมบัติระบบไอรีจิส
+                          </div>
+                          <div class="text-xs opacity-65 font-mono">
+                            Member Management System
+                          </div>
+                        </div>
+                      </div>
+                      <Download class="w-4 h-4 text-purple-400 shrink-0 group-hover:translate-y-0.5 transition-transform" />
+                    </a>
+
+                    <a
+                      href="https://i-regist.com/index.php/th/brochure-i-regist/registration-system"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="p-4 rounded-2xl bg-white/60 dark:bg-black/60 border border-emerald-500/30 hover:border-emerald-400 hover:scale-[1.02] transition-all flex items-center justify-between group shadow-sm"
+                    >
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                          <FileText class="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div class="text-sm font-bold group-hover:text-emerald-400 transition-colors">
+                            Download i-Regist Brochure
+                          </div>
+                          <div class="text-xs opacity-65 font-mono">
+                            Registration System PDF
+                          </div>
+                        </div>
+                      </div>
+                      <Download class="w-4 h-4 text-emerald-400 shrink-0 group-hover:translate-y-0.5 transition-transform" />
+                    </a>
+                  </div>
+                </div>
+
+                <!-- 5. Dedicated Specialist Contact Card (คุณทวีวัตร์ ทรรศนะประทีป) -->
+                <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-950/40 via-purple-900/20 to-emerald-950/30 border border-purple-500/40 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                  <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-white dark:bg-black/40 border border-purple-500/30 p-2 shrink-0 flex items-center justify-center shadow-md">
+                      <img
+                        src="/images/products/regist-ai-mascot.png"
+                        alt="Regist.ai Mascot"
+                        class="w-full h-full object-contain"
+                      >
+                    </div>
+                    <div>
+                      <div class="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <User class="w-3.5 h-3.5" />
+                        <span>INTERESTED & CONTACT // สนใจติดต่อสอบถาม</span>
+                      </div>
+                      <h4 class="text-lg sm:text-xl font-bold text-[#022C22] dark:text-white mt-0.5">
+                        คุณทวีวัตร์ ทรรศนะประทีป
+                      </h4>
+                      <p class="text-xs sm:text-sm opacity-80">
+                        ผู้เชี่ยวชาญโซลูชันระบบลงทะเบียน Regist.ai และระบบจัดการคิว i-Queue บริษัท ไอเจนโก้ จำกัด
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <a
+                      href="tel:025325151"
+                      class="px-4 py-2.5 rounded-xl bg-purple-600 text-white hover:bg-purple-700 text-xs font-bold font-mono transition-all flex items-center gap-1.5 shadow-md active:scale-95"
+                    >
+                      <Phone class="w-3.5 h-3.5" />
+                      <span>02-532-5151</span>
+                    </a>
+                    <a
+                      href="tel:0817529549"
+                      class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold font-mono transition-all flex items-center gap-1.5 shadow-md active:scale-95"
+                    >
+                      <Phone class="w-3.5 h-3.5" />
+                      <span>081-752-9549</span>
+                    </a>
+                    <a
+                      href="mailto:thaweewat@igenco.co.th"
+                      class="px-4 py-2.5 rounded-xl border border-purple-400/50 hover:bg-purple-500/20 text-xs font-bold font-mono transition-all flex items-center gap-1.5 shadow-md active:scale-95"
+                    >
+                      <ExternalLink class="w-3.5 h-3.5" />
+                      <span>thaweewat@igenco.co.th</span>
+                    </a>
+                  </div>
+                </div>
+
               </div>
             </div>
 

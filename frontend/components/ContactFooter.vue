@@ -331,6 +331,11 @@ const scrollToTop = () => {
             </h3>
             <ul class="space-y-2.5 text-sm text-slate-300">
               <li>
+                <NuxtLink to="/news/6" class="hover:text-[#00FF88] transition-colors">
+                  Regist.ai (ระบบลงทะเบียน & i-Queue)
+                </NuxtLink>
+              </li>
+              <li>
                 <NuxtLink to="/news/5" class="hover:text-[#00FF88] transition-colors">
                   iSmartFlow (สำนักงานอิเล็กทรอนิกส์)
                 </NuxtLink>

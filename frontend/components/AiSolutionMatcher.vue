@@ -59,14 +59,14 @@ const dynamicSolution = computed(() => {
     }
   } else {
     return {
-      code: 'SOL-NEURAL-AI-CORE',
-      title: 'Autonomous Enterprise AI & LLM Core',
-      recommendedProduct: 'Verdant AI Core V4 + RAG Neural Mesh',
+      code: 'SOL-REGIST-AI-QUEUE',
+      title: 'Regist.ai Smart Registration & i-Queue Engine',
+      recommendedProduct: 'Regist.ai (ระบบบริหารการลงทะเบียนอัจฉริยะ)',
       roi: '+240%',
       costReduction: '-52%',
-      timeline: '2-3 สัปดาห์',
-      summary: 'เชื่อมต่อโมเดล AI เข้ากับฐานข้อมูลภายในของบริษัท ช่วยตอบคำถามลูกค้า สรุปรายงานการขาย และประมวลผลเอกสารสัญญาได้อย่างแม่นยำอัตโนมัติ',
-      features: ['RAG Pipeline Internal Data', '24/7 Auto Decision Ops', 'Multi-language Thai/Eng']
+      timeline: '1 สัปดาห์',
+      summary: 'ระบบบริหารการลงทะเบียนและจัดการคิวอัจฉริยะ ตอบโจทย์งานสัมมนา ฝึกอบรม โรงพยาบาล และร้านอาหาร ทั้ง Online / Offline พร้อมเชื่อมต่อฐานข้อมูล CMS',
+      features: ['Online / Offline Ready', 'i-Queue Multi-Stage Flow', 'QR Code E-Ticket & PDPA']
     }
   }
 })
