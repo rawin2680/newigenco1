@@ -157,6 +157,7 @@ const divisions = ref<DivisionNode[]>([
     en: 'Deputy Managing Director - Sales & Marketing',
     color: '#00A852',
     icon: TrendingUp,
+    image: '/images/about/deputy-md-sales-marketing-avatar.jpg',
     isCollapsed: false,
     desc: 'ขับเคลื่อนกลยุทธ์การตลาด การขยายฐานลูกค้าภาครัฐและเอกชน และสร้างความสัมพันธ์ระยะยาว',
     departments: [
