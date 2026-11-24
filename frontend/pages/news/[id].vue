@@ -90,22 +90,22 @@ const tableOfContents = computed(() => {
   if (art?.services && art.services.length > 0) {
     toc.push({
       id: 'section-history',
-      label: art?.id === 3 ? 'วัตถุประสงค์และภาพรวมโครงการ' : (art?.id === 2 ? 'ประวัติและการจัดตั้งองค์กร' : 'รายละเอียดการดำเนินงาน')
+      label: art.sectionTitles?.history || 'รายละเอียดโครงการ'
     })
     toc.push({
       id: 'section-services',
-      label: art?.id === 3 ? 'ฟังก์ชันและขอบเขตระบบ I-SERFF' : 'ขอบเขตการให้บริการ IT'
+      label: art.sectionTitles?.services || 'ขอบเขตการให้บริการ IT'
     })
     if (art.fullContent && art.fullContent[2]) {
       toc.push({
         id: 'section-philosophy',
-        label: art?.id === 3 ? 'การถ่ายทอดองค์ความรู้และการอบรม' : 'ปรัชญาและนโยบายบริหาร'
+        label: art.sectionTitles?.philosophy || 'แนวทางการดำเนินงาน'
       })
     }
     if (art.partnerships && art.partnerships.length > 0) {
       toc.push({
         id: 'section-partnerships',
-        label: art?.id === 3 ? 'ความร่วมมือไตรภาคี' : 'พันธมิตรและการรับรอง'
+        label: art.sectionTitles?.partnerships || 'พันธมิตรและการรับรอง'
       })
     }
   } else {
@@ -589,7 +589,7 @@ useHead(() => ({
             <div v-if="article.fullContent[1]" id="section-history" class="space-y-3 scroll-mt-28">
               <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
-                <span>{{ article.id === 3 ? 'วัตถุประสงค์และภาพรวมโครงการ I-SERFF' : (article.id === 2 ? 'ประวัติและการจัดตั้งองค์กร' : 'รายละเอียดการดำเนินงาน') }}</span>
+                <span>{{ article.sectionTitles?.history || 'รายละเอียดการดำเนินงาน' }}</span>
               </h3>
               <p class="leading-[2.2] opacity-90">
                 {{ article.fullContent[1] }}
@@ -600,7 +600,7 @@ useHead(() => ({
             <div v-if="article.services && article.services.length > 0" id="section-services" class="my-6 space-y-4 scroll-mt-28">
               <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] flex items-center gap-1.5">
                 <Layers class="w-3.5 h-3.5" />
-                <span>{{ article.id === 3 ? 'I-SERFF SYSTEM CAPABILITIES // ฟังก์ชันและขอบเขตระบบ' : 'COMPREHENSIVE IT SERVICES // ขอบเขตการให้บริการ' }}</span>
+                <span>{{ article.sectionTitles?.servicesSubtitle || (article.sectionTitles?.services ? article.sectionTitles.services + ' // ขอบเขตระบบ' : 'COMPREHENSIVE IT SERVICES // ขอบเขตการให้บริการ') }}</span>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div
@@ -631,7 +631,7 @@ useHead(() => ({
             <div v-if="article.fullContent[2]" id="section-philosophy" class="space-y-3 scroll-mt-28">
               <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
-                <span>{{ article.id === 3 ? 'การถ่ายทอดองค์ความรู้และอบรมเชิงปฏิบัติการ' : (article.id === 2 ? 'ปรัชญาและนโยบายการบริหารงาน' : 'แนวทางการดำเนินงาน') }}</span>
+                <span>{{ article.sectionTitles?.philosophy || 'แนวทางการดำเนินงาน' }}</span>
               </h3>
               <div class="p-6 sm:p-7 rounded-2xl bg-current/5 border-l-4 border-[#00C864] italic text-base sm:text-lg leading-[2.2] opacity-95">
                 {{ article.fullContent[2] }}
@@ -642,7 +642,7 @@ useHead(() => ({
             <div v-if="article.partnerships && article.partnerships.length > 0" id="section-partnerships" class="my-6 space-y-4 scroll-mt-28">
               <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] flex items-center gap-1.5">
                 <Award class="w-3.5 h-3.5" />
-                <span>{{ article.id === 3 ? 'TRIPARTITE COLLABORATION // ความร่วมมือไตรภาคี' : 'NATIONAL ACCREDITATIONS // พันธมิตรและการรับรอง' }}</span>
+                <span>{{ article.sectionTitles?.partnershipsSubtitle || (article.sectionTitles?.partnerships ? article.sectionTitles.partnerships + ' // พันธมิตร' : 'NATIONAL ACCREDITATIONS // พันธมิตรและการรับรอง') }}</span>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div
