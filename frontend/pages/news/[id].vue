@@ -24,7 +24,8 @@ import {
   ArrowRight,
   User,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Phone
 } from 'lucide-vue-next'
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
@@ -428,12 +429,17 @@ useHead(() => ({
                 @click="openLightbox(activeGalleryImage.url, article.title, activeGalleryImage.caption || article.title)"
               >
                 <Transition name="gallery-fade" mode="out-in">
-                  <img
-                    :key="currentGalleryIdx"
-                    :src="activeGalleryImage.url"
-                    :alt="activeGalleryImage.caption || article.title"
-                    class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500 ease-out"
-                  >
+                  <div class="w-full h-full flex items-center justify-center">
+                    <img
+                      :key="currentGalleryIdx"
+                      :src="activeGalleryImage.url"
+                      :alt="activeGalleryImage.caption || article.title"
+                      :class="[
+                        'transition-transform duration-500 ease-out group-hover:scale-103',
+                        activeGalleryImage.url.endsWith('.png') ? 'max-h-[280px] w-auto object-contain p-4 drop-shadow-2xl' : 'w-full h-full object-cover'
+                      ]"
+                    >
+                  </div>
                 </Transition>
 
                 <!-- Gradient Overlay & Caption -->
@@ -628,13 +634,36 @@ useHead(() => ({
             </div>
 
             <!-- 5. Operational Philosophy Quote / Policy (ถ้ามี) -->
-            <div v-if="article.fullContent[2]" id="section-philosophy" class="space-y-3 scroll-mt-28">
+            <div v-if="article.fullContent[2]" id="section-philosophy" class="space-y-4 scroll-mt-28">
               <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
                 <span>{{ article.sectionTitles?.philosophy || 'แนวทางการดำเนินงาน' }}</span>
               </h3>
               <div class="p-6 sm:p-7 rounded-2xl bg-current/5 border-l-4 border-[#00C864] italic text-base sm:text-lg leading-[2.2] opacity-95">
                 {{ article.fullContent[2] }}
+              </div>
+
+              <!-- Special Demo & Consultation Callout Box for i-SMARTSOFT -->
+              <div v-if="article.id === 5" class="p-6 rounded-2xl bg-gradient-to-r from-[#00C864]/20 via-[#00C864]/10 to-transparent border border-[#00C864]/30 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+                <div class="space-y-1.5">
+                  <div class="text-xs font-mono font-bold text-[#00A854] dark:text-[#00FF88] uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
+                    <span>DEMO & CONSULTATION // นัดสาธิตระบบงาน</span>
+                  </div>
+                  <div class="text-base sm:text-lg font-bold text-[#022C22] dark:text-white">
+                    ฝ่ายการตลาดและการขาย (คุณภนิดาพร จูมมณี)
+                  </div>
+                  <p class="text-xs sm:text-sm opacity-80 leading-relaxed max-w-xl">
+                    ยินดีให้คำปรึกษาและจัดเตรียมการสาธิตระบบบริหารสำนักงานอัจฉริยะ i-SmartSoft เพื่อตอบสนองความต้องการเฉพาะองค์กรของคุณ
+                  </p>
+                </div>
+                <a
+                  href="tel:0962949236"
+                  class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] text-xs font-bold font-mono shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0"
+                >
+                  <Phone class="w-4 h-4" />
+                  <span>โทร. 09 6294 9236</span>
+                </a>
               </div>
             </div>
 
