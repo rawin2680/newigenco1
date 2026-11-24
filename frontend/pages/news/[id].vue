@@ -42,13 +42,18 @@ const article = computed(() => getNewsById(articleId.value))
 // -------------------------------------------------------------
 const scrollProgress = ref(0)
 const activeSection = ref('section-overview')
-const tableOfContents = [
-  { id: 'section-overview', label: 'ภาพรวมและการรับรอง' },
-  { id: 'section-summary', label: 'สรุปสาระสำคัญ (AI Summary)' },
-  { id: 'section-body', label: 'เนื้อหาบทความ' },
-  { id: 'section-architecture', label: 'แผนผังกระบวนการมาตรฐาน' },
-  { id: 'section-author', label: 'ข้อมูลผู้เขียนและการประเมิน' }
-]
+const tableOfContents = computed(() => {
+  const toc = [
+    { id: 'section-overview', label: article.value?.certifier ? 'ภาพรวมและการรับรอง' : 'ภาพรวมบทความ' },
+    { id: 'section-summary', label: 'สรุปสาระสำคัญ (AI Summary)' },
+    { id: 'section-body', label: 'เนื้อหาบทความ' }
+  ]
+  if (article.value?.flowcharts && article.value.flowcharts.length > 0) {
+    toc.push({ id: 'section-architecture', label: 'แผนผังกระบวนการมาตรฐาน' })
+  }
+  toc.push({ id: 'section-author', label: 'ข้อมูลผู้เขียนและการประเมิน' })
+  return toc
+})
 
 let sectionObserver: IntersectionObserver | null = null
 
@@ -280,8 +285,8 @@ useHead(() => ({
               </h2>
             </div>
 
-            <!-- Bento Accreditation Card: TÜV NORD + Ceremony Photo -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 p-6 sm:p-7 rounded-[2rem] spatial-glass border border-[#00C864]/30 dark:border-[#00FF88]/30 shadow-xl bg-gradient-to-br from-white/80 via-emerald-50/40 to-white/60 dark:from-black/60 dark:via-emerald-950/20 dark:to-black/40">
+            <!-- Bento Accreditation Card: If article has certifier (e.g. TÜV NORD + Ceremony Photo) -->
+            <div v-if="article.certifier" class="grid grid-cols-1 md:grid-cols-12 gap-5 p-6 sm:p-7 rounded-[2rem] spatial-glass border border-[#00C864]/30 dark:border-[#00FF88]/30 shadow-xl bg-gradient-to-br from-white/80 via-emerald-50/40 to-white/60 dark:from-black/60 dark:via-emerald-950/20 dark:to-black/40">
               
               <!-- Left: Certificate Details & TÜV NORD Badge (5 Cols) -->
               <div class="md:col-span-5 flex flex-col justify-between space-y-4">
@@ -353,6 +358,33 @@ useHead(() => ({
                 </div>
               </div>
 
+            </div>
+
+            <!-- Standard News Hero Image Banner (for non-accreditation articles like Anniversaries / Activities) -->
+            <div
+              v-else
+              class="relative group rounded-[2rem] overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-black/15 cursor-pointer"
+              @click="openLightbox(article.image, article.title, article.title)"
+            >
+              <img
+                :src="article.image"
+                :alt="article.title"
+                class="w-full h-72 sm:h-96 md:h-[460px] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              >
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6 sm:p-8 justify-between">
+                <div class="space-y-1 text-white">
+                  <div class="text-xs font-mono font-bold text-[#00FF88]">
+                    {{ article.category }} // {{ article.date }}
+                  </div>
+                  <div class="text-sm sm:text-base font-semibold drop-shadow-md">
+                    {{ article.title }}
+                  </div>
+                </div>
+                <span class="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md text-white text-xs font-mono flex items-center gap-1.5 group-hover:bg-[#00C864] group-hover:text-[#022C22] transition-all shadow-lg shrink-0">
+                  <ZoomIn class="w-4 h-4" />
+                  <span>คลิกเพื่อดูภาพเต็ม</span>
+                </span>
+              </div>
             </div>
 
           </header>
