@@ -28,6 +28,7 @@ import {
   Minimize2,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   CheckCircle2,
   Sparkles,
   Building2,
@@ -350,7 +351,7 @@ const closeDetail = () => {
   selectedNode.value = null
 }
 
-// GSAP Top-Down Cascade Reveal
+// GSAP Entrance Reveal
 const sectionRef = ref<HTMLElement | null>(null)
 let ctx: gsap.Context | null = null
 
@@ -361,42 +362,17 @@ onMounted(() => {
     if (!prefersReducedMotion) {
       gsap.registerPlugin(ScrollTrigger)
       ctx = gsap.context(() => {
-        // Cascade animation on diagram elements
-        gsap.from('.org-ceo-card', {
+        // Smooth entrance reveal for diagram section
+        gsap.from('.org-diagram-viewport', {
           scrollTrigger: {
-            trigger: '.org-ceo-card',
+            trigger: '.org-diagram-viewport',
             start: 'top 85%'
           },
-          y: -40,
           opacity: 0,
-          scale: 0.92,
-          duration: 0.8,
-          ease: 'power3.out'
-        })
-
-        gsap.from('.org-division-card', {
-          scrollTrigger: {
-            trigger: '.org-division-card',
-            start: 'top 80%'
-          },
-          y: 30,
-          opacity: 0,
-          scale: 0.95,
-          duration: 0.6,
-          stagger: 0.15,
-          ease: 'power2.out'
-        })
-
-        gsap.from('.org-dept-card', {
-          scrollTrigger: {
-            trigger: '.org-dept-card',
-            start: 'top 85%'
-          },
-          y: 20,
-          opacity: 0,
-          duration: 0.5,
-          stagger: 0.05,
-          ease: 'power2.out'
+          y: 25,
+          duration: 0.7,
+          ease: 'power2.out',
+          clearProps: 'all'
         })
       }, sectionRef.value)
     }
@@ -543,10 +519,10 @@ onBeforeUnmount(() => {
       <div
         v-if="viewMode === 'diagram'"
         :class="[
-          'relative rounded-3xl overflow-hidden border border-black/10 dark:border-white/10 transition-all select-none',
+          'org-diagram-viewport relative rounded-3xl overflow-hidden border border-black/10 dark:border-white/10 transition-all select-none',
           isFullscreen
             ? 'fixed inset-0 z-50 rounded-none bg-[#FBFDFB] dark:bg-[#030906] p-6'
-            : 'h-[800px] bg-gradient-to-b from-white/90 via-[#F8FCF9] to-white/90 dark:from-[#04120a] dark:via-[#030906] dark:to-[#04120a] shadow-2xl'
+            : 'h-[860px] bg-gradient-to-b from-white/95 via-[#F8FCF9] to-white/95 dark:from-[#04120a] dark:via-[#030906] dark:to-[#04120a] shadow-2xl'
         ]"
       >
         <!-- Canvas Grid Background -->
@@ -568,7 +544,7 @@ onBeforeUnmount(() => {
         <!-- Viewport Container with Transform -->
         <div
           ref="canvasViewportRef"
-          class="w-full h-full cursor-grab active:cursor-grabbing flex justify-center items-start pt-10 overflow-hidden"
+          class="w-full h-full cursor-grab active:cursor-grabbing flex justify-center items-start pt-16 pb-20 overflow-hidden"
           @mousedown="onMouseDown"
           @mousemove="onMouseMove"
           @mouseup="onMouseUp"
@@ -617,8 +593,8 @@ onBeforeUnmount(() => {
             <!-- ----------------------------------------------------
                  ANIMATED SVG CONNECTOR LINES: CEO -> 3 DIVISIONS
             ----------------------------------------------------- -->
-            <div class="relative w-[920px] h-[90px] pointer-events-none -my-1 z-10">
-              <svg class="w-full h-full overflow-visible" viewBox="0 0 920 90">
+            <div class="relative w-[980px] h-[90px] pointer-events-none -my-1 z-10">
+              <svg class="w-full h-full overflow-visible" viewBox="0 0 980 90">
                 <defs>
                   <!-- Gradient for smooth emerald connectors -->
                   <linearGradient id="connectorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -628,24 +604,24 @@ onBeforeUnmount(() => {
                 </defs>
 
                 <!-- Static Background Bezier Paths (Subtle Guide) -->
-                <!-- Center: To Sales & Marketing (Straight down to 460) -->
-                <line x1="460" y1="0" x2="460" y2="90" stroke="currentColor" stroke-opacity="0.15" stroke-width="2" />
+                <!-- Center: To Sales & Marketing (Straight down to 490) -->
+                <line x1="490" y1="0" x2="490" y2="90" stroke="currentColor" stroke-opacity="0.15" stroke-width="2" />
                 <!-- Left: To Administration (Smooth Bezier to x=150) -->
-                <path d="M 460 0 C 460 45, 150 45, 150 90" fill="none" stroke="currentColor" stroke-opacity="0.15" stroke-width="2" />
-                <!-- Right: To Information Technology (Smooth Bezier to x=770) -->
-                <path d="M 460 0 C 460 45, 770 45, 770 90" fill="none" stroke="currentColor" stroke-opacity="0.15" stroke-width="2" />
+                <path d="M 490 0 C 490 50, 150 40, 150 90" fill="none" stroke="currentColor" stroke-opacity="0.15" stroke-width="2" />
+                <!-- Right: To Information Technology (Smooth Bezier to x=830) -->
+                <path d="M 490 0 C 490 50, 830 40, 830 90" fill="none" stroke="currentColor" stroke-opacity="0.15" stroke-width="2" />
 
                 <!-- Animated Emerald Energy Pulse Stroke Lines -->
-                <line x1="460" y1="0" x2="460" y2="90" stroke="#00C864" stroke-width="2.5" class="animate-dash" />
-                <path d="M 460 0 C 460 45, 150 45, 150 90" fill="none" stroke="#00C864" stroke-width="2.5" class="animate-dash" />
-                <path d="M 460 0 C 460 45, 770 45, 770 90" fill="none" stroke="#00C864" stroke-width="2.5" class="animate-dash" />
+                <line x1="490" y1="0" x2="490" y2="90" stroke="#00C864" stroke-width="2.5" class="animate-dash" />
+                <path d="M 490 0 C 490 50, 150 40, 150 90" fill="none" stroke="#00C864" stroke-width="2.5" class="animate-dash" />
+                <path d="M 490 0 C 490 50, 830 40, 830 90" fill="none" stroke="#00C864" stroke-width="2.5" class="animate-dash" />
               </svg>
             </div>
 
             <!-- ----------------------------------------------------
                  LEVEL 1: 3 EXECUTIVE DIVISIONS
             ----------------------------------------------------- -->
-            <div class="grid grid-cols-3 gap-12 w-[960px] relative z-20">
+            <div class="grid grid-cols-3 gap-10 w-[980px] relative z-20">
               <div
                 v-for="div in divisions"
                 :key="div.id"
@@ -653,18 +629,18 @@ onBeforeUnmount(() => {
               >
                 <!-- Division Card (Glassmorphism Node Card) -->
                 <div
-                  class="org-division-card w-[290px] p-5 rounded-3xl bg-white/85 dark:bg-[#071910]/85 backdrop-blur-xl border border-[#00C864]/30 dark:border-[#00FF88]/20 shadow-lg shadow-[#00C864]/5 space-y-3 relative group transition-all hover:border-[#00C864] hover:shadow-xl"
+                  class="org-division-card w-[300px] p-5 rounded-3xl bg-white/95 dark:bg-[#071910]/95 backdrop-blur-xl border border-[#00C864]/30 dark:border-[#00FF88]/20 shadow-lg shadow-[#00C864]/5 space-y-3 relative group transition-all hover:border-[#00C864] hover:shadow-xl"
                 >
                   <div class="flex items-start justify-between gap-2">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-2xl bg-[#00A852]/10 dark:bg-[#00FF88]/10 text-[#00A852] dark:text-[#00FF88] flex items-center justify-center shrink-0 shadow-xs">
+                      <div class="w-10 h-10 rounded-2xl bg-[#00A852]/10 dark:bg-[#00FF88]/10 text-[#00A852] dark:text-[#00FF88] flex items-center justify-center shrink-0 shadow-xs border border-[#00C864]/20">
                         <component :is="div.icon" class="w-5 h-5" />
                       </div>
                       <div class="min-w-0">
                         <h4 class="text-sm font-bold text-[#0A1A12] dark:text-white leading-tight">
                           {{ div.title }}
                         </h4>
-                        <div class="text-[10px] font-mono opacity-60 truncate">{{ div.en }}</div>
+                        <div class="text-[10px] font-mono text-[#00A852] dark:text-[#00FF88] opacity-80 truncate">{{ div.en }}</div>
                       </div>
                     </div>
                   </div>
@@ -701,39 +677,36 @@ onBeforeUnmount(() => {
                 ----------------------------------------------------- -->
                 <div
                   v-show="!div.isCollapsed"
-                  class="space-y-3 w-[290px] transition-all duration-300"
+                  class="space-y-3 w-[300px] transition-all duration-300"
                 >
                   <div
                     v-for="dept in div.departments"
                     :key="dept.id"
-                    class="org-dept-card p-3.5 rounded-2xl bg-white/80 dark:bg-[#06140d]/80 backdrop-blur-md border border-black/10 dark:border-white/10 hover:border-[#00C864] hover:bg-white dark:hover:bg-[#081e13] transition-all shadow-xs hover:shadow-md cursor-pointer flex items-center gap-3 group relative overflow-hidden"
+                    class="org-dept-card px-4 py-3 rounded-2xl bg-white dark:bg-[#06140d] border border-black/10 dark:border-white/10 hover:border-[#00C864] hover:shadow-lg dark:hover:border-[#00FF88]/40 transition-all shadow-xs cursor-pointer flex items-center gap-3.5 group relative"
                     @click="openDetail(dept, div.title)"
                   >
-                    <!-- Avatar image if available (e.g. Accounting/Finance) OR Lucide Icon -->
+                    <!-- Avatar image if available OR Lucide Icon -->
                     <div
                       v-if="dept.image"
-                      class="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-black/10 dark:border-white/10 shadow-sm"
+                      class="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-[#00C864]/30 shadow-sm"
                     >
                       <img :src="dept.image" :alt="dept.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                     </div>
                     <div
                       v-else
-                      class="w-8 h-8 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-[#00A852] dark:text-[#00FF88] shrink-0 group-hover:bg-[#00A852] group-hover:text-white transition-colors"
+                      class="w-10 h-10 rounded-xl bg-[#00A852]/10 dark:bg-[#00FF88]/10 flex items-center justify-center text-[#00A852] dark:text-[#00FF88] shrink-0 border border-[#00C864]/20 group-hover:bg-[#00C864] group-hover:text-white transition-all shadow-xs"
                     >
-                      <component :is="dept.icon" class="w-4 h-4" />
+                      <component :is="dept.icon" class="w-5 h-5" />
                     </div>
 
-                    <!-- Department Label: ฝ่ายบัญชี-การเงิน แสดงเฉพาะชื่อตามคำขอผู้ใช้ -->
-                    <div class="min-w-0 flex-1 space-y-0.5">
-                      <div class="text-xs font-bold text-[#0A1A12] dark:text-white group-hover:text-[#00A852] dark:group-hover:text-[#00FF88] transition-colors truncate">
+                    <!-- Department Name & English/Thai Subtitle -->
+                    <div class="min-w-0 flex-1">
+                      <div class="text-xs sm:text-sm font-bold text-[#0A1A12] dark:text-white group-hover:text-[#00A852] dark:group-hover:text-[#00FF88] transition-colors leading-snug">
                         {{ dept.name }}
                       </div>
-                      <div class="text-[10px] font-mono text-[#00A852] dark:text-[#00FF88] truncate">
+                      <div class="text-[10px] font-mono text-[#00A852] dark:text-[#00FF88] tracking-tight truncate pt-0.5">
                         {{ dept.en }}
                       </div>
-                      <p v-if="dept.desc" class="text-[11px] text-[#475569] dark:text-[#94A3B8] leading-tight line-clamp-1 pt-0.5">
-                        {{ dept.desc }}
-                      </p>
                     </div>
 
                     <div class="opacity-0 group-hover:opacity-100 transition-opacity text-[#00A852] dark:text-[#00FF88] shrink-0">
