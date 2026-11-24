@@ -98,6 +98,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'ฝ่ายบุคคล',
         en: 'Human Resources (HR)',
         icon: Users,
+        image: '/images/about/hr-avatar.jpg',
         desc: 'สรรหา พัฒนา และดูแลสวัสดิการของบุคลากรในองค์กร',
         responsibilities: [
           'วางแผนอัตรากำลังและสรรหาบุคลากรด้านเทคโนโลยี',
