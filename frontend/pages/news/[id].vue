@@ -16,6 +16,9 @@ import {
   ZoomIn,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+  Images,
   ShieldCheck,
   Award,
   Layers,
@@ -36,6 +39,28 @@ const { showToast } = useTheme()
 
 const articleId = computed(() => Number(route.params.id))
 const article = computed(() => getNewsById(articleId.value))
+
+// -------------------------------------------------------------
+// Interactive Compact Photo Gallery Slider
+// -------------------------------------------------------------
+const currentGalleryIdx = ref(0)
+
+const activeGalleryImage = computed(() => {
+  if (article.value?.gallery && article.value.gallery.length > 0) {
+    return article.value.gallery[currentGalleryIdx.value]
+  }
+  return { url: article.value?.image || '', caption: article.value?.title }
+})
+
+const nextGallery = () => {
+  if (!article.value?.gallery || article.value.gallery.length === 0) return
+  currentGalleryIdx.value = (currentGalleryIdx.value + 1) % article.value.gallery.length
+}
+
+const prevGallery = () => {
+  if (!article.value?.gallery || article.value.gallery.length === 0) return
+  currentGalleryIdx.value = (currentGalleryIdx.value - 1 + article.value.gallery.length) % article.value.gallery.length
+}
 
 // -------------------------------------------------------------
 // 1. READING PROGRESS BAR & SCROLLYTELLING TRACKER
@@ -360,16 +385,94 @@ useHead(() => ({
 
             </div>
 
-            <!-- Standard News Hero Image Banner (for non-accreditation articles like Anniversaries / Activities) -->
+            <!-- 1. If article has gallery with > 1 photos: Compact Photo Slider (Prev/Next buttons, not too big) -->
+            <div
+              v-else-if="article.gallery && article.gallery.length > 1"
+              class="relative rounded-[2rem] overflow-hidden shadow-xl border border-black/10 dark:border-white/10 bg-black/20 max-w-3xl mx-auto group"
+            >
+              <!-- Image Display Frame: Compact 16/10 aspect ratio, max-h-[380px] so it's not too big -->
+              <div
+                class="relative aspect-[16/10] sm:aspect-[16/9] max-h-[380px] w-full overflow-hidden cursor-pointer"
+                @click="openLightbox(activeGalleryImage.url, article.title, activeGalleryImage.caption || article.title)"
+              >
+                <Transition name="gallery-fade" mode="out-in">
+                  <img
+                    :key="currentGalleryIdx"
+                    :src="activeGalleryImage.url"
+                    :alt="activeGalleryImage.caption || article.title"
+                    class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500 ease-out"
+                  >
+                </Transition>
+
+                <!-- Gradient Overlay & Caption -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+
+                <!-- Bottom Bar: Caption & Lightbox Zoom Prompt -->
+                <div class="absolute bottom-0 inset-x-0 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-end justify-between gap-2.5 z-10 pointer-events-none">
+                  <div class="space-y-1 text-white max-w-lg">
+                    <div class="text-[11px] font-mono font-bold text-[#00FF88] flex items-center gap-1.5">
+                      <Images class="w-3.5 h-3.5" />
+                      <span>ภาพกิจกรรมที่ {{ currentGalleryIdx + 1 }} / {{ article.gallery.length }}</span>
+                    </div>
+                    <p class="text-xs sm:text-sm font-medium drop-shadow-md opacity-95 line-clamp-2">
+                      {{ activeGalleryImage.caption || article.title }}
+                    </p>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-[11px] font-mono flex items-center gap-1.5 shadow self-start sm:self-auto pointer-events-auto">
+                    <ZoomIn class="w-3.5 h-3.5" />
+                    <span>กดเพื่อซูม</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Previous Button (<) -->
+              <button
+                type="button"
+                aria-label="Previous Photo"
+                class="absolute left-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/65 hover:bg-[#00C864] hover:text-[#022C22] text-white flex items-center justify-center transition-all shadow-xl active:scale-90 z-20 border border-white/20 backdrop-blur-md cursor-pointer"
+                @click.stop="prevGallery"
+              >
+                <ChevronLeft class="w-5 h-5" />
+              </button>
+
+              <!-- Next Button (>) -->
+              <button
+                type="button"
+                aria-label="Next Photo"
+                class="absolute right-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/65 hover:bg-[#00C864] hover:text-[#022C22] text-white flex items-center justify-center transition-all shadow-xl active:scale-90 z-20 border border-white/20 backdrop-blur-md cursor-pointer"
+                @click.stop="nextGallery"
+              >
+                <ChevronRight class="w-5 h-5" />
+              </button>
+
+              <!-- Indicator Dots & Navigation Badges -->
+              <div class="absolute top-3.5 right-3.5 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15">
+                <button
+                  v-for="(item, idx) in article.gallery"
+                  :key="idx"
+                  type="button"
+                  :aria-label="'Go to photo ' + (idx + 1)"
+                  :class="[
+                    'h-2 rounded-full transition-all cursor-pointer',
+                    currentGalleryIdx === idx
+                      ? 'w-6 bg-[#00FF88]'
+                      : 'w-2 bg-white/50 hover:bg-white/80'
+                  ]"
+                  @click.stop="currentGalleryIdx = idx"
+                />
+              </div>
+            </div>
+
+            <!-- 2. Standard Single Hero Image Banner (for articles with 1 photo) -->
             <div
               v-else
-              class="relative group rounded-[2rem] overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-black/15 cursor-pointer"
+              class="relative group rounded-[2rem] overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-black/15 cursor-pointer max-w-3xl mx-auto"
               @click="openLightbox(article.image, article.title, article.title)"
             >
               <img
                 :src="article.image"
                 :alt="article.title"
-                class="w-full h-72 sm:h-96 md:h-[460px] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                class="w-full h-72 sm:h-96 md:h-[420px] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               >
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6 sm:p-8 justify-between">
                 <div class="space-y-1 text-white">
@@ -913,3 +1016,18 @@ useHead(() => ({
 
   </div>
 </template>
+
+<style scoped>
+.gallery-fade-enter-active,
+.gallery-fade-leave-active {
+  transition: opacity 0.25s ease-out, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gallery-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.97);
+}
+.gallery-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.02);
+}
+</style>

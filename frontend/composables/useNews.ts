@@ -36,6 +36,7 @@ export interface NewsItem {
   fullContent: string[]
   aiSummary: string[]
   image: string
+  gallery?: { url: string; caption?: string }[]
   isFeatured?: boolean
   author: NewsAuthor
   rating: {
@@ -228,7 +229,17 @@ export const useNews = () => {
         'ก่อตั้งเมื่อ 15 มีนาคม 2553 ให้บริการ IT Consultant, Software Development และ Business Application แก่องค์กรภาครัฐและเอกชนกว่า 100 ราย',
         'ได้รับการส่งเสริมการลงทุนจาก BOI พร้อมร่วมมือกับ Software Park Thailand และ SIPA ยกระดับมาตรฐานซอฟต์แวร์ไทย'
       ],
-      image: '/images/news/igenco-8years-anniversary.jpg'
+      image: '/images/news/igenco-8years-1.jpg',
+      gallery: [
+        {
+          url: '/images/news/igenco-8years-1.jpg',
+          caption: 'ภาพรวมคณะผู้บริหารและทีมงานไอเจนโก้ร่วมบริจาคสิ่งของจำเป็น ณ สถานสงเคราะห์เด็กอ่อนปากเกร็ด'
+        },
+        {
+          url: '/images/news/igenco-8years-2.jpg',
+          caption: 'ตัวแทนผู้บริหารและทีมงาน IGENCO มอบเงินสนับสนุนการดำเนินงานแก่มูลนิธิ'
+        }
+      ]
     },
     {
       id: 3,
