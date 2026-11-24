@@ -4,7 +4,6 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Award,
-  Calendar,
   Building2,
   ArrowRight
 } from 'lucide-vue-next'
@@ -13,52 +12,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const sectionRef = ref<HTMLElement | null>(null)
 let ctx: gsap.Context | null = null
-
-// Real Timeline Milestones from Official Company History
-const timelineMilestones = [
-  {
-    year: '2553',
-    date: '15 มีนาคม 2553',
-    title: 'จัดตั้ง บริษัท ไอเจนโก้ จำกัด',
-    desc: 'เริ่มต้นจากการรวมตัวของบุคลากรทางด้าน IT ที่มีความเชี่ยวชาญในการออกแบบและพัฒนาโปรแกรมระบบงาน การวิเคราะห์โครงสร้างระบบ และการจัดการฐานข้อมูล',
-    tag: 'FOUNDATION'
-  },
-  {
-    year: '2554 – 2558',
-    date: 'ขยายความไว้วางใจกว่า 100 องค์กร',
-    title: 'ขยายสู่ภาคราชการ รัฐวิสาหกิจ และเอกชน',
-    desc: 'ให้บริการครอบคลุม 4 มิติหลัก (IT Consultant, Software Development, IT Infrastructure และ Business Application) ให้กับหน่วยงานภาครัฐ สถาบันการศึกษา และภาคเอกชนนับ 100 ราย',
-    tag: 'EXPANSION'
-  },
-  {
-    year: '2558 – 2559',
-    date: 'พันธมิตรความร่วมมือระดับประเทศ',
-    title: 'ร่วมมือกับ Software Park & SIPA',
-    desc: 'เข้าร่วมกิจกรรมกับเขตอุตสาหกรรมซอฟต์แวร์แห่งประเทศไทย (Software Park Thailand) และสำนักงานส่งเสริมอุตสาหกรรมซอฟต์แวร์แห่งชาติ (องค์การมหาชน) (SIPA) เพื่อเพิ่มศักยภาพการบริการ',
-    tag: 'ALLIANCE'
-  },
-  {
-    year: '2559',
-    date: 'มาตรฐานวิศวกรรมสากล',
-    title: 'ผ่านการรับรองมาตรฐาน ISO/IEC 29110',
-    desc: 'ได้รับการตรวจประเมินและรับรองมาตรฐานระดับสากล ISO/IEC 29110 ด้าน Project Management และ Software Implementation จากสถาบัน TÜV NORD',
-    tag: 'ACCREDITED'
-  },
-  {
-    year: '2560',
-    date: 'การส่งเสริมการลงทุนแห่งชาติ',
-    title: 'ได้รับการส่งเสริมการลงทุนจาก BOI',
-    desc: 'ได้รับการส่งเสริมการลงทุนจากสำนักงานคณะกรรมการส่งเสริมการลงทุน (BOI) ในกิจการพัฒนาซอฟต์แวร์และบริการด้านสารสนเทศ เป็นบริษัทสัญชาติไทยแท้อย่างแท้จริง',
-    tag: 'BOI PRIVILEGES'
-  },
-  {
-    year: '2561',
-    date: '21 มีนาคม 2561',
-    title: 'ครบรอบ 8 ปี และมุ่งสู่ปีที่ 9 อย่างมั่นคง',
-    desc: 'ผู้บริหารและทีมงานร่วมจัดกิจกรรมบริจาคเงินและสิ่งของ ณ สถานสงเคราะห์เด็กอ่อนปากเกร็ด ในวาระก้าวสู่ปีที่ 9 เพื่อมุ่งสู่การเป็นผู้ให้บริการระบบงานคอมพิวเตอร์ครบวงจรอย่างยั่งยืน',
-    tag: '8TH ANNIVERSARY'
-  }
-]
 
 // Core Values 01-04 (I-G-E-N)
 const coreValues = [
@@ -412,58 +365,6 @@ onBeforeUnmount(() => {
             <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
               {{ val.desc }}
             </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================================
-           5. COMPANY TIMELINE: CHRONOLOGICAL EDITORIAL LINE
-      ========================================================= -->
-      <div class="editorial-reveal py-20 sm:py-28 border-b border-black/10 dark:border-white/10">
-        <div class="space-y-4 mb-16">
-          <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
-            TIMELINE // เส้นทางประวัติศาสตร์และความก้าวหน้า
-          </div>
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC]">
-            เส้นทางแห่งการเติบโตอย่างมั่นคง
-          </h2>
-          <p class="text-base text-[#475569] dark:text-[#94A3B8] max-w-2xl">
-            จากก้าวแรกในปี 2553 จนถึงการยืนหยัดในฐานะผู้เชี่ยวชาญการพัฒนาระบบคอมพิวเตอร์ครบวงจร
-          </p>
-        </div>
-
-        <!-- Sleek Editorial Timeline (Linear Staggered Flow) -->
-        <div class="space-y-12 relative before:absolute before:inset-0 before:left-4 md:before:left-32 before:w-[1px] before:bg-black/10 dark:before:bg-white/10">
-          <div
-            v-for="(item, idx) in timelineMilestones"
-            :key="item.year + idx"
-            class="relative flex flex-col md:flex-row items-start gap-4 md:gap-12 pl-10 md:pl-0 group"
-          >
-            <!-- Timeline Marker Dot -->
-            <div class="absolute left-2.5 md:left-32 -translate-x-1/2 top-1.5 w-3 h-3 rounded-full bg-white dark:bg-[#030906] border-2 border-[#00A852] dark:border-[#00FF88] group-hover:scale-125 transition-transform" />
-
-            <!-- Year Label on the Left (Desktop) -->
-            <div class="md:w-28 md:text-right shrink-0">
-              <div class="text-xl sm:text-2xl font-mono font-bold text-[#00A852] dark:text-[#00FF88]">
-                {{ item.year }}
-              </div>
-              <div class="text-[11px] font-mono opacity-50 uppercase tracking-wider">
-                {{ item.tag }}
-              </div>
-            </div>
-
-            <!-- Content on the Right -->
-            <div class="space-y-1.5 max-w-2xl pt-0.5">
-              <div class="text-xs font-mono font-semibold text-[#00A852] dark:text-[#00FF88]">
-                {{ item.date }}
-              </div>
-              <h3 class="text-lg sm:text-xl font-bold text-[#0A1A12] dark:text-white">
-                {{ item.title }}
-              </h3>
-              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
-                {{ item.desc }}
-              </p>
-            </div>
           </div>
         </div>
       </div>
