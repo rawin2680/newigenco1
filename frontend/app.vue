@@ -1,7 +1,32 @@
 <script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useTheme } from '~/composables/useTheme'
 
 const { toastMessage, isToastVisible } = useTheme()
+
+// Top Reading / Scroll Progress Bar
+const scrollProgress = ref(0)
+const onScroll = () => {
+  if (typeof window !== 'undefined') {
+    const total = document.documentElement.scrollHeight - window.innerHeight
+    if (total > 0) {
+      scrollProgress.value = Math.min(100, Math.max(0, (window.scrollY / total) * 100))
+    }
+  }
+}
+
+onMounted(() => {
+  if (import.meta.client) {
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+  }
+})
+
+onBeforeUnmount(() => {
+  if (import.meta.client) {
+    window.removeEventListener('scroll', onScroll)
+  }
+})
 
 // Dynamically inject Apple iPhone font stylesheets with instant client-side reload
 useHead({
@@ -22,6 +47,14 @@ useHead({
 
 <template>
   <div class="architectural-grid relative min-h-screen">
+    <!-- Top Global Scroll Progress Bar (วิ่งยาวตามระยะการอ่านบทความ) -->
+    <div class="fixed top-0 left-0 right-0 h-[3.5px] bg-transparent z-[100] pointer-events-none">
+      <div
+        class="h-full bg-gradient-to-r from-[#00C864] via-[#00FF88] to-[#022C22] dark:to-[#F4FBF7] scroll-progress-bar scroll-progress-bar-native shadow-[0_0_12px_#00FF88]"
+        :style="{ width: `${scrollProgress}%` }"
+      />
+    </div>
+
     <!-- Toast Notification -->
     <div
       class="fixed top-20 right-6 z-50 transition-transform duration-300 pointer-events-none"

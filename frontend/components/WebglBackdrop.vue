@@ -17,6 +17,8 @@ let mouseNormX = 0
 let mouseNormY = 0
 let smoothMouseX = 0
 let smoothMouseY = 0
+let targetScrollY = 0
+let smoothScrollY = 0
 let pulseBoost = 0
 
 const clock = new THREE.Clock()
@@ -46,6 +48,12 @@ watch([isDark, isXray], () => {
 const onMouseMove = (e: MouseEvent) => {
   mouseNormX = (e.clientX / window.innerWidth) * 2 - 1
   mouseNormY = -(e.clientY / window.innerHeight) * 2 + 1
+}
+
+const onScroll = () => {
+  if (typeof window !== 'undefined') {
+    targetScrollY = window.scrollY
+  }
 }
 
 const onClick = () => {
@@ -154,6 +162,7 @@ onMounted(() => {
   updateColors()
 
   window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('click', onClick)
   window.addEventListener('resize', onResize)
 
@@ -172,17 +181,23 @@ onMounted(() => {
     smoothMouseX += (mouseNormX - smoothMouseX) * 0.06
     smoothMouseY += (mouseNormY - smoothMouseY) * 0.06
 
+    // Smooth Lerp Scroll Parallax (GSAP ScrollTrigger feel)
+    smoothScrollY += (targetScrollY - smoothScrollY) * 0.08
+
     const currentWidth = containerRef.value?.clientWidth || window.innerWidth
     const isSmall = currentWidth < 1024
     const currentBaseX = isSmall ? 0.9 : 2.05
     const currentBaseY = isSmall ? -0.2 : 0.05
 
+    // Multi-axis 3D Parallax with Scroll
     sculptureMesh.position.x = currentBaseX + smoothMouseX * 0.35
-    sculptureMesh.position.y = currentBaseY + smoothMouseY * 0.25
-    sculptureMesh.rotation.x = t * 0.18 + smoothMouseY * 0.6
-    sculptureMesh.rotation.y = t * 0.25 + smoothMouseX * 0.8
+    sculptureMesh.position.y = currentBaseY + smoothMouseY * 0.25 - smoothScrollY * 0.0016
+    sculptureMesh.rotation.x = t * 0.18 + smoothMouseY * 0.6 + smoothScrollY * 0.0006
+    sculptureMesh.rotation.y = t * 0.25 + smoothMouseX * 0.8 + smoothScrollY * 0.0004
+    sculptureMesh.rotation.z = smoothScrollY * 0.0012
 
     if (particleSystem) {
+      particleSystem.position.y = -smoothScrollY * 0.0028
       particleSystem.rotation.y = t * 0.04 + smoothMouseX * 0.2
       particleSystem.rotation.x = smoothMouseY * 0.15
     }
@@ -197,6 +212,7 @@ onBeforeUnmount(() => {
   if (animationFrameId) cancelAnimationFrame(animationFrameId)
   if (import.meta.client) {
     window.removeEventListener('mousemove', onMouseMove)
+    window.removeEventListener('scroll', onScroll)
     window.removeEventListener('click', onClick)
     window.removeEventListener('resize', onResize)
   }

@@ -91,7 +91,7 @@ const toggleAiSummary = (id: number) => {
     
     <!-- Section Header with Category Tabs and Pagination Buttons -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-      <div>
+      <div class="reveal-init reveal-left">
         <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-2 font-bold">
           <BookOpen class="w-3.5 h-3.5" />
           <span>NEWS & ACTIVITIES // ข่าวสารและกิจกรรม IGENCO</span>
@@ -105,7 +105,7 @@ const toggleAiSummary = (id: number) => {
       </div>
 
       <!-- Categories Filter Tabs & Quick Controls -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 reveal-init reveal-right">
         <!-- Categories -->
         <div class="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
           <button
@@ -169,9 +169,12 @@ const toggleAiSummary = (id: number) => {
     ========================================================== -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 items-stretch">
       <article
-        v-for="item in displayedNews"
+        v-for="(item, idx) in displayedNews"
         :key="item.id"
-        class="rounded-[2rem] overflow-hidden relative group transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between backdrop-blur-2xl bg-white/70 dark:bg-black/50 border border-white/70 dark:border-emerald-500/20 shadow-[0_12px_40px_rgba(0,200,100,0.08)] hover:shadow-[0_20px_50px_rgba(0,200,100,0.15)]"
+        :class="[
+          'rounded-[2rem] overflow-hidden relative group transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between backdrop-blur-2xl bg-white/70 dark:bg-black/50 border border-white/70 dark:border-emerald-500/20 shadow-[0_12px_40px_rgba(0,200,100,0.08)] hover:shadow-[0_20px_50px_rgba(0,200,100,0.15)] hover-lift reveal-init reveal-blur',
+          idx === 0 ? 'delay-75' : idx === 1 ? 'delay-150' : 'delay-250'
+        ]"
         @mousemove="onCardMouseMove($event, item.id)"
       >
         <!-- Mouse-Tracking Dynamic Glow Spotlight -->

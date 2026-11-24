@@ -91,7 +91,7 @@ const scrollToTop = () => {
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start relative z-10">
           
           <!-- Left Column: Title & Key Highlights -->
-          <div class="lg:col-span-5 space-y-6">
+          <div class="lg:col-span-5 space-y-6 reveal-init reveal-left">
             <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] font-bold">
               <ShieldCheck class="w-4 h-4" />
               <span>CONSULTATION & INQUIRY // ติดต่อเรา</span>
@@ -107,7 +107,7 @@ const scrollToTop = () => {
 
             <!-- Quick Trust Badges -->
             <div class="pt-4 space-y-3">
-              <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-[#00C864]/10 dark:bg-[#00FF88]/10 border border-[#00C864]/20">
+              <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-[#00C864]/10 dark:bg-[#00FF88]/10 border border-[#00C864]/20 hover-lift">
                 <ShieldCheck class="w-5 h-5 text-[#00A854] dark:text-[#00FF88] shrink-0" />
                 <div class="text-xs">
                   <span class="font-bold">มาตรฐานระดับสากล ISO/IEC 29110</span>
@@ -115,7 +115,7 @@ const scrollToTop = () => {
                 </div>
               </div>
 
-              <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
+              <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 hover-lift">
                 <Clock class="w-5 h-5 text-[#00A854] dark:text-[#00FF88] shrink-0" />
                 <div class="text-xs">
                   <span class="font-bold">ตอบกลับรวดเร็วภายใน 24 ชม.</span>
@@ -126,7 +126,7 @@ const scrollToTop = () => {
           </div>
 
           <!-- Right Column: Consultation Form -->
-          <form class="lg:col-span-7 space-y-4" @submit.prevent="handleSubmit">
+          <form class="lg:col-span-7 space-y-4 reveal-init reveal-right delay-150" @submit.prevent="handleSubmit">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">ชื่อผู้ติดต่อ / หน่วยงาน *</label>
@@ -204,7 +204,7 @@ const scrollToTop = () => {
       <div class="max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16">
         
         <!-- 4-Column Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-14 border-b border-white/10">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-14 border-b border-white/10 reveal-init reveal-up delay-100">
           
           <!-- Column 1: Company Profile & ISO Certification (4 Cols) -->
           <div class="lg:col-span-4 space-y-5">

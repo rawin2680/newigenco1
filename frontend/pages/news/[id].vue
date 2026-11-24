@@ -38,9 +38,41 @@ const articleId = computed(() => Number(route.params.id))
 const article = computed(() => getNewsById(articleId.value))
 
 // -------------------------------------------------------------
-// 1. READING PROGRESS BAR
+// 1. READING PROGRESS BAR & SCROLLYTELLING TRACKER
 // -------------------------------------------------------------
 const scrollProgress = ref(0)
+const activeSection = ref('section-overview')
+const tableOfContents = [
+  { id: 'section-overview', label: 'ภาพรวมและการรับรอง' },
+  { id: 'section-summary', label: 'สรุปสาระสำคัญ (AI Summary)' },
+  { id: 'section-body', label: 'เนื้อหาบทความ' },
+  { id: 'section-architecture', label: 'แผนผังกระบวนการมาตรฐาน' },
+  { id: 'section-author', label: 'ข้อมูลผู้เขียนและการประเมิน' }
+]
+
+let sectionObserver: IntersectionObserver | null = null
+
+const setupSectionObserver = () => {
+  if (import.meta.client && 'IntersectionObserver' in window) {
+    sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            activeSection.value = entry.target.id
+          }
+        })
+      },
+      {
+        rootMargin: '-15% 0px -65% 0px',
+        threshold: 0
+      }
+    )
+    tableOfContents.forEach((sec) => {
+      const el = document.getElementById(sec.id)
+      if (el) sectionObserver?.observe(el)
+    })
+  }
+}
 
 const updateScrollProgress = () => {
   if (import.meta.client) {
@@ -55,12 +87,16 @@ const updateScrollProgress = () => {
 onMounted(() => {
   if (import.meta.client) {
     window.addEventListener('scroll', updateScrollProgress, { passive: true })
+    setTimeout(() => {
+      setupSectionObserver()
+    }, 150)
   }
 })
 
 onUnmounted(() => {
   if (import.meta.client) {
     window.removeEventListener('scroll', updateScrollProgress)
+    sectionObserver?.disconnect()
   }
 })
 
@@ -216,7 +252,7 @@ useHead(() => ({
           <!-- ===================================================
                BENTO HERO HEADER (จัดวาง TÜV NORD + ISO 29110 ในการ์ดกระจกฝ้า)
           ==================================================== -->
-          <header class="space-y-6">
+          <header id="section-overview" class="space-y-6 reveal-init reveal-scale">
             
             <!-- Category, Date & Read Time Badges -->
             <div class="flex flex-wrap items-center gap-2.5 text-xs font-mono">
@@ -258,7 +294,7 @@ useHead(() => ({
                       @click="openLightbox('/images/news/tuv-nord-iso29110-logo.png', 'TÜV NORD (Thailand) Ltd.', 'ตราสัญลักษณ์รับรองมาตรฐานสากล ISO/IEC 29110')"
                     >
                       <img
-                        src="/images/news/tuv-nord-iso29110-logo.png"
+                        :src="'/images/news/tuv-nord-iso29110-logo.png'"
                         alt="TÜV NORD ISO/IEC 29110 Emblem"
                         class="w-full h-full object-contain"
                       >
@@ -324,7 +360,7 @@ useHead(() => ({
           <!-- ===================================================
                AI QUICK SUMMARY BOX (กล่องพับเก็บได้ สรุป 3 ข้อย่อ)
           ==================================================== -->
-          <div class="p-6 sm:p-7 rounded-[2rem] bg-[#021811] text-white border border-[#00FF88]/40 shadow-2xl space-y-4">
+          <div id="section-summary" class="p-6 sm:p-7 rounded-[2rem] bg-[#021811] text-white border border-[#00FF88]/40 shadow-2xl space-y-4 reveal-init reveal-blur">
             <div class="flex items-center justify-between cursor-pointer select-none" @click="isAiSummaryOpen = !isAiSummaryOpen">
               <div class="flex items-center gap-2.5 text-xs sm:text-sm font-mono text-[#00FF88] font-bold tracking-wider">
                 <Sparkles class="w-4 h-4 text-[#00FF88] animate-pulse" />
@@ -353,7 +389,7 @@ useHead(() => ({
           <!-- ===================================================
                EDITORIAL BODY PARAGRAPHS
           ==================================================== -->
-          <div class="space-y-6 text-base sm:text-lg opacity-90 leading-loose">
+          <div id="section-body" class="space-y-6 text-base sm:text-lg opacity-90 leading-loose reveal-init reveal-blur">
             <p v-for="(para, idx) in article.fullContent" :key="idx" class="indent-6 sm:indent-8">
               {{ para }}
             </p>
@@ -363,7 +399,7 @@ useHead(() => ({
                INTERACTIVE FLOWCHART SECTION
                Figure 2-1 (PM) & Figure 2-2 (SI) with Lightbox & Node Map
           ==================================================== -->
-          <section v-if="article.flowcharts && article.flowcharts.length > 0" class="pt-6 space-y-6">
+          <section id="section-architecture" v-if="article.flowcharts && article.flowcharts.length > 0" class="pt-6 space-y-6 reveal-init reveal-scale">
             
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-current/10 pb-4">
               <div>
@@ -506,7 +542,7 @@ useHead(() => ({
                MODERN AUTHOR PROFILE & REACTION BAR
                ผู้เขียน: นายเกรียงไกร ทองบุรี + 5-Star Interactive Rating + Like
           ==================================================== -->
-          <div class="p-7 sm:p-8 rounded-[2rem] spatial-glass border border-current/15 shadow-xl space-y-6">
+          <div id="section-author" class="p-7 sm:p-8 rounded-[2rem] spatial-glass border border-current/15 shadow-xl space-y-6 reveal-init reveal-up">
             
             <!-- Author Profile Card -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-6 border-b border-current/10">
@@ -600,9 +636,38 @@ useHead(() => ({
 
         <!-- =====================================================
              STICKY SIDEBAR (4 Columns)
-             Instant Search + Category Pill Badges + Recent Posts
+             Scrollytelling TOC + Instant Search + Categories + Recent Posts
         ====================================================== -->
-        <aside class="lg:col-span-4 space-y-8 lg:sticky lg:top-28">
+        <aside class="lg:col-span-4 space-y-6 lg:sticky lg:top-28">
+
+          <!-- 0. Scrollytelling Active Table of Contents (ติดตามหัวข้อตามการไถหน้าจอ) -->
+          <div class="p-6 rounded-[2rem] spatial-glass border border-[#00C864]/25 shadow-lg space-y-3">
+            <div class="text-xs font-mono font-bold text-[#00C864] dark:text-[#00FF88] uppercase flex items-center justify-between">
+              <span>CONTENTS // สารบัญหัวข้อ</span>
+              <span class="text-[11px] font-mono opacity-65">{{ Math.round(scrollProgress) }}%</span>
+            </div>
+            <nav class="space-y-1">
+              <a
+                v-for="sec in tableOfContents"
+                :key="sec.id"
+                :href="'#' + sec.id"
+                :class="[
+                  'block px-3 py-2 rounded-xl text-xs transition-all flex items-center gap-2.5',
+                  activeSection === sec.id
+                    ? 'bg-[#00C864]/20 text-[#00A854] dark:text-[#00FF88] font-bold translate-x-1 border-l-2 border-[#00C864] dark:border-[#00FF88]'
+                    : 'opacity-70 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5'
+                ]"
+              >
+                <span
+                  :class="[
+                    'w-1.5 h-1.5 rounded-full transition-all shrink-0',
+                    activeSection === sec.id ? 'bg-[#00C864] dark:bg-[#00FF88] scale-125 ring-2 ring-[#00C864]/40' : 'bg-current/30'
+                  ]"
+                />
+                <span class="truncate">{{ sec.label }}</span>
+              </a>
+            </nav>
+          </div>
           
           <!-- 1. Instant Search Widget -->
           <div class="p-6 rounded-[2rem] spatial-glass border border-current/10 shadow-lg space-y-4">

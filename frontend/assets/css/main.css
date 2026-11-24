@@ -69,13 +69,13 @@ h1, h2, h3, h4, h5, h6, .font-display {
 }
 
 /* Outlined Editorial Stroke Typography */
-.text-stroke-emerald {
+.text-stroke-emerald, .text-stroke-kinetic {
   color: transparent;
-  -webkit-text-stroke: 1.5px #022C22;
+  -webkit-text-stroke: 1.8px #022C22;
 }
 
-html.dark .text-stroke-emerald {
-  -webkit-text-stroke: 1.5px #00FF88;
+html.dark .text-stroke-emerald, html.dark .text-stroke-kinetic {
+  -webkit-text-stroke: 1.8px #00FF88;
 }
 
 /* Standard Native Cursor (Easy to use) */
@@ -124,3 +124,100 @@ body.xray-active .xray-meta {
 .custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 200, 100, 0.75);
 }
+
+/* ==========================================================================
+   Apple-Grade Scroll Reveal, Text Mask & Motion System
+   ========================================================================== */
+
+/* 1. Scroll Reveal (Fade Up, Blur-to-Focus, Staggered Entrance) */
+.reveal-init {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease-out;
+  will-change: opacity, transform, filter;
+}
+
+.reveal-init.reveal-blur {
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(14px) scale(0.99);
+}
+
+.reveal-init.reveal-scale {
+  opacity: 0;
+  transform: scale(0.96) translateY(14px);
+}
+
+.reveal-init.reveal-left {
+  opacity: 0;
+  transform: translateX(-18px);
+}
+
+.reveal-init.reveal-right {
+  opacity: 0;
+  transform: translateX(18px);
+}
+
+.reveal-init.is-revealed {
+  opacity: 1 !important;
+  filter: blur(0px) !important;
+  transform: translate(0, 0) scale(1) !important;
+}
+
+/* Stagger Delays (1 -> 2 -> 3 -> 4) */
+.delay-75  { transition-delay: 75ms !important; }
+.delay-100 { transition-delay: 100ms !important; }
+.delay-150 { transition-delay: 150ms !important; }
+.delay-200 { transition-delay: 200ms !important; }
+.delay-250 { transition-delay: 250ms !important; }
+.delay-300 { transition-delay: 300ms !important; }
+.delay-400 { transition-delay: 400ms !important; }
+.delay-500 { transition-delay: 500ms !important; }
+.delay-600 { transition-delay: 600ms !important; }
+
+/* 2. Text Mask / Line Reveal */
+.line-mask {
+  overflow: hidden;
+  display: block;
+}
+
+.line-mask > .line-inner {
+  display: block;
+  transform: translateY(115%);
+  opacity: 0;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s ease;
+  will-change: transform, opacity;
+}
+
+.line-mask.is-revealed > .line-inner,
+.is-revealed .line-mask > .line-inner {
+  transform: translateY(0%);
+  opacity: 1;
+}
+
+/* 3. Top Scroll Progress Bar (Native CSS Scroll-Driven) */
+.scroll-progress-bar {
+  transform-origin: 0% 50%;
+  will-change: transform;
+}
+
+@keyframes scrollProgressAnim {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-progress-bar-native {
+    animation: scrollProgressAnim linear;
+    animation-timeline: scroll();
+  }
+}
+
+/* Card Hover Micro-Lift & Spotlight Glow */
+.hover-lift {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-6px);
+}
+

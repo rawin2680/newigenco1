@@ -1,10 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Contrast, Menu, X, ArrowUpRight } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
 const { toggleTheme } = useTheme()
 const isMobileMenuOpen = ref(false)
+const isScrolled = ref(false)
+
+const onScroll = () => {
+  if (typeof window !== 'undefined') {
+    isScrolled.value = window.scrollY > 25
+  }
+}
+
+onMounted(() => {
+  if (import.meta.client) {
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+  }
+})
+
+onBeforeUnmount(() => {
+  if (import.meta.client) {
+    window.removeEventListener('scroll', onScroll)
+  }
+})
 
 const navLinks = [
   { name: 'หน้าแรก', href: '/#top' },
@@ -15,8 +35,20 @@ const navLinks = [
 </script>
 
 <template>
-  <header class="fixed top-0 left-0 right-0 z-50 bg-[#F6F9F7]/90 dark:bg-[#020806]/90 backdrop-blur-md border-b border-[#022C22]/10 dark:border-[#00FF88]/20 transition-colors">
-    <div class="max-w-[1440px] mx-auto px-5 sm:px-10 h-20 flex items-center justify-between">
+  <header
+    :class="[
+      'fixed top-0 left-0 right-0 z-50 backdrop-blur-md transition-all duration-300 border-b',
+      isScrolled
+        ? 'bg-[#F6F9F7]/95 dark:bg-[#020806]/95 border-[#00C864]/20 shadow-md shadow-[#00C864]/5'
+        : 'bg-[#F6F9F7]/85 dark:bg-[#020806]/85 border-[#022C22]/10 dark:border-[#00FF88]/20'
+    ]"
+  >
+    <div
+      :class="[
+        'max-w-[1440px] mx-auto px-5 sm:px-10 flex items-center justify-between transition-all duration-300',
+        isScrolled ? 'h-16' : 'h-20'
+      ]"
+    >
       
       <!-- Logo (Direct link back to home) -->
       <NuxtLink to="/" class="flex items-center gap-2.5 group">

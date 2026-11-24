@@ -1,53 +1,142 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ArrowUpRight, Box } from 'lucide-vue-next'
+import { ArrowUpRight, Box, Info, X, CheckCircle2, Cpu, ShieldCheck, Zap, Sparkles } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
 const { showToast } = useTheme()
 
 const activeCategory = ref('ทั้งหมด')
-const categories = ['ทั้งหมด', 'ฮาร์ดแวร์ & เซ็นเซอร์', 'ซอฟต์แวร์อัจฉริยะ', 'โซลูชันพลังงานสะอาด']
+const categories = ['ทั้งหมด', 'ฮาร์ดแวร์ & เซ็นเซอร์', 'ซอฟต์แวร์อัจฉริยะ', 'โซลูชันพลังงานสะอาด', 'ความปลอดภัย & เครือข่าย']
 
-const products = [
+export interface ProductItem {
+  id: number
+  title: string
+  category: string
+  desc: string
+  detailedDesc: string
+  price: string
+  tags: string[]
+  specs: { label: string; value: string }[]
+  image: string
+  accentColor: string
+  glowColor: string
+  icon: string
+}
+
+const products: ProductItem[] = [
   {
     id: 1,
     title: 'Verdant AI Core V4',
     category: 'ซอฟต์แวร์อัจฉริยะ',
     desc: 'ระบบประมวลผลข้อมูลอัจฉริยะแบบเรียลไทม์ พร้อมเชื่อมต่อ API และระบบวิเคราะห์อัตโนมัติ',
+    detailedDesc: 'แพลตฟอร์มสมองกลอัจฉริยะระดับองค์กร ขับเคลื่อนด้วยโมเดล Neural Core ล่าสุด รองรับการเชื่อมต่อกับระบบฐานข้อมูลเดิมอย่างไร้รอยต่อ วิเคราะห์ข้อมูลมหาศาลและสร้างคำตอบทางธุรกิจได้ในเสี้ยววินาที',
     price: 'ติดต่อฝ่ายขาย',
     tags: ['Cloud Native', 'API Ready', 'Zero-Latency'],
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
-    modelType: 'core'
+    specs: [
+      { label: 'สถาปัตยกรรม', value: 'Neural Cloud Mesh / Microservices' },
+      { label: 'ความเร็วประมวลผล', value: '< 18ms Latency' },
+      { label: 'มาตรฐานความปลอดภัย', value: 'ISO 27001 / SOC 2 Type II' },
+      { label: 'การเชื่อมต่อ', value: 'REST API, GraphQL, gRPC' }
+    ],
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+    accentColor: '#00C864',
+    glowColor: 'rgba(0, 200, 100, 0.22)',
+    icon: 'Cpu'
   },
   {
     id: 2,
     title: 'Smart Edge IoT Hub 2026',
     category: 'ฮาร์ดแวร์ & เซ็นเซอร์',
     desc: 'กล่องรับส่งสัญญาณ IoT ความเร็วสูง รองรับการทำงานในสภาพแวดล้อมโรงงานและคลังสินค้า',
+    detailedDesc: 'อุปกรณ์ฮาร์ดแวร์อุตสาหกรรมสำหรับรวบรวมและประมวลผลข้อมูลเซ็นเซอร์ ณ จุดกำเนิด ออกแบบด้วยเคสเกรดอากาศยาน ทนทานต่อความร้อน ฝุ่น และแรงสั่นสะเทือน พร้อมโมดูล 4G/5G และ WiFi 7 ในตัว',
     price: 'เริ่มต้น 12,500 บาท',
     tags: ['Industrial Grade', '4G/5G Ready', 'Low Power'],
-    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80',
-    modelType: 'sensor'
+    specs: [
+      { label: 'มาตรฐานตัวถัง', value: 'IP67 Ruggedized Aluminum' },
+      { label: 'การส่งสัญญาณ', value: '5G Sub-6GHz, LoRaWAN, BLE 5.4' },
+      { label: 'อุณหภูมิทำงาน', value: '-20°C ถึง 70°C' },
+      { label: 'ระบบสำรองไฟ', value: 'Internal Dual Supercapacitor' }
+    ],
+    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
+    accentColor: '#00D2FF',
+    glowColor: 'rgba(0, 210, 255, 0.22)',
+    icon: 'Zap'
   },
   {
     id: 3,
     title: 'Bio-Grid Solar Controller',
     category: 'โซลูชันพลังงานสะอาด',
     desc: 'อุปกรณ์ควบคุมพลังงานหมุนเวียนอัจฉริยะ ลดการสูญเสียพลังงานในองค์กรได้สูงสุด 35%',
+    detailedDesc: 'ระบบบริหารจัดการพลังงานแสงอาทิตย์และระบบกักเก็บพลังงานแบตเตอรี่อัจฉริยะ ควบคุมการจ่ายกระแสไฟด้วยอัลกอริทึมพยากรณ์สภาพอากาศ ช่วยลดค่าพีคและคำนวณคาร์บอนเครดิตอัตโนมัติ',
     price: 'ประเมินราคาตามขนาด',
     tags: ['Green Tech', 'Carbon Credit', 'ISO 50001'],
-    image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=80',
-    modelType: 'energy'
+    specs: [
+      { label: 'ประสิทธิภาพควบคุม', value: 'MPPT Efficiency 99.4%' },
+      { label: 'การลดการปล่อยคาร์บอน', value: 'คำนวณแบบ Realtime ตาม GHG Protocol' },
+      { label: 'การเชื่อมต่อระบบ', value: 'Modbus TCP / MQTT Over TLS' },
+      { label: 'การรับประกัน', value: '5 ปี พร้อมบริการตรวจเช็กรายไตรมาส' }
+    ],
+    image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb395?auto=format&fit=crop&w=800&q=80',
+    accentColor: '#F59E0B',
+    glowColor: 'rgba(245, 158, 11, 0.22)',
+    icon: 'Zap'
   },
   {
     id: 4,
     title: 'Spatial 3D Digital Twin Suite',
     category: 'ซอฟต์แวร์อัจฉริยะ',
     desc: 'แพลตฟอร์มจำลองอาคารและคลังสินค้าแบบ 3 มิติ เพื่อการมอนิเตอร์และบริหารจัดการจากระยะไกล',
+    detailedDesc: 'เปลี่ยนข้อมูลเซ็นเซอร์และแปลนอาคาร BIM ให้อยู่ในรูปแบบ Digital Twin เสมือนจริงระดับ 60fps ผู้บริหารสามารถตรวจสอบสถานะเครื่องจักร อุณหภูมิ และความปลอดภัยผ่านหน้าจอเว็บเบราว์เซอร์ได้ทันที',
     price: 'แพ็กเกจรายปี',
     tags: ['WebGL', 'Realtime Telemetry', 'BIM Ready'],
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
-    modelType: 'core'
+    specs: [
+      { label: 'เอนจินแสดงผล', value: 'WebGL 2.0 / WebGPU Architecture' },
+      { label: 'ความหน่วงการจำลอง', value: 'Synchronous Refresh < 50ms' },
+      { label: 'ไฟล์ที่รองรับ', value: 'IFC, Revit, OBJ, GLTF 2.0' },
+      { label: 'การเข้าถึง', value: 'Cross-Platform Web Responsive' }
+    ],
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80',
+    accentColor: '#8B5CF6',
+    glowColor: 'rgba(139, 92, 246, 0.22)',
+    icon: 'Box'
+  },
+  {
+    id: 5,
+    title: 'CyberShield Zero-Trust Gateway',
+    category: 'ความปลอดภัย & เครือข่าย',
+    desc: 'ระบบไฟร์วอลล์และเกตเวย์ความปลอดภัยระดับองค์กร ปกป้องเครือข่ายจากภัยคุกคามทางไซเบอร์',
+    detailedDesc: 'เกตเวย์ความปลอดภัยยุคใหม่ที่ออกแบบตามหลักสถาปัตยกรรม Zero-Trust ตรวจสอบและยืนยันตัวตนทุกคำขอเข้าถึงเครือข่าย ป้องกันการโจมตีแบบ Ransomware และตรวจจับพฤติกรรมผิดปกติด้วย AI ตลอด 24 ชม.',
+    price: 'เริ่มต้น 18,900 บาท/เดือน',
+    tags: ['Zero-Trust', 'AI Firewall', 'DDoS Protection'],
+    specs: [
+      { label: 'ความสามารถประมวลผล', value: 'Throughput สูงสุด 40 Gbps' },
+      { label: 'ระบบยืนยันตัวตน', value: 'MFA, FIDO2, SAML 2.0 Integration' },
+      { label: 'การเข้ารหัสข้อมูล', value: 'Post-Quantum Ready TLS 1.3' },
+      { label: 'การมอนิเตอร์', value: 'Automated SOC Incident Response' }
+    ],
+    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
+    accentColor: '#3B82F6',
+    glowColor: 'rgba(59, 130, 246, 0.22)',
+    icon: 'ShieldCheck'
+  },
+  {
+    id: 6,
+    title: 'OmniFlow Enterprise BI & ERP',
+    category: 'ซอฟต์แวร์อัจฉริยะ',
+    desc: 'ระบบบริหารจัดการทรัพยากรองค์กรและแดชบอร์ดอัจฉริยะ รวมทุกข้อมูลการตัดสินใจไว้ในที่เดียว',
+    detailedDesc: 'โซลูชันศูนย์รวมข้อมูลองค์กรยุคใหม่ที่เชื่อมโยงคลังสินค้า บัญชี การขาย และฝ่ายผลิตเข้าด้วยกัน พร้อมระบบ AI Predictive Analytics ที่ช่วยพยากรณ์ยอดขายและแนวโน้มต้นทุนล่วงหน้าอย่างแม่นยำ',
+    price: 'โซลูชันตามสเกลองค์กร',
+    tags: ['Enterprise BI', 'Predictive AI', 'Full Modular'],
+    specs: [
+      { label: 'โมดูลระบบ', value: 'Finance, Inventory, HR, CRM, Supply Chain' },
+      { label: 'การออกรายงาน', value: 'Automated Executive Briefing & Export' },
+      { label: 'ความสามารถขยายระบบ', value: 'Multi-Tenant / High-Availability' },
+      { label: 'การติดตั้ง', value: 'On-Premises หรือ Hybrid Private Cloud' }
+    ],
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+    accentColor: '#EC4899',
+    glowColor: 'rgba(236, 72, 153, 0.22)',
+    icon: 'Sparkles'
   }
 ]
 
@@ -55,6 +144,25 @@ const filteredProducts = computed(() => {
   if (activeCategory.value === 'ทั้งหมด') return products
   return products.filter(p => p.category === activeCategory.value)
 })
+
+// Selected Product for Detail Modal
+const selectedProduct = ref<ProductItem | null>(null)
+
+const openProductDetail = (product: ProductItem) => {
+  selectedProduct.value = product
+}
+
+const closeProductDetail = () => {
+  selectedProduct.value = null
+}
+
+const handleImageError = (e: Event) => {
+  const target = e.target as HTMLImageElement
+  if (target) {
+    // Elegant fallback SVG tech gradient if remote image fails
+    target.src = 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"%3E%3Crect width="800" height="500" fill="%23021e17"/%3E%3Ccircle cx="400" cy="250" r="140" fill="%2300c864" fill-opacity="0.12"/%3E%3Cpath d="M250 350 L400 150 L550 350 Z" stroke="%2300c864" stroke-width="2" fill="none" opacity="0.4"/%3E%3Ctext x="50%25" y="52%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="%2300c864"%3EIGENCO ENTERPRISE SOLUTION%3C/text%3E%3C/svg%3E'
+  }
+}
 
 const inquireProduct = (title: string) => {
   if (import.meta.client) {
@@ -67,6 +175,7 @@ const inquireProduct = (title: string) => {
       contactSection.scrollIntoView({ behavior: 'smooth' })
     }
   }
+  closeProductDetail()
   showToast(`เลือกสอบถามสินค้า: ${title}`)
 }
 </script>
@@ -75,19 +184,19 @@ const inquireProduct = (title: string) => {
   <section id="products" class="py-24 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto relative z-10">
     
     <!-- Section Title & Filter Tabs -->
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
-      <div>
+    <div class="sticky top-16 sm:top-20 z-20 py-4 bg-[#F6F9F7]/95 dark:bg-[#020806]/95 backdrop-blur-md flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 border-b border-current/10 -mx-5 px-5 sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 transition-all">
+      <div class="reveal-init reveal-left">
         <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-2 font-bold">
           <Box class="w-3.5 h-3.5" />
-          <span>CATALOG // ผลิตภัณฑ์และสินค้า</span>
+          <span>CATALOG // ผลิตภัณฑ์และบริการ</span>
         </div>
-        <h2 class="font-display font-extrabold text-3xl sm:text-5xl uppercase">
+        <h2 class="font-display font-extrabold text-3xl sm:text-5xl uppercase tracking-tight">
           ผลิตภัณฑ์และโซลูชันของเรา
         </h2>
       </div>
 
       <!-- Categories Filter Tabs -->
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 reveal-init reveal-right">
         <button
           v-for="cat in categories"
           :key="cat"
@@ -105,65 +214,253 @@ const inquireProduct = (title: string) => {
       </div>
     </div>
 
-    <!-- Product Cards Grid with 3D Micro-interactions -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Product Cards Grid: 6 Modern Equal Cards with Staggered Entrance & Motion Hover -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
       <div
-        v-for="product in filteredProducts"
+        v-for="(product, idx) in filteredProducts"
         :key="product.id"
-        class="spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2 hover:shadow-[0_16px_36px_rgba(0,200,100,0.15)] transition-all duration-300 border border-current/10"
+        class="product-card spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2.5 transition-all duration-400 border border-current/10 relative reveal-init reveal-blur"
+        :style="{
+          transitionDelay: `${idx * 35}ms`,
+          '--brand-accent': product.accentColor,
+          '--brand-glow': product.glowColor
+        }"
       >
-        <!-- Product Image with Zoom Effect -->
-        <div class="relative h-48 overflow-hidden bg-black/10">
+        <!-- Top Image Frame: Equal Aspect Ratio (16/10) with Clean Border & Ambient Glow -->
+        <div class="relative aspect-[16/10] w-full overflow-hidden bg-black/15 border-b border-current/10">
           <img
             :src="product.image"
             :alt="product.title"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+            class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+            loading="lazy"
+            @error="handleImageError"
           >
-          <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#022C22]/85 text-white backdrop-blur-md">
-            {{ product.category }}
-          </span>
+          
+          <!-- Category Badge -->
+          <div class="absolute top-3.5 left-3.5 z-10">
+            <span class="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#022C22]/85 text-white dark:bg-[#051811]/90 backdrop-blur-md border border-white/10 shadow-sm">
+              {{ product.category }}
+            </span>
+          </div>
+
+          <!-- Product Number / Tag Badge -->
+          <div class="absolute top-3.5 right-3.5 z-10">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-black/50 text-white/90 backdrop-blur-md">
+              0{{ product.id }}
+            </span>
+          </div>
+
+          <!-- Subtle Brand Accent Border Light -->
+          <div 
+            class="absolute inset-0 border-2 border-transparent group-hover:border-[var(--brand-accent)] transition-colors duration-400 pointer-events-none rounded-t-3xl"
+          />
         </div>
 
-        <!-- Product Details -->
-        <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
-          <div>
-            <h3 class="text-xl font-bold mb-2 group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] transition-colors leading-snug">
+        <!-- Product Info Body -->
+        <div class="p-6 flex-1 flex flex-col justify-between space-y-5">
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-2">
+              <span
+                class="w-2 h-2 rounded-full"
+                :style="{ backgroundColor: product.accentColor }"
+              />
+              <span class="text-[11px] font-mono uppercase tracking-wider opacity-60">
+                ENTERPRISE GRADE
+              </span>
+            </div>
+
+            <h3 
+              class="text-xl sm:text-2xl font-bold leading-snug transition-colors duration-300 group-hover:text-[var(--brand-accent)]"
+            >
               {{ product.title }}
             </h3>
+
             <p class="text-xs sm:text-sm opacity-75 line-clamp-2 leading-relaxed">
               {{ product.desc }}
             </p>
           </div>
 
+          <!-- Tags & Action Bar -->
           <div class="space-y-4 pt-4 border-t border-current/10">
-            <!-- Tags -->
+            <!-- Feature Tags -->
             <div class="flex flex-wrap gap-1.5">
               <span
                 v-for="tag in product.tags"
                 :key="tag"
-                class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-current/5 border border-current/10"
+                class="px-2.5 py-1 rounded-md text-[10px] font-mono bg-current/5 border border-current/10"
               >
                 {{ tag }}
               </span>
             </div>
 
-            <!-- Price & Inquire Button -->
-            <div class="flex items-center justify-between pt-2">
-              <div class="text-xs font-mono font-bold text-[#00C864] dark:text-[#00FF88]">
+            <!-- Price & Dual Action Buttons (ดูรายละเอียด + สอบถามสินค้านี้) -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+              <div class="text-xs font-mono font-bold text-[#00C864] dark:text-[#00FF88] self-center sm:self-auto">
                 {{ product.price }}
               </div>
-              <button
-                type="button"
-                class="px-4 py-2 rounded-xl text-xs font-bold bg-[#022C22] text-white dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 shadow-md"
-                @click="inquireProduct(product.title)"
-              >
-                <span>สอบถามสินค้านี้</span>
-                <ArrowUpRight class="w-3.5 h-3.5" />
-              </button>
+
+              <div class="flex items-center gap-2">
+                <!-- 1. ปุ่มดูรายละเอียด (View Details) -->
+                <button
+                  type="button"
+                  class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15"
+                  @click="openProductDetail(product)"
+                >
+                  <Info class="w-3.5 h-3.5 opacity-75" />
+                  <span>ดูรายละเอียด</span>
+                </button>
+
+                <!-- 2. ปุ่มสอบถามสินค้านี้ (Inquire Product) -->
+                <button
+                  type="button"
+                  class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-bold bg-[#022C22] text-white dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-md hover:shadow-lg"
+                  @click="inquireProduct(product.title)"
+                >
+                  <span>สอบถามสินค้านี้</span>
+                  <ArrowUpRight class="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Product Detail Modal Drawer -->
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-300 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition duration-200 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="selectedProduct"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          @click.self="closeProductDetail"
+        >
+          <div
+            class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto spatial-glass rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl custom-modal-scrollbar"
+            :style="{
+              boxShadow: `0 24px 60px ${selectedProduct.glowColor}`
+            }"
+          >
+            <!-- Close Button -->
+            <button
+              type="button"
+              class="absolute top-5 right-5 w-9 h-9 rounded-full bg-current/10 hover:bg-current/20 flex items-center justify-center transition-all"
+              @click="closeProductDetail"
+            >
+              <X class="w-5 h-5" />
+            </button>
+
+            <!-- Modal Header -->
+            <div class="flex items-center gap-3 mb-4">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-mono font-bold text-white"
+                :style="{ backgroundColor: selectedProduct.accentColor }"
+              >
+                {{ selectedProduct.category }}
+              </span>
+              <span class="text-xs font-mono opacity-60">
+                PROD-ID // 0{{ selectedProduct.id }}
+              </span>
+            </div>
+
+            <h3 class="text-2xl sm:text-3xl font-display font-extrabold mb-3">
+              {{ selectedProduct.title }}
+            </h3>
+
+            <!-- Product Image Preview -->
+            <div class="relative aspect-[16/9] w-full rounded-2xl overflow-hidden mb-6 bg-black/20 border border-current/10">
+              <img
+                :src="selectedProduct.image"
+                :alt="selectedProduct.title"
+                class="w-full h-full object-cover"
+                @error="handleImageError"
+              >
+            </div>
+
+            <!-- Detailed Description -->
+            <div class="mb-6 space-y-2">
+              <h4 class="text-xs font-mono uppercase tracking-wider font-bold text-[#00C864] dark:text-[#00FF88]">
+                ข้อมูลผลิตภัณฑ์และจุดเด่น (PRODUCT OVERVIEW)
+              </h4>
+              <p class="text-sm sm:text-base opacity-90 leading-relaxed">
+                {{ selectedProduct.detailedDesc }}
+              </p>
+            </div>
+
+            <!-- Specifications Table -->
+            <div class="mb-6 space-y-3">
+              <h4 class="text-xs font-mono uppercase tracking-wider font-bold text-[#00C864] dark:text-[#00FF88]">
+                ข้อมูลจำเพาะทางเทคนิค (SPECIFICATIONS)
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div
+                  v-for="spec in selectedProduct.specs"
+                  :key="spec.label"
+                  class="p-3.5 rounded-xl bg-current/5 border border-current/10 space-y-1"
+                >
+                  <div class="text-[11px] font-mono opacity-60">
+                    {{ spec.label }}
+                  </div>
+                  <div class="text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                    <CheckCircle2 class="w-3.5 h-3.5 text-[#00C864] dark:text-[#00FF88] flex-shrink-0" />
+                    <span>{{ spec.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="flex flex-wrap gap-2 mb-8">
+              <span
+                v-for="tag in selectedProduct.tags"
+                :key="tag"
+                class="px-3 py-1 rounded-lg text-xs font-mono bg-current/5 border border-current/10"
+              >
+                # {{ tag }}
+              </span>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-current/10">
+              <div class="text-sm font-mono font-bold text-[#00C864] dark:text-[#00FF88]">
+                ราคา / ค่าบริการ: {{ selectedProduct.price }}
+              </div>
+              <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button
+                  type="button"
+                  class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 transition-all"
+                  @click="closeProductDetail"
+                >
+                  ปิดหน้าต่าง
+                </button>
+                <button
+                  type="button"
+                  class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold bg-[#022C22] text-white dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
+                  @click="inquireProduct(selectedProduct.title)"
+                >
+                  <span>ปรึกษาและสอบถามสินค้านี้ทันที</span>
+                  <ArrowUpRight class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </section>
 </template>
+
+<style scoped>
+.product-card:hover {
+  box-shadow: 0 20px 40px var(--brand-glow);
+  border-color: var(--brand-accent);
+}
+</style>
