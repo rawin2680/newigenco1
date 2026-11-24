@@ -195,17 +195,17 @@ const inquireProduct = (title: string) => {
         </h2>
       </div>
 
-      <!-- Categories Filter Tabs -->
-      <div class="flex flex-wrap items-center gap-2 reveal-init reveal-right">
+      <!-- Categories Filter Tabs (Liquid Glass Capsule Tray) -->
+      <div class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-full spatial-glass border border-current/10 reveal-init reveal-right">
         <button
           v-for="cat in categories"
           :key="cat"
           type="button"
           :class="[
-            'px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200',
+            'px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 select-none cursor-pointer',
             activeCategory === cat
               ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md font-bold scale-105'
-              : 'spatial-glass hover:bg-[#00C864]/10 opacity-80 hover:opacity-100'
+              : 'opacity-70 hover:opacity-100 hover:bg-current/5'
           ]"
           @click="activeCategory = cat"
         >
@@ -313,7 +313,7 @@ const inquireProduct = (title: string) => {
                 <!-- 2. ปุ่มสอบถามสินค้านี้ (Inquire Product) -->
                 <button
                   type="button"
-                  class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-bold bg-[#022C22] text-white dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-md hover:shadow-lg"
+                  class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-md hover:shadow-lg hover:scale-105"
                   @click="inquireProduct(product.title)"
                 >
                   <span>สอบถามสินค้านี้</span>
@@ -443,7 +443,7 @@ const inquireProduct = (title: string) => {
                 </button>
                 <button
                   type="button"
-                  class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold bg-[#022C22] text-white dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
+                  class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_8px_24px_rgba(0,200,100,0.3)]"
                   @click="inquireProduct(selectedProduct.title)"
                 >
                   <span>ปรึกษาและสอบถามสินค้านี้ทันที</span>

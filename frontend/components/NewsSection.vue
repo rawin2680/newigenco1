@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Calendar, ArrowRight, Sparkles, BookOpen, ChevronLeft, ChevronRight, Clock, X } from 'lucide-vue-next'
+import { Calendar, ArrowRight, ArrowUpRight, Sparkles, BookOpen, ChevronLeft, ChevronRight, Clock, X } from 'lucide-vue-next'
 import { useNews, type NewsItem } from '~/composables/useNews'
 import { useTheme } from '~/composables/useTheme'
 
@@ -106,17 +106,17 @@ const toggleAiSummary = (id: number) => {
 
       <!-- Categories Filter Tabs & Quick Controls -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 reveal-init reveal-right">
-        <!-- Categories -->
-        <div class="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
+        <!-- Categories (Liquid Glass Capsule Tray) -->
+        <div class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-full spatial-glass border border-current/10">
           <button
             v-for="cat in categories"
             :key="cat"
             type="button"
             :class="[
-              'px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200',
+              'px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 select-none cursor-pointer',
               activeCategory === cat
-                ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-sm font-bold'
-                : 'hover:bg-[#00C864]/10 opacity-75 hover:opacity-100'
+                ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md font-bold scale-105'
+                : 'opacity-70 hover:opacity-100 hover:bg-current/5'
             ]"
             @click="activeCategory = cat"
           >
@@ -167,43 +167,45 @@ const toggleAiSummary = (id: number) => {
          NEWS CARDS GRID: EXACTLY 3 CARDS AT A TIME
          Glassmorphism & Dynamic Glow with Direct Navigation
     ========================================================== -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 items-stretch">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
       <article
         v-for="(item, idx) in displayedNews"
         :key="item.id"
         :class="[
-          'rounded-[2rem] overflow-hidden relative group transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between backdrop-blur-2xl bg-white/70 dark:bg-black/50 border border-white/70 dark:border-emerald-500/20 shadow-[0_12px_40px_rgba(0,200,100,0.08)] hover:shadow-[0_20px_50px_rgba(0,200,100,0.15)] hover-lift reveal-init reveal-blur',
+          'spatial-glass rounded-3xl overflow-hidden relative group transition-all duration-300 hover:-translate-y-2.5 flex flex-col justify-between border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] hover:shadow-[0_20px_45px_rgba(0,200,100,0.18)] hover-lift reveal-init reveal-blur',
           idx === 0 ? 'delay-75' : idx === 1 ? 'delay-150' : 'delay-250'
         ]"
         @mousemove="onCardMouseMove($event, item.id)"
       >
         <!-- Mouse-Tracking Dynamic Glow Spotlight -->
         <div
-          class="pointer-events-none absolute -inset-px rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
+          class="pointer-events-none absolute -inset-px rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"
           :style="{
             background: `radial-gradient(350px circle at ${mouseCoords[item.id]?.x || 150}px ${mouseCoords[item.id]?.y || 100}px, rgba(0, 210, 106, 0.22), transparent 70%)`
           }"
         />
 
         <div>
-          <!-- Article Cover Image (Direct Link to News Page) -->
-          <NuxtLink :to="'/news/' + item.id" class="block relative h-56 sm:h-60 overflow-hidden bg-black/15">
+          <!-- Article Cover Image: aspect-[16/10] to match Product Cards -->
+          <NuxtLink :to="'/news/' + item.id" class="block relative aspect-[16/10] w-full overflow-hidden bg-black/15 border-b border-current/10">
             <img
               :src="item.image"
               :alt="item.title"
               class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
             >
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
             
-            <!-- Category Badge -->
-            <span class="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md z-10">
-              {{ item.category }}
-            </span>
+            <!-- Category Badge (Unified with Product Catalog) -->
+            <div class="absolute top-3.5 left-3.5 z-10">
+              <span class="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#022C22]/85 text-white dark:bg-[#051811]/90 backdrop-blur-md border border-white/10 shadow-sm">
+                {{ item.category }}
+              </span>
+            </div>
 
-            <!-- AI Quick Summary Trigger (Click to toggle summary inside card) -->
+            <!-- AI Quick Summary Trigger -->
             <button
               type="button"
-              class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-mono font-bold bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all flex items-center gap-1.5 z-20 hover:scale-105 active:scale-95 shadow-lg"
+              class="absolute top-3.5 right-3.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all flex items-center gap-1.5 z-20 hover:scale-105 active:scale-95 shadow-lg"
               title="กดเพื่อดูสรุป 3 ข้อโดย AI"
               @click.prevent.stop="toggleAiSummary(item.id)"
             >
@@ -228,18 +230,18 @@ const toggleAiSummary = (id: number) => {
             </div>
 
             <!-- Title with Direct Link -->
-            <h3 class="text-xl font-bold leading-snug line-clamp-2 group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] transition-colors">
+            <h3 class="text-xl sm:text-2xl font-bold leading-snug line-clamp-2 group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] transition-colors">
               <NuxtLink :to="'/news/' + item.id">
                 {{ item.title }}
               </NuxtLink>
             </h3>
 
             <!-- Summary Text -->
-            <p class="text-sm opacity-80 line-clamp-3 leading-relaxed">
+            <p class="text-xs sm:text-sm opacity-80 line-clamp-3 leading-relaxed">
               {{ item.summary }}
             </p>
 
-            <!-- Inline AI Summary Popover Box (Doesn't pop up full screen) -->
+            <!-- Inline AI Summary Popover Box -->
             <div
               v-if="activeAiSummaryId === item.id"
               class="p-4 rounded-2xl bg-[#020806]/95 text-white border border-[#00FF88]/40 shadow-2xl space-y-2.5 animate-in fade-in zoom-in-95 duration-200 mt-2"
@@ -271,16 +273,16 @@ const toggleAiSummary = (id: number) => {
           </div>
         </div>
 
-        <!-- Card Footer Action: Direct Link to News Article Page -->
+        <!-- Card Footer Action: Direct Link Button (Unified with Product CTA) -->
         <div class="px-6 sm:px-7 pb-6 pt-3 flex items-center justify-between border-t border-current/10 relative z-10">
           <NuxtLink
             :to="'/news/' + item.id"
-            class="text-xs sm:text-sm font-bold text-[#00C864] dark:text-[#00FF88] hover:underline flex items-center gap-2"
+            class="px-4 py-2 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center gap-1.5 shadow-md"
           >
-            <span>อ่านเพิ่มเติมหรือสอบถาม</span>
-            <ArrowRight class="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
+            <span>อ่านบทความเต็ม</span>
+            <ArrowUpRight class="w-3.5 h-3.5" />
           </NuxtLink>
-          <span class="text-[11px] font-mono opacity-50">IGENCO // {{ item.id.toString().padStart(2, '0') }}</span>
+          <span class="text-[11px] font-mono opacity-50">IGENCO // 0{{ item.id }}</span>
         </div>
       </article>
     </div>

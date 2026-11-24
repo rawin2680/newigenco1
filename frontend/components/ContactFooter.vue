@@ -105,18 +105,22 @@ const scrollToTop = () => {
               สนใจระบบซอฟต์แวร์ตัวไหน หรือต้องการปรึกษาเพื่อนำโซลูชันไปปรับใช้กับองค์กรของคุณ สามารถกรอกฟอร์มได้ทันทีโดยไม่ต้องลงทะเบียนล่วงหน้า ทีมผู้เชี่ยวชาญ IGENCO จะติดต่อกลับอย่างรวดเร็ว
             </p>
 
-            <!-- Quick Trust Badges -->
+            <!-- Quick Trust Badges (Unified Spatial Glass) -->
             <div class="pt-4 space-y-3">
-              <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-[#00C864]/10 dark:bg-[#00FF88]/10 border border-[#00C864]/20 hover-lift">
-                <ShieldCheck class="w-5 h-5 text-[#00A854] dark:text-[#00FF88] shrink-0" />
+              <div class="flex items-center gap-3.5 p-4 rounded-2xl spatial-glass border border-[#00C864]/25 dark:border-[#00FF88]/25 hover-lift">
+                <div class="w-10 h-10 rounded-xl bg-[#00C864]/15 dark:bg-[#00FF88]/15 flex items-center justify-center shrink-0 text-[#00C864] dark:text-[#00FF88]">
+                  <ShieldCheck class="w-5 h-5" />
+                </div>
                 <div class="text-xs">
                   <span class="font-bold">มาตรฐานระดับสากล ISO/IEC 29110</span>
                   <p class="opacity-75">ผ่านการรับรองโดย TÜV NORD (Thailand) Co., Ltd.</p>
                 </div>
               </div>
 
-              <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 hover-lift">
-                <Clock class="w-5 h-5 text-[#00A854] dark:text-[#00FF88] shrink-0" />
+              <div class="flex items-center gap-3.5 p-4 rounded-2xl spatial-glass border border-current/10 hover-lift">
+                <div class="w-10 h-10 rounded-xl bg-current/5 flex items-center justify-center shrink-0 text-[#00C864] dark:text-[#00FF88]">
+                  <Clock class="w-5 h-5" />
+                </div>
                 <div class="text-xs">
                   <span class="font-bold">ตอบกลับรวดเร็วภายใน 24 ชม.</span>
                   <p class="opacity-75">วันจันทร์ - ศุกร์ เวลา 08:30 - 17:30 น.</p>
@@ -135,7 +139,7 @@ const scrollToTop = () => {
                   type="text"
                   required
                   placeholder="ระบุชื่อ - นามสกุล หรือชื่อองค์กร"
-                  class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                  class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
                 >
               </div>
               <div>
@@ -145,7 +149,7 @@ const scrollToTop = () => {
                   type="email"
                   required
                   placeholder="name@company.com"
-                  class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                  class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
                 >
               </div>
             </div>
@@ -157,7 +161,7 @@ const scrollToTop = () => {
                   v-model="form.phone"
                   type="tel"
                   placeholder="08X-XXX-XXXX หรือ 02-XXX-XXXX"
-                  class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                  class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
                 >
               </div>
               <div>
@@ -167,7 +171,7 @@ const scrollToTop = () => {
                   v-model="form.projectSummary"
                   type="text"
                   placeholder="เช่น ระบบ iSmartFlow, I-SERFF หรือพัฒนาซอฟต์แวร์เฉพาะทาง"
-                  class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                  class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
                 >
               </div>
             </div>
@@ -178,14 +182,14 @@ const scrollToTop = () => {
                 v-model="form.message"
                 rows="4"
                 placeholder="ระบุขอบเขตงาน จำนวนผู้ใช้งาน หรือฟังก์ชันที่ต้องการให้ระบบรองรับ..."
-                class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
               />
             </div>
 
             <button
               type="submit"
               :disabled="isSubmitting"
-              class="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-[#022C22] text-white dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+              class="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-xl hover:shadow-[0_8px_25px_rgba(0,200,100,0.35)] disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
             >
               <span>{{ isSubmitting ? 'กำลังส่งข้อมูล...' : 'ส่งแบบฟอร์มสอบถาม / ขอรับคำปรึกษา' }}</span>
               <Send class="w-4 h-4" />
