@@ -522,12 +522,126 @@ useHead(() => ({
           </div>
 
           <!-- ===================================================
-               EDITORIAL BODY PARAGRAPHS
+               EDITORIAL BODY PARAGRAPHS: PROFESSIONAL CORPORATE LAYOUT
           ==================================================== -->
-          <div id="section-body" class="space-y-6 text-base sm:text-lg opacity-90 leading-loose reveal-init reveal-blur">
-            <p v-for="(para, idx) in article.fullContent" :key="idx" class="indent-6 sm:indent-8">
-              {{ para }}
-            </p>
+          <div id="section-body" class="space-y-8 text-base sm:text-lg leading-[2.1] text-slate-800 dark:text-slate-200 reveal-init reveal-blur">
+            
+            <!-- 1. Lead Milestone Highlight (ย่อหน้านำแบบมีกรอบเน้นสีเขียวมรกต) -->
+            <div
+              v-if="article.fullContent.length > 0"
+              class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#00C864]/10 via-[#00C864]/5 to-transparent border-l-4 border-[#00C864] text-lg sm:text-xl font-medium leading-[2.1] text-[#022C22] dark:text-[#F4FBF7] shadow-sm relative overflow-hidden"
+            >
+              <p>{{ article.fullContent[0] }}</p>
+            </div>
+
+            <!-- 2. Corporate Milestones Stats Ribbon (ถ้ามี) -->
+            <div v-if="article.milestones && article.milestones.length > 0" class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div
+                v-for="(stat, idx) in article.milestones"
+                :key="idx"
+                class="p-5 rounded-2xl spatial-glass border border-current/10 flex flex-col justify-between space-y-1 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all hover:-translate-y-1"
+              >
+                <div class="text-[11px] font-mono uppercase tracking-wider opacity-60">
+                  {{ stat.label }}
+                </div>
+                <div class="text-2xl sm:text-3xl font-black font-display text-[#00A854] dark:text-[#00FF88]">
+                  {{ stat.value }}
+                </div>
+                <div v-if="stat.sub" class="text-xs opacity-75">
+                  {{ stat.sub }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Foundation & Background Paragraph -->
+            <div v-if="article.fullContent[1]" class="space-y-3">
+              <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
+                <span>ประวัติและการจัดตั้งองค์กร</span>
+              </h3>
+              <p class="leading-[2.2] opacity-90">
+                {{ article.fullContent[1] }}
+              </p>
+            </div>
+
+            <!-- 4. Core Solutions & Services Grid (ถ้ามี) -->
+            <div v-if="article.services && article.services.length > 0" class="my-6 space-y-4">
+              <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] flex items-center gap-1.5">
+                <Layers class="w-3.5 h-3.5" />
+                <span>COMPREHENSIVE IT SERVICES // ขอบเขตการให้บริการ</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div
+                  v-for="(svc, sIdx) in article.services"
+                  :key="sIdx"
+                  class="p-5 rounded-2xl spatial-glass border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all hover:-translate-y-1 group"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-[#00C864]/15 dark:bg-[#00FF88]/15 text-[#00A854] dark:text-[#00FF88]">
+                      {{ svc.code }}
+                    </span>
+                    <span class="text-xs font-mono opacity-50">0{{ sIdx + 1 }}</span>
+                  </div>
+                  <h4 class="font-bold text-base sm:text-lg group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] transition-colors">
+                    {{ svc.title }}
+                  </h4>
+                  <div class="text-xs text-[#00A854] dark:text-[#00FF88] font-medium mb-1.5">
+                    {{ svc.thaiTitle }}
+                  </div>
+                  <p class="text-xs sm:text-sm opacity-80 leading-relaxed">
+                    {{ svc.desc }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Operational Philosophy Quote / Policy (ถ้ามี) -->
+            <div v-if="article.fullContent[2]" class="space-y-3">
+              <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
+                <span>ปรัชญาและนโยบายการบริหารงาน</span>
+              </h3>
+              <div class="p-6 sm:p-7 rounded-2xl bg-current/5 border-l-4 border-[#00C864] italic text-base sm:text-lg leading-[2.2] opacity-95">
+                {{ article.fullContent[2] }}
+              </div>
+            </div>
+
+            <!-- 6. National Partnerships & Accreditations (ถ้ามี) -->
+            <div v-if="article.partnerships && article.partnerships.length > 0" class="my-6 space-y-4">
+              <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] flex items-center gap-1.5">
+                <Award class="w-3.5 h-3.5" />
+                <span>NATIONAL ACCREDITATIONS // พันธมิตรและการรับรอง</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div
+                  v-for="(part, pIdx) in article.partnerships"
+                  :key="pIdx"
+                  class="p-5 rounded-2xl spatial-glass border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all hover:-translate-y-1"
+                >
+                  <div class="text-sm font-bold text-[#022C22] dark:text-white mb-1">
+                    {{ part.name }}
+                  </div>
+                  <div class="text-xs text-[#00A854] dark:text-[#00FF88] font-medium mb-2">
+                    {{ part.role }}
+                  </div>
+                  <p class="text-xs opacity-75 leading-relaxed">
+                    {{ part.desc }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. Remaining paragraphs (ถ้ามีมากกว่า 3 ย่อหน้า) -->
+            <template v-if="article.fullContent.length > 3">
+              <p
+                v-for="(para, idx) in article.fullContent.slice(3)"
+                :key="idx"
+                class="leading-[2.2] opacity-90"
+              >
+                {{ para }}
+              </p>
+            </template>
+
           </div>
 
           <!-- ===================================================
