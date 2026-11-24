@@ -110,6 +110,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'ฝ่ายผู้จัดการทั่วไป',
         en: 'General Management',
         icon: UserCheck,
+        image: '/images/about/general-management-avatar.jpg',
         desc: 'กำกับดูแลการปฏิบัติการทั่วไปและสนับสนุนงานบริหาร',
         responsibilities: [
           'ประสานงานระหว่างสายงานและติดตามผลการดำเนินงาน',
