@@ -8,7 +8,6 @@ import {
   Sparkles,
   Share2,
   CheckCircle2,
-  Search,
   X,
   Star,
   Heart,
@@ -25,8 +24,7 @@ import {
   ArrowRight,
   User,
   Copy,
-  ExternalLink,
-  Tag
+  ExternalLink
 } from 'lucide-vue-next'
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
@@ -68,22 +66,50 @@ const prevGallery = () => {
 const scrollProgress = ref(0)
 const activeSection = ref('section-overview')
 const tableOfContents = computed(() => {
-  const toc = [
-    { id: 'section-overview', label: article.value?.certifier ? 'ภาพรวมและการรับรอง' : 'ภาพรวมบทความ' },
-    { id: 'section-summary', label: 'สรุปสาระสำคัญ (AI Summary)' },
-    { id: 'section-body', label: 'เนื้อหาบทความ' }
+  const art = article.value
+  const toc: { id: string; label: string }[] = [
+    { id: 'section-overview', label: art?.certifier ? 'ภาพรวมและการรับรอง' : 'ภาพรวมบทความ' },
+    { id: 'section-summary', label: 'สรุปสาระสำคัญ (AI Summary)' }
   ]
-  if (article.value?.flowcharts && article.value.flowcharts.length > 0) {
+
+  if (art?.services && art.services.length > 0) {
+    toc.push({ id: 'section-history', label: 'ประวัติและการจัดตั้งองค์กร' })
+    toc.push({ id: 'section-services', label: 'ขอบเขตการให้บริการ IT' })
+    if (art.fullContent && art.fullContent[2]) {
+      toc.push({ id: 'section-philosophy', label: 'ปรัชญาและนโยบายบริหาร' })
+    }
+    if (art.partnerships && art.partnerships.length > 0) {
+      toc.push({ id: 'section-partnerships', label: 'พันธมิตรและการรับรอง' })
+    }
+  } else {
+    toc.push({ id: 'section-body', label: 'เนื้อหาบทความ' })
+  }
+
+  if (art?.flowcharts && art.flowcharts.length > 0) {
     toc.push({ id: 'section-architecture', label: 'แผนผังกระบวนการมาตรฐาน' })
   }
+
   toc.push({ id: 'section-author', label: 'ข้อมูลผู้เขียนและการประเมิน' })
   return toc
 })
+
+const scrollToSection = (id: string) => {
+  activeSection.value = id
+  if (import.meta.client) {
+    const el = document.getElementById(id)
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      const targetY = window.scrollY + rect.top - 100
+      window.scrollTo({ top: targetY, behavior: 'smooth' })
+    }
+  }
+}
 
 let sectionObserver: IntersectionObserver | null = null
 
 const setupSectionObserver = () => {
   if (import.meta.client && 'IntersectionObserver' in window) {
+    sectionObserver?.disconnect()
     sectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -97,7 +123,7 @@ const setupSectionObserver = () => {
         threshold: 0
       }
     )
-    tableOfContents.forEach((sec) => {
+    tableOfContents.value.forEach((sec) => {
       const el = document.getElementById(sec.id)
       if (el) sectionObserver?.observe(el)
     })
@@ -184,31 +210,10 @@ const closeLightbox = () => {
 }
 
 // -------------------------------------------------------------
-// 5. STICKY SIDEBAR: INSTANT SEARCH & CATEGORIES
+// 5. STICKY SIDEBAR: RECENT POSTS
 // -------------------------------------------------------------
-const searchQuery = ref('')
-const selectedCategory = ref('ทั้งหมด')
-
-const categoriesWithCount = [
-  { name: 'ทั้งหมด', count: newsList.length },
-  { name: 'Enterprise Software', count: 7 },
-  { name: 'Service Development', count: 2 },
-  { name: 'E-Commerce', count: 3 },
-  { name: 'กิจกรรมองค์กร', count: 4 }
-]
-
 const recentNews = computed(() => {
   return newsList.filter(n => n.id !== articleId.value).slice(0, 4)
-})
-
-const filteredSearchResults = computed(() => {
-  if (!searchQuery.value.trim()) return []
-  const q = searchQuery.value.toLowerCase().trim()
-  return newsList.filter(n =>
-    n.title.toLowerCase().includes(q) ||
-    n.summary.toLowerCase().includes(q) ||
-    n.category.toLowerCase().includes(q)
-  )
 })
 
 // คัดลอกลิงก์แชร์
@@ -282,7 +287,7 @@ useHead(() => ({
           <!-- ===================================================
                BENTO HERO HEADER (จัดวาง TÜV NORD + ISO 29110 ในการ์ดกระจกฝ้า)
           ==================================================== -->
-          <header id="section-overview" class="space-y-6 reveal-init reveal-scale">
+          <header id="section-overview" class="space-y-6 reveal-init reveal-scale scroll-mt-28">
             
             <!-- Category, Date & Read Time Badges -->
             <div class="flex flex-wrap items-center gap-2.5 text-xs font-mono">
@@ -495,7 +500,7 @@ useHead(() => ({
           <!-- ===================================================
                AI QUICK SUMMARY BOX (กล่องพับเก็บได้ สรุป 3 ข้อย่อ)
           ==================================================== -->
-          <div id="section-summary" class="p-6 sm:p-7 rounded-[2rem] bg-[#021811] text-white border border-[#00FF88]/40 shadow-2xl space-y-4 reveal-init reveal-blur">
+          <div id="section-summary" class="p-6 sm:p-7 rounded-[2rem] bg-[#021811] text-white border border-[#00FF88]/40 shadow-2xl space-y-4 reveal-init reveal-blur scroll-mt-28">
             <div class="flex items-center justify-between cursor-pointer select-none" @click="isAiSummaryOpen = !isAiSummaryOpen">
               <div class="flex items-center gap-2.5 text-xs sm:text-sm font-mono text-[#00FF88] font-bold tracking-wider">
                 <Sparkles class="w-4 h-4 text-[#00FF88] animate-pulse" />
@@ -554,7 +559,7 @@ useHead(() => ({
             </div>
 
             <!-- 3. Foundation & Background Paragraph -->
-            <div v-if="article.fullContent[1]" class="space-y-3">
+            <div v-if="article.fullContent[1]" id="section-history" class="space-y-3 scroll-mt-28">
               <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
                 <span>ประวัติและการจัดตั้งองค์กร</span>
@@ -565,7 +570,7 @@ useHead(() => ({
             </div>
 
             <!-- 4. Core Solutions & Services Grid (ถ้ามี) -->
-            <div v-if="article.services && article.services.length > 0" class="my-6 space-y-4">
+            <div v-if="article.services && article.services.length > 0" id="section-services" class="my-6 space-y-4 scroll-mt-28">
               <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] flex items-center gap-1.5">
                 <Layers class="w-3.5 h-3.5" />
                 <span>COMPREHENSIVE IT SERVICES // ขอบเขตการให้บริการ</span>
@@ -596,7 +601,7 @@ useHead(() => ({
             </div>
 
             <!-- 5. Operational Philosophy Quote / Policy (ถ้ามี) -->
-            <div v-if="article.fullContent[2]" class="space-y-3">
+            <div v-if="article.fullContent[2]" id="section-philosophy" class="space-y-3 scroll-mt-28">
               <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
                 <span>ปรัชญาและนโยบายการบริหารงาน</span>
@@ -607,7 +612,7 @@ useHead(() => ({
             </div>
 
             <!-- 6. National Partnerships & Accreditations (ถ้ามี) -->
-            <div v-if="article.partnerships && article.partnerships.length > 0" class="my-6 space-y-4">
+            <div v-if="article.partnerships && article.partnerships.length > 0" id="section-partnerships" class="my-6 space-y-4 scroll-mt-28">
               <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] flex items-center gap-1.5">
                 <Award class="w-3.5 h-3.5" />
                 <span>NATIONAL ACCREDITATIONS // พันธมิตรและการรับรอง</span>
@@ -646,9 +651,9 @@ useHead(() => ({
 
           <!-- ===================================================
                INTERACTIVE FLOWCHART SECTION
-               Figure 2-1 (PM) & Figure 2-2 (SI) with Lightbox & Node Map
+                Figure 2-1 (PM) & Figure 2-2 (SI) with Lightbox & Node Map
           ==================================================== -->
-          <section id="section-architecture" v-if="article.flowcharts && article.flowcharts.length > 0" class="pt-6 space-y-6 reveal-init reveal-scale">
+          <section id="section-architecture" v-if="article.flowcharts && article.flowcharts.length > 0" class="pt-6 space-y-6 reveal-init reveal-scale scroll-mt-28">
             
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-current/10 pb-4">
               <div>
@@ -791,7 +796,7 @@ useHead(() => ({
                MODERN AUTHOR PROFILE & REACTION BAR
                ผู้เขียน: นายเกรียงไกร ทองบุรี + 5-Star Interactive Rating + Like
           ==================================================== -->
-          <div id="section-author" class="p-7 sm:p-8 rounded-[2rem] spatial-glass border border-current/15 shadow-xl space-y-6 reveal-init reveal-up">
+          <div id="section-author" class="p-7 sm:p-8 rounded-[2rem] spatial-glass border border-current/15 shadow-xl space-y-6 reveal-init reveal-up scroll-mt-28">
             
             <!-- Author Profile Card -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-6 border-b border-current/10">
@@ -885,7 +890,7 @@ useHead(() => ({
 
         <!-- =====================================================
              STICKY SIDEBAR (4 Columns)
-             Scrollytelling TOC + Instant Search + Categories + Recent Posts
+             Scrollytelling TOC + Recent Posts + Quick Consultation
         ====================================================== -->
         <aside class="lg:col-span-4 space-y-6 lg:sticky lg:top-28">
 
@@ -901,11 +906,12 @@ useHead(() => ({
                 :key="sec.id"
                 :href="'#' + sec.id"
                 :class="[
-                  'block px-3 py-2 rounded-xl text-xs transition-all flex items-center gap-2.5',
+                  'block px-3 py-2 rounded-xl text-xs transition-all flex items-center gap-2.5 cursor-pointer',
                   activeSection === sec.id
                     ? 'bg-[#00C864]/20 text-[#00A854] dark:text-[#00FF88] font-bold translate-x-1 border-l-2 border-[#00C864] dark:border-[#00FF88]'
                     : 'opacity-70 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5'
                 ]"
+                @click.prevent="scrollToSection(sec.id)"
               >
                 <span
                   :class="[
@@ -917,87 +923,8 @@ useHead(() => ({
               </a>
             </nav>
           </div>
-          
-          <!-- 1. Instant Search Widget -->
-          <div class="p-6 rounded-[2rem] spatial-glass border border-current/10 shadow-lg space-y-4">
-            <div class="text-xs font-mono font-bold text-[#00C864] dark:text-[#00FF88] uppercase">
-              SEARCH // ค้นหาบทความ
-            </div>
 
-            <!-- Instant Search Input Box with SVG Icon -->
-            <div class="relative">
-              <Search class="w-4 h-4 text-[#00C864] dark:text-[#00FF88] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="ค้นหาข่าว, โซลูชัน, มาตรฐาน..."
-                class="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-xs sm:text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] transition-colors"
-              >
-              <button
-                v-if="searchQuery"
-                type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100"
-                @click="searchQuery = ''"
-              >
-                <X class="w-4 h-4" />
-              </button>
-            </div>
-
-            <!-- Instant Search Results Dropdown -->
-            <div v-if="searchQuery" class="space-y-2 pt-1 border-t border-current/10">
-              <div class="text-[11px] font-mono opacity-60">
-                ผลการค้นหา ({{ filteredSearchResults.length }} รายการ):
-              </div>
-              <ul v-if="filteredSearchResults.length > 0" class="space-y-2 max-h-56 overflow-y-auto custom-modal-scrollbar">
-                <li v-for="res in filteredSearchResults" :key="res.id">
-                  <NuxtLink
-                    :to="'/news/' + res.id"
-                    class="block p-2.5 rounded-xl hover:bg-[#00C864]/10 dark:hover:bg-[#00FF88]/10 transition-colors"
-                    @click="searchQuery = ''"
-                  >
-                    <div class="text-xs font-bold line-clamp-1">{{ res.title }}</div>
-                    <div class="text-[11px] opacity-60 font-mono">{{ res.category }}</div>
-                  </NuxtLink>
-                </li>
-              </ul>
-              <div v-else class="text-xs opacity-60 py-2 text-center">
-                ไม่พบบทความที่ตรงกับคำค้นหา
-              </div>
-            </div>
-          </div>
-
-          <!-- 2. Categories Pill Badges Widget -->
-          <div class="p-6 rounded-[2rem] spatial-glass border border-current/10 shadow-lg space-y-4">
-            <div class="flex items-center justify-between">
-              <div class="text-xs font-mono font-bold text-[#00C864] dark:text-[#00FF88] uppercase">
-                CATEGORIES // หมวดหมู่
-              </div>
-              <Tag class="w-3.5 h-3.5 opacity-50" />
-            </div>
-
-            <!-- Pill Badges -->
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="cat in categoriesWithCount"
-                :key="cat.name"
-                type="button"
-                :class="[
-                  'px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5',
-                  selectedCategory === cat.name
-                    ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] font-bold shadow-sm scale-105'
-                    : 'bg-black/5 hover:bg-[#00C864]/10 dark:bg-white/5 dark:hover:bg-white/10 opacity-80 hover:opacity-100'
-                ]"
-                @click="selectedCategory = cat.name"
-              >
-                <span>{{ cat.name }}</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-black/10 dark:bg-white/10 font-mono">
-                  {{ cat.count }}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 3. Recent Posts Mini Cards -->
+          <!-- 1. Recent Posts Mini Cards (ข่าวล่าสุด) -->
           <div class="p-6 rounded-[2rem] spatial-glass border border-current/10 shadow-lg space-y-4">
             <div class="text-xs font-mono font-bold text-[#00C864] dark:text-[#00FF88] uppercase">
               RECENT POSTS // ข่าวล่าสุด
