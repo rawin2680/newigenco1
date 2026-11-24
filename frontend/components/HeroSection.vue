@@ -23,17 +23,22 @@ const isHovering = ref(false)
 const tiltX = ref(0)
 const tiltY = ref(0)
 
+let mouseRaf: number | null = null
 const onMouseMove = (e: MouseEvent) => {
-  if (!headlineRef.value) return
-  const rect = headlineRef.value.getBoundingClientRect()
-  mouseX.value = e.clientX - rect.left
-  mouseY.value = e.clientY - rect.top
-  isHovering.value = true
+  if (mouseRaf) return
+  mouseRaf = requestAnimationFrame(() => {
+    mouseRaf = null
+    if (!headlineRef.value) return
+    const rect = headlineRef.value.getBoundingClientRect()
+    mouseX.value = e.clientX - rect.left
+    mouseY.value = e.clientY - rect.top
+    isHovering.value = true
 
-  const normX = (mouseX.value / rect.width) * 2 - 1
-  const normY = (mouseY.value / rect.height) * 2 - 1
-  tiltX.value = normX * 3.5
-  tiltY.value = -normY * 3.5
+    const normX = (mouseX.value / rect.width) * 2 - 1
+    const normY = (mouseY.value / rect.height) * 2 - 1
+    tiltX.value = normX * 3.5
+    tiltY.value = -normY * 3.5
+  })
 }
 
 const onMouseLeave = () => {

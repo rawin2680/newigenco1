@@ -6,6 +6,17 @@ const skewAngle = ref(0)
 let lastScrollY = 0
 let lastTime = 0
 let animFrameId: number | null = null
+let isLoopRunning = false
+
+const updateInertia = () => {
+  skewAngle.value *= 0.88
+  if (Math.abs(skewAngle.value) > 0.05) {
+    animFrameId = requestAnimationFrame(updateInertia)
+  } else {
+    skewAngle.value = 0
+    isLoopRunning = false
+  }
+}
 
 const onScroll = () => {
   if (typeof window === 'undefined') return
@@ -14,17 +25,15 @@ const onScroll = () => {
   const dy = window.scrollY - lastScrollY
   const velocity = dy / dt
 
-  // Soft responsive skew bounded safely between -4deg and 4deg
-  const target = Math.max(-4, Math.min(4, velocity * 2.2))
-  skewAngle.value = target
-
+  // Bounded smooth skew
+  skewAngle.value = Math.max(-3, Math.min(3, velocity * 1.8))
   lastScrollY = window.scrollY
   lastTime = now
-}
 
-const updateInertia = () => {
-  skewAngle.value *= 0.92
-  animFrameId = requestAnimationFrame(updateInertia)
+  if (!isLoopRunning) {
+    isLoopRunning = true
+    animFrameId = requestAnimationFrame(updateInertia)
+  }
 }
 
 onMounted(() => {
@@ -32,7 +41,6 @@ onMounted(() => {
     lastScrollY = window.scrollY
     lastTime = performance.now()
     window.addEventListener('scroll', onScroll, { passive: true })
-    animFrameId = requestAnimationFrame(updateInertia)
   }
 })
 
@@ -80,7 +88,6 @@ const track2Partners: PartnerItem[] = [
 <template>
   <section class="py-16 overflow-hidden relative z-20 reveal-init">
     <div class="max-w-[1440px] mx-auto px-5 sm:px-10 mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-      <!-- Section Eyebrow & Title -->
       <div>
         <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-2 font-bold">
           <Sparkles class="w-3.5 h-3.5" />
@@ -96,38 +103,36 @@ const track2Partners: PartnerItem[] = [
       </div>
     </div>
 
-    <!-- Dual-Track Velocity Bento Stream Container (เอียงตามแรงเฉื่อยการเลื่อนจอ) -->
+    <!-- Dual-Track Stream (Hardware Accelerated with translate3d) -->
     <div
-      class="space-y-4 transition-transform duration-150 ease-out select-none"
+      class="space-y-4 select-none transform-gpu will-change-transform"
       :style="{ transform: `skewX(${skewAngle}deg)` }"
     >
       
       <!-- TRACK 1: ไหลไปทางซ้าย (Flow Left) -->
-      <div class="relative w-full overflow-hidden flex marquee-container group">
-        <!-- Ambient Edge Blur Gradients -->
+      <div class="relative w-full overflow-hidden flex group">
+        <!-- Ambient Edge Gradients (Pure CSS without blur) -->
         <div class="absolute left-0 top-0 bottom-0 w-24 sm:w-36 bg-gradient-to-r from-[#F6F9F7] dark:from-[#020806] to-transparent z-10 pointer-events-none" />
         <div class="absolute right-0 top-0 bottom-0 w-24 sm:w-36 bg-gradient-to-l from-[#F6F9F7] dark:from-[#020806] to-transparent z-10 pointer-events-none" />
 
-        <div class="flex items-center gap-4 py-2 whitespace-nowrap animate-marquee-fast group-hover:[animation-play-state:paused] will-change-transform">
+        <div class="flex items-center gap-4 py-2 whitespace-nowrap animate-marquee-fast group-hover:[animation-play-state:paused] transform-gpu will-change-transform">
           <!-- First Set -->
           <div
             v-for="item in track1Partners"
             :key="item.id"
-            class="partner-pill relative px-5 py-3 rounded-2xl spatial-glass flex items-center gap-3 border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-pointer group/card shrink-0"
+            class="partner-pill relative px-5 py-3 rounded-2xl flex items-center gap-3 border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all duration-200 hover:scale-105 hover:-translate-y-1 cursor-pointer group/card shrink-0 bg-white/95 dark:bg-[#061811]/95 shadow-sm"
             :style="{ '--brand-color': item.accent }"
           >
-            <!-- Icon with Monochrome to Color Transition -->
             <div
-              class="w-8 h-8 rounded-xl bg-current/5 border border-current/10 flex items-center justify-center shrink-0 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-[#00C864]/10 dark:group-hover/card:bg-[#00FF88]/15"
+              class="w-8 h-8 rounded-xl bg-current/5 border border-current/10 flex items-center justify-center shrink-0 transition-all duration-200 group-hover/card:scale-110 group-hover/card:bg-[#00C864]/10 dark:group-hover/card:bg-[#00FF88]/15"
             >
               <component
                 :is="item.icon"
-                class="w-4 h-4 opacity-70 group-hover/card:opacity-100 transition-all duration-300"
+                class="w-4 h-4 opacity-75 group-hover/card:opacity-100 transition-all duration-200"
                 :style="{ color: item.accent }"
               />
             </div>
 
-            <!-- Partner Info -->
             <div class="text-left">
               <div class="text-xs sm:text-sm font-bold leading-tight group-hover/card:text-[#00C864] dark:group-hover/card:text-[#00FF88] transition-colors">
                 {{ item.name }}
@@ -137,26 +142,26 @@ const track2Partners: PartnerItem[] = [
               </div>
             </div>
 
-            <!-- Tooltip Popup on Hover -->
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-xl bg-[#022C22] text-white dark:bg-[#051811] text-[11px] font-sans opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-all duration-200 shadow-xl border border-white/10 z-20 whitespace-nowrap">
+            <!-- Tooltip -->
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-xl bg-[#022C22] text-white dark:bg-[#051811] text-[11px] font-sans opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-opacity duration-150 shadow-xl border border-white/10 z-20 whitespace-nowrap">
               <span>{{ item.desc }}</span>
               <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#022C22] dark:border-t-[#051811]" />
             </div>
           </div>
 
-          <!-- Duplicate Set for Seamless Infinite Loop -->
+          <!-- Duplicate Set -->
           <div
             v-for="item in track1Partners"
             :key="`dup-${item.id}`"
-            class="partner-pill relative px-5 py-3 rounded-2xl spatial-glass flex items-center gap-3 border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-pointer group/card shrink-0"
+            class="partner-pill relative px-5 py-3 rounded-2xl flex items-center gap-3 border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all duration-200 hover:scale-105 hover:-translate-y-1 cursor-pointer group/card shrink-0 bg-white/95 dark:bg-[#061811]/95 shadow-sm"
             :style="{ '--brand-color': item.accent }"
           >
             <div
-              class="w-8 h-8 rounded-xl bg-current/5 border border-current/10 flex items-center justify-center shrink-0 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-[#00C864]/10 dark:group-hover/card:bg-[#00FF88]/15"
+              class="w-8 h-8 rounded-xl bg-current/5 border border-current/10 flex items-center justify-center shrink-0 transition-all duration-200 group-hover/card:scale-110 group-hover/card:bg-[#00C864]/10 dark:group-hover/card:bg-[#00FF88]/15"
             >
               <component
                 :is="item.icon"
-                class="w-4 h-4 opacity-70 group-hover/card:opacity-100 transition-all duration-300"
+                class="w-4 h-4 opacity-75 group-hover/card:opacity-100 transition-all duration-200"
                 :style="{ color: item.accent }"
               />
             </div>
@@ -168,7 +173,7 @@ const track2Partners: PartnerItem[] = [
                 {{ item.category }}
               </div>
             </div>
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-xl bg-[#022C22] text-white dark:bg-[#051811] text-[11px] font-sans opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-all duration-200 shadow-xl border border-white/10 z-20 whitespace-nowrap">
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-xl bg-[#022C22] text-white dark:bg-[#051811] text-[11px] font-sans opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-opacity duration-150 shadow-xl border border-white/10 z-20 whitespace-nowrap">
               <span>{{ item.desc }}</span>
               <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#022C22] dark:border-t-[#051811]" />
             </div>
@@ -176,25 +181,25 @@ const track2Partners: PartnerItem[] = [
         </div>
       </div>
 
-      <!-- TRACK 2: ไหลไปทางขวา (Flow Right - Counter Movement) -->
-      <div class="relative w-full overflow-hidden flex marquee-container group">
+      <!-- TRACK 2: ไหลไปทางขวา (Flow Right) -->
+      <div class="relative w-full overflow-hidden flex group">
         <div class="absolute left-0 top-0 bottom-0 w-24 sm:w-36 bg-gradient-to-r from-[#F6F9F7] dark:from-[#020806] to-transparent z-10 pointer-events-none" />
         <div class="absolute right-0 top-0 bottom-0 w-24 sm:w-36 bg-gradient-to-l from-[#F6F9F7] dark:from-[#020806] to-transparent z-10 pointer-events-none" />
 
-        <div class="flex items-center gap-4 py-2 whitespace-nowrap animate-marquee-reverse group-hover:[animation-play-state:paused] will-change-transform">
+        <div class="flex items-center gap-4 py-2 whitespace-nowrap animate-marquee-reverse group-hover:[animation-play-state:paused] transform-gpu will-change-transform">
           <!-- First Set -->
           <div
             v-for="item in track2Partners"
             :key="item.id"
-            class="partner-pill relative px-5 py-3 rounded-2xl spatial-glass flex items-center gap-3 border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-pointer group/card shrink-0"
+            class="partner-pill relative px-5 py-3 rounded-2xl flex items-center gap-3 border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all duration-200 hover:scale-105 hover:-translate-y-1 cursor-pointer group/card shrink-0 bg-white/95 dark:bg-[#061811]/95 shadow-sm"
             :style="{ '--brand-color': item.accent }"
           >
             <div
-              class="w-8 h-8 rounded-xl bg-current/5 border border-current/10 flex items-center justify-center shrink-0 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-[#00C864]/10 dark:group-hover/card:bg-[#00FF88]/15"
+              class="w-8 h-8 rounded-xl bg-current/5 border border-current/10 flex items-center justify-center shrink-0 transition-all duration-200 group-hover/card:scale-110 group-hover/card:bg-[#00C864]/10 dark:group-hover/card:bg-[#00FF88]/15"
             >
               <component
                 :is="item.icon"
-                class="w-4 h-4 opacity-70 group-hover/card:opacity-100 transition-all duration-300"
+                class="w-4 h-4 opacity-75 group-hover/card:opacity-100 transition-all duration-200"
                 :style="{ color: item.accent }"
               />
             </div>
@@ -206,25 +211,25 @@ const track2Partners: PartnerItem[] = [
                 {{ item.category }}
               </div>
             </div>
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-xl bg-[#022C22] text-white dark:bg-[#051811] text-[11px] font-sans opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-all duration-200 shadow-xl border border-white/10 z-20 whitespace-nowrap">
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-xl bg-[#022C22] text-white dark:bg-[#051811] text-[11px] font-sans opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-opacity duration-150 shadow-xl border border-white/10 z-20 whitespace-nowrap">
               <span>{{ item.desc }}</span>
               <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#022C22] dark:border-t-[#051811]" />
             </div>
           </div>
 
-          <!-- Duplicate Set for Seamless Infinite Loop -->
+          <!-- Duplicate Set -->
           <div
             v-for="item in track2Partners"
             :key="`dup-${item.id}`"
-            class="partner-pill relative px-5 py-3 rounded-2xl spatial-glass flex items-center gap-3 border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-pointer group/card shrink-0"
+            class="partner-pill relative px-5 py-3 rounded-2xl flex items-center gap-3 border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all duration-200 hover:scale-105 hover:-translate-y-1 cursor-pointer group/card shrink-0 bg-white/95 dark:bg-[#061811]/95 shadow-sm"
             :style="{ '--brand-color': item.accent }"
           >
             <div
-              class="w-8 h-8 rounded-xl bg-current/5 border border-current/10 flex items-center justify-center shrink-0 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-[#00C864]/10 dark:group-hover/card:bg-[#00FF88]/15"
+              class="w-8 h-8 rounded-xl bg-current/5 border border-current/10 flex items-center justify-center shrink-0 transition-all duration-200 group-hover/card:scale-110 group-hover/card:bg-[#00C864]/10 dark:group-hover/card:bg-[#00FF88]/15"
             >
               <component
                 :is="item.icon"
-                class="w-4 h-4 opacity-70 group-hover/card:opacity-100 transition-all duration-300"
+                class="w-4 h-4 opacity-75 group-hover/card:opacity-100 transition-all duration-200"
                 :style="{ color: item.accent }"
               />
             </div>
@@ -236,7 +241,7 @@ const track2Partners: PartnerItem[] = [
                 {{ item.category }}
               </div>
             </div>
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-xl bg-[#022C22] text-white dark:bg-[#051811] text-[11px] font-sans opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-all duration-200 shadow-xl border border-white/10 z-20 whitespace-nowrap">
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-xl bg-[#022C22] text-white dark:bg-[#051811] text-[11px] font-sans opacity-0 pointer-events-none group-hover/card:opacity-100 group-hover/card:pointer-events-auto transition-opacity duration-150 shadow-xl border border-white/10 z-20 whitespace-nowrap">
               <span>{{ item.desc }}</span>
               <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#022C22] dark:border-t-[#051811]" />
             </div>
@@ -250,10 +255,10 @@ const track2Partners: PartnerItem[] = [
 
 <style scoped>
 .partner-pill:hover {
-  box-shadow: 0 12px 28px -4px rgba(0, 200, 100, 0.22);
+  box-shadow: 0 10px 24px -4px rgba(0, 200, 100, 0.22);
 }
 
 :global(.dark) .partner-pill:hover {
-  box-shadow: 0 12px 28px -4px rgba(0, 255, 136, 0.28);
+  box-shadow: 0 10px 24px -4px rgba(0, 255, 136, 0.25);
 }
 </style>

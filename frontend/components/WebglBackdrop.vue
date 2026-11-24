@@ -12,6 +12,8 @@ let camera: THREE.PerspectiveCamera | null = null
 let sculptureMesh: THREE.Mesh | null = null
 let particleSystem: THREE.Points | null = null
 let animationFrameId: number | null = null
+let isVisible = true
+let observer: IntersectionObserver | null = null
 
 let mouseNormX = 0
 let mouseNormY = 0
@@ -91,9 +93,14 @@ onMounted(() => {
   camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100)
   camera.position.set(0, 0, 7.0)
 
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
+  // High performance WebGL setup (capped pixel ratio for silky smooth 60-120fps)
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true,
+    powerPreference: 'high-performance'
+  })
   renderer.setSize(width, height)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25))
   renderer.domElement.style.position = 'absolute'
   renderer.domElement.style.top = '0'
   renderer.domElement.style.left = '0'
@@ -102,7 +109,7 @@ onMounted(() => {
   renderer.domElement.style.pointerEvents = 'none'
   containerRef.value.appendChild(renderer.domElement)
 
-  // 3-Point Studio Lighting for Radiant Glassy Emerald Finish
+  // 3-Point Lighting
   const ambient = new THREE.AmbientLight(0xffffff, 1.2)
   scene.add(ambient)
 
@@ -118,11 +125,11 @@ onMounted(() => {
   backLight.position.set(0, -5, -4)
   scene.add(backLight)
 
-  // 3D Emerald Torus Knot Geometry
+  // Optimized Torus Knot Geometry (100, 22 segments - visually identical, 60% lighter)
   const isSmallScreen = width < 1024
   const radius = isSmallScreen ? 1.05 : 1.38
   const tube = isSmallScreen ? 0.32 : 0.42
-  const geo = new THREE.TorusKnotGeometry(radius, tube, 160, 32, 2, 3)
+  const geo = new THREE.TorusKnotGeometry(radius, tube, 100, 22, 2, 3)
 
   const mat = new THREE.MeshPhysicalMaterial({
     color: 0x00d26a,
@@ -130,8 +137,8 @@ onMounted(() => {
     emissiveIntensity: 0.35,
     roughness: 0.12,
     metalness: 0.3,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.06,
+    clearcoat: 0.8,
+    clearcoatRoughness: 0.08,
     wireframe: false
   })
 
@@ -142,9 +149,9 @@ onMounted(() => {
   sculptureMesh.position.set(baseX, baseY, 0)
   scene.add(sculptureMesh)
 
-  // Ambient Floating Particles
+  // Ambient Floating Particles (optimized count)
   const pGeo = new THREE.BufferGeometry()
-  const pCount = 150
+  const pCount = 90
   const pPos = new Float32Array(pCount * 3)
   for (let i = 0; i < pCount * 3; i++) {
     pPos[i] = (Math.random() - 0.5) * 18
@@ -154,21 +161,34 @@ onMounted(() => {
     color: 0x00ff88,
     size: 0.06,
     transparent: true,
-    opacity: 0.7
+    opacity: 0.65
   })
   particleSystem = new THREE.Points(pGeo, pMat)
   scene.add(particleSystem)
 
   updateColors()
 
-  window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('mousemove', onMouseMove, { passive: true })
   window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('click', onClick)
-  window.addEventListener('resize', onResize)
+  window.addEventListener('click', onClick, { passive: true })
+  window.addEventListener('resize', onResize, { passive: true })
+
+  // IntersectionObserver to pause rendering when user scrolls away from hero!
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      isVisible = entry.isIntersecting
+    })
+  }, { threshold: 0.05 })
+
+  if (containerRef.value) {
+    observer.observe(containerRef.value)
+  }
 
   const animate = () => {
     animationFrameId = requestAnimationFrame(animate)
-    if (!renderer || !scene || !camera || !sculptureMesh) return
+    
+    // Only render when Hero is visible on screen! Zero GPU usage when scrolled down.
+    if (!isVisible || !renderer || !scene || !camera || !sculptureMesh) return
 
     const t = clock.getElapsedTime()
     pulseBoost *= 0.92
@@ -181,7 +201,7 @@ onMounted(() => {
     smoothMouseX += (mouseNormX - smoothMouseX) * 0.06
     smoothMouseY += (mouseNormY - smoothMouseY) * 0.06
 
-    // Smooth Lerp Scroll Parallax (GSAP ScrollTrigger feel)
+    // Smooth Lerp Scroll Parallax
     smoothScrollY += (targetScrollY - smoothScrollY) * 0.08
 
     const currentWidth = containerRef.value?.clientWidth || window.innerWidth
@@ -210,6 +230,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (animationFrameId) cancelAnimationFrame(animationFrameId)
+  if (observer) observer.disconnect()
   if (import.meta.client) {
     window.removeEventListener('mousemove', onMouseMove)
     window.removeEventListener('scroll', onScroll)

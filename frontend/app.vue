@@ -6,13 +6,18 @@ const { toastMessage, isToastVisible } = useTheme()
 
 // Top Reading / Scroll Progress Bar
 const scrollProgress = ref(0)
+let scrollRaf: number | null = null
 const onScroll = () => {
-  if (typeof window !== 'undefined') {
-    const total = document.documentElement.scrollHeight - window.innerHeight
-    if (total > 0) {
-      scrollProgress.value = Math.min(100, Math.max(0, (window.scrollY / total) * 100))
+  if (scrollRaf) return
+  scrollRaf = requestAnimationFrame(() => {
+    scrollRaf = null
+    if (typeof window !== 'undefined') {
+      const total = document.documentElement.scrollHeight - window.innerHeight
+      if (total > 0) {
+        scrollProgress.value = Math.min(100, Math.max(0, (window.scrollY / total) * 100))
+      }
     }
-  }
+  })
 }
 
 onMounted(() => {
