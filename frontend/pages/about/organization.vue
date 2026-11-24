@@ -75,6 +75,7 @@ const ceoNode = {
   title: 'กรรมการผู้จัดการบริษัท',
   en: 'Managing Director (CEO)',
   role: 'Executive Leadership',
+  image: '/images/about/ceo-avatar.jpg',
   desc: 'กำหนดทิศทางยุทธศาสตร์ นโยบายคุณภาพ การลงทุน และการกำกับดูแลการดำเนินงานให้เป็นไปตามหลักธรรมาภิบาลและมาตรฐานสากล',
   responsibilities: [
     'กำหนดยุทธศาสตร์และเป้าหมายการดำเนินธุรกิจระยะยาว',
@@ -574,7 +575,13 @@ onBeforeUnmount(() => {
               <div class="absolute -inset-2 rounded-3xl bg-gradient-to-r from-[#00C864]/30 to-[#00FF88]/30 blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
 
               <div class="relative px-8 py-5 rounded-3xl bg-gradient-to-br from-[#00C864] via-[#00B45A] to-[#009245] text-white shadow-2xl shadow-[#00C864]/30 border-2 border-white/30 flex items-center gap-4 hover:scale-[1.02] transition-transform">
-                <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shrink-0 border border-white/30 shadow-inner">
+                <div
+                  v-if="ceoNode.image"
+                  class="w-14 h-14 rounded-2xl overflow-hidden shrink-0 border-2 border-white/40 shadow-md"
+                >
+                  <img :src="ceoNode.image" :alt="ceoNode.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                </div>
+                <div v-else class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shrink-0 border border-white/30 shadow-inner">
                   <Users class="w-6 h-6" />
                 </div>
                 <div>
@@ -756,7 +763,13 @@ onBeforeUnmount(() => {
           class="p-8 rounded-3xl bg-gradient-to-r from-[#00C864]/10 via-[#00A852]/10 to-transparent border border-[#00C864]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-6 cursor-pointer hover:border-[#00C864] transition-all"
         >
           <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-[#00C864] text-white flex items-center justify-center shadow-lg">
+            <div
+              v-if="ceoNode.image"
+              class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-[#00C864] shadow-lg"
+            >
+              <img :src="ceoNode.image" :alt="ceoNode.title" class="w-full h-full object-cover" />
+            </div>
+            <div v-else class="w-14 h-14 rounded-2xl bg-[#00C864] text-white flex items-center justify-center shadow-lg">
               <Users class="w-7 h-7" />
             </div>
             <div>
