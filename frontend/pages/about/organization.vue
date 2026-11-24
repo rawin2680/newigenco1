@@ -228,6 +228,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'Innovation Application',
         en: 'นวัตกรรมซอฟต์แวร์ประยุกต์',
         icon: Layers,
+        image: '/images/about/innovation-application-avatar.jpg',
         desc: 'สร้างสรรค์นวัตกรรมระบบงานใหม่ ๆ เพื่อตอบโจทย์ยุคดิจิทัล',
         responsibilities: [
           'วิจัยเทคโนโลยี AI, Automation และ Cloud Application',
@@ -240,6 +241,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'Internet Marketing',
         en: 'การตลาดดิจิทัลและออนไลน์',
         icon: Network,
+        image: '/images/about/internet-marketing-avatar.jpg',
         desc: 'บริหารช่องทางออนไลน์ การเชื่อมต่อ และบริการดิจิทัล',
         responsibilities: [
           'บริหารจัดการแพลตฟอร์มออนไลน์และเว็บไซต์ขององค์กร',
@@ -252,6 +254,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'Hardware & Surveillance',
         en: 'ฮาร์ดแวร์และความปลอดภัย',
         icon: Server,
+        image: '/images/about/hardware-surveillance-avatar.jpg',
         desc: 'ดูแลระบบโครงสร้างพื้นฐาน แม่ข่าย และอุปกรณ์ความปลอดภัย',
         responsibilities: [
           'วางระบบคอมพิวเตอร์แม่ข่าย (Server) และระบบเครือข่ายความปลอดภัยสูง',
