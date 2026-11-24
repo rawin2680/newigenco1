@@ -63,6 +63,7 @@ interface DivisionNode {
   en: string
   color: string
   icon: any
+  image?: string
   isCollapsed: boolean
   desc: string
   departments: DepartmentNode[]
@@ -90,6 +91,7 @@ const divisions = ref<DivisionNode[]>([
     en: 'Deputy Managing Director - Administration',
     color: '#00C864',
     icon: Briefcase,
+    image: '/images/about/deputy-md-admin-avatar.jpg',
     isCollapsed: false,
     desc: 'กำกับดูแลงานสนับสนุนองค์กร ทรัพยากรบุคคล การเงิน บัญชี และการจัดซื้อพัสดุ',
     departments: [
@@ -636,7 +638,16 @@ onBeforeUnmount(() => {
                 >
                   <div class="flex items-start justify-between gap-2">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-2xl bg-[#00A852]/10 dark:bg-[#00FF88]/10 text-[#00A852] dark:text-[#00FF88] flex items-center justify-center shrink-0 shadow-xs border border-[#00C864]/20">
+                      <div
+                        v-if="div.image"
+                        class="w-12 h-12 rounded-2xl overflow-hidden shrink-0 border border-[#00C864]/30 shadow-sm"
+                      >
+                        <img :src="div.image" :alt="div.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      </div>
+                      <div
+                        v-else
+                        class="w-10 h-10 rounded-2xl bg-[#00A852]/10 dark:bg-[#00FF88]/10 text-[#00A852] dark:text-[#00FF88] flex items-center justify-center shrink-0 shadow-xs border border-[#00C864]/20"
+                      >
                         <component :is="div.icon" class="w-5 h-5" />
                       </div>
                       <div class="min-w-0">
@@ -768,7 +779,8 @@ onBeforeUnmount(() => {
             class="p-6 rounded-3xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/[0.02] space-y-6"
           >
             <div class="flex items-center gap-3 pb-4 border-b border-black/10 dark:border-white/10">
-              <component :is="div.icon" class="w-6 h-6 text-[#00A852] dark:text-[#00FF88]" />
+              <img v-if="div.image" :src="div.image" class="w-12 h-12 rounded-2xl object-cover border border-[#00C864]/30" />
+              <component v-else :is="div.icon" class="w-6 h-6 text-[#00A852] dark:text-[#00FF88]" />
               <div>
                 <h4 class="text-base font-bold text-[#0A1A12] dark:text-white">{{ div.title }}</h4>
                 <div class="text-xs font-mono opacity-60">{{ div.en }}</div>
