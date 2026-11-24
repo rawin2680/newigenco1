@@ -179,6 +179,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'ฝ่ายการขาย',
         en: 'Sales Division',
         icon: TrendingUp,
+        image: '/images/about/sales-avatar.jpg',
         desc: 'ประสานงานลูกค้าภาครัฐ-เอกชน และนำเสนอโซลูชันซอฟต์แวร์',
         responsibilities: [
           'ดูแลความต้องการและให้คำปรึกษาแก่ลูกค้าภาครัฐและเอกชน',
