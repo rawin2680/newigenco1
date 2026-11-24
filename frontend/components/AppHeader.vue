@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { Contrast, Menu, X, ArrowUpRight, Home, Box, Newspaper, Mail, Building2, Users, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
-const route = useRoute()
 const { toggleTheme } = useTheme()
 const isMobileMenuOpen = ref(false)
 const mobileOpenDropdown = ref<string | null>(null)
@@ -34,20 +32,20 @@ interface NavItem {
 }
 
 const navLinks: NavItem[] = [
-  { name: 'หน้าแรก', href: '/', sectionId: 'top', icon: Home },
-  { name: 'ข่าวสาร', href: '/news', sectionId: 'news', icon: Newspaper },
+  { name: 'หน้าแรก', href: '/#top', sectionId: 'top', icon: Home },
+  { name: 'ข่าวสาร', href: '/#news', sectionId: 'news', icon: Newspaper },
   {
     name: 'เกี่ยวกับเรา',
-    href: '/about',
+    href: '/#about',
     sectionId: 'about',
     icon: Building2,
     hasDropdown: true,
     children: [
-      { name: 'ประวัติความเป็นมา', href: '/about/history' },
-      { name: 'นโยบายบริษัท', href: '/about#policy' },
-      { name: 'ค่านิยมและวัฒนธรรมองค์กร', href: '/about/values' },
-      { name: 'แผนผังการบริหาร', href: '/about/organization' },
-      { name: 'สมัครงาน', href: '/careers' },
+      { name: 'ประวัติความเป็นมา', href: '/news/2' },
+      { name: 'นโยบายบริษัท', href: '/#policy' },
+      { name: 'ค่านิยมและวัฒนธรรมองค์กร', href: '/#values' },
+      { name: 'แผนผังการบริหาร', href: '/#organization' },
+      { name: 'สมัครงาน', href: '/#careers' },
       {
         name: 'การคุ้มครองข้อมูลส่วนบุคคล',
         href: '/privacy-policy',
@@ -61,7 +59,7 @@ const navLinks: NavItem[] = [
   },
   {
     name: 'ผลิตภัณฑ์',
-    href: '/products',
+    href: '/#products',
     sectionId: 'products',
     icon: Box,
     hasDropdown: true,
@@ -69,11 +67,11 @@ const navLinks: NavItem[] = [
       { name: 'i-SMARTSOFT (e-Office ครบวงจร)', href: '/news/5', desc: '10 โมดูลบริหารงานสำนักงานอิเล็กทรอนิกส์' },
       { name: 'I-SERFF (ระบบยื่นแบบ คปภ.)', href: '/news/3', desc: 'ระบบยื่นขอความเห็นชอบอัตราเบี้ยและกรมธรรม์' },
       { name: 'EFMS (ระบบจัดเก็บข้อมูลการเงิน สคฝ.)', href: '/news/4', desc: 'ระบบเชื่อมโยงและนำส่งรายงานสถาบันการเงิน' },
-      { name: 'แคตตาล็อกสินค้าและบริการทั้งหมด', href: '/products', desc: 'เลือกชมโซลูชันซอฟต์แวร์และฮาร์ดแวร์ IoT' }
+      { name: 'แคตตาล็อกสินค้าและบริการทั้งหมด', href: '/#products', desc: 'เลือกชมโซลูชันซอฟต์แวร์และฮาร์ดแวร์ IoT' }
     ]
   },
-  { name: 'กลุ่มผู้ใช้ผลิตภัณฑ์', href: '/clients', sectionId: 'clients', icon: Users },
-  { name: 'ติดต่อเรา', href: '/contact', sectionId: 'contact', icon: Mail }
+  { name: 'กลุ่มผู้ใช้ผลิตภัณฑ์', href: '/#clients', sectionId: 'clients', icon: Users },
+  { name: 'ติดต่อเรา', href: '/#contact', sectionId: 'contact', icon: Mail }
 ]
 
 // Glassy Navigation Tabs State
@@ -136,36 +134,12 @@ const closeAllDropdowns = () => {
   updatePill()
 }
 
-const syncActiveIndexWithRoute = () => {
-  const path = route.path
-  if (path === '/') {
-    activeIndex.value = 0
-  } else if (path.startsWith('/news')) {
-    activeIndex.value = 1
-  } else if (path.startsWith('/about') || path.startsWith('/careers')) {
-    activeIndex.value = 2
-  } else if (path.startsWith('/products')) {
-    activeIndex.value = 3
-  } else if (path.startsWith('/clients')) {
-    activeIndex.value = 4
-  } else if (path.startsWith('/contact')) {
-    activeIndex.value = 5
-  }
-  updatePill()
-}
-
-watch(() => route.path, () => {
-  syncActiveIndexWithRoute()
-  closeAllDropdowns()
-})
-
 const onTabClick = (idx: number, sectionId: string) => {
   activeIndex.value = idx
   hoveredIndex.value = null
-  closeAllDropdowns()
   updatePill()
 
-  if (import.meta.client && route.path === '/') {
+  if (import.meta.client) {
     const section = document.getElementById(sectionId)
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' })
@@ -187,17 +161,15 @@ onMounted(() => {
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', updatePill, { passive: true })
     onScroll()
-    syncActiveIndexWithRoute()
 
     nextTick(() => {
       setTimeout(updatePill, 100)
     })
 
-    // Sync active tab with user scroll position when on home page
+    // Sync active tab with user scroll position
     const sectionIds = ['top', 'news', 'about', 'products', 'clients', 'contact']
     sectionObserver = new IntersectionObserver(
       (entries) => {
-        if (route.path !== '/') return
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const id = entry.target.id
@@ -393,7 +365,7 @@ onBeforeUnmount(() => {
 
         <!-- Main CTA Button -->
         <NuxtLink
-          to="/contact"
+          to="/#contact"
           class="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center gap-1.5 shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
         >
           <span>สอบถาม / ขอคำปรึกษา</span>
@@ -492,7 +464,7 @@ onBeforeUnmount(() => {
 
       <!-- Mobile CTA Button -->
       <NuxtLink
-        to="/contact"
+        to="/#contact"
         class="block w-full py-3 text-center rounded-xl font-bold text-sm uppercase bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md mt-4"
         @click="isMobileMenuOpen = false"
       >

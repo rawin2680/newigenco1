@@ -250,37 +250,37 @@ const scrollToTop = () => {
             </h3>
             <ul class="space-y-2.5 text-sm text-slate-300">
               <li>
-                <NuxtLink to="/" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                <NuxtLink to="/#top" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
                   <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
                   <span>หน้าแรก</span>
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/news" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                <NuxtLink to="/#news" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
                   <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
                   <span>ข่าวสาร</span>
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/about" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                <NuxtLink to="/#about" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
                   <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
                   <span>เกี่ยวกับเรา</span>
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/products" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                <NuxtLink to="/#products" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
                   <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
                   <span>ผลิตภัณฑ์</span>
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/clients" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                <NuxtLink to="/#clients" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
                   <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
                   <span>กลุ่มผู้ใช้ผลิตภัณฑ์</span>
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/contact" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                <NuxtLink to="/#contact" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
                   <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
                   <span>ติดต่อเรา</span>
                 </NuxtLink>
