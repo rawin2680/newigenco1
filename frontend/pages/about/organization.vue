@@ -122,6 +122,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'ฝ่ายจัดซื้อ - คลัง',
         en: 'Procurement & Inventory',
         icon: ShoppingCart,
+        image: '/images/about/procurement-inventory-avatar.jpg',
         desc: 'บริหารจัดการการจัดซื้อ อุปกรณ์ และคลังพัสดุระบบ',
         responsibilities: [
           'จัดหาอุปกรณ์ฮาร์ดแวร์และลิขสิทธิ์ซอฟต์แวร์มาตรฐาน',
