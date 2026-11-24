@@ -1,22 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import {
-  Building2,
-  Award,
-  ShieldCheck,
-  Sparkles,
   ArrowUpRight,
+  ChevronRight,
+  ShieldCheck,
+  Award,
+  Calendar,
+  Building2,
   Users,
   Briefcase,
   Lock,
-  ChevronRight,
-  CheckCircle2,
-  Layers,
-  Terminal,
-  Cpu,
-  Globe2,
-  Calendar,
-  Network
+  ArrowRight
 } from 'lucide-vue-next'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -31,98 +25,109 @@ const timelineMilestones = [
     date: '15 มีนาคม 2553',
     title: 'จัดตั้ง บริษัท ไอเจนโก้ จำกัด',
     desc: 'เริ่มต้นจากการรวมตัวของบุคลากรทางด้าน IT ที่มีความเชี่ยวชาญในการออกแบบและพัฒนาโปรแกรมระบบงาน การวิเคราะห์โครงสร้างระบบ และการจัดการฐานข้อมูล',
-    tag: 'FOUNDATION',
-    highlight: false
+    tag: 'FOUNDATION'
   },
   {
-    year: '2554-2558',
-    date: 'ความไว้วางใจกว่า 100 องค์กร',
+    year: '2554 – 2558',
+    date: 'ขยายความไว้วางใจกว่า 100 องค์กร',
     title: 'ขยายสู่ภาคราชการ รัฐวิสาหกิจ และเอกชน',
-    desc: 'ให้บริการครอบคลุม IT Consultant, Software Development, IT Infrastructure และ Business Application ให้กับหน่วยงานภาครัฐ สถาบันการศึกษา และเอกชนนับ 100 ราย',
-    tag: 'EXPANSION',
-    highlight: false
+    desc: 'ให้บริการครอบคลุม 4 มิติหลัก (IT Consultant, Software Development, IT Infrastructure และ Business Application) ให้กับหน่วยงานภาครัฐ สถาบันการศึกษา และภาคเอกชนนับ 100 ราย',
+    tag: 'EXPANSION'
   },
   {
-    year: '2558-2559',
-    date: 'พันธมิตรระดับประเทศ',
+    year: '2558 – 2559',
+    date: 'พันธมิตรความร่วมมือระดับประเทศ',
     title: 'ร่วมมือกับ Software Park & SIPA',
-    desc: 'เข้าร่วมกิจกรรมกับเขตอุตสาหกรรมซอฟต์แวร์แห่งประเทศไทย (Software Park) และสำนักงานส่งเสริมอุตสาหกรรมซอฟต์แวร์แห่งชาติ (องค์การมหาชน) (SIPA)',
-    tag: 'ALLIANCE',
-    highlight: false
+    desc: 'เข้าร่วมกิจกรรมกับเขตอุตสาหกรรมซอฟต์แวร์แห่งประเทศไทย (Software Park Thailand) และสำนักงานส่งเสริมอุตสาหกรรมซอฟต์แวร์แห่งชาติ (องค์การมหาชน) (SIPA) เพื่อเพิ่มศักยภาพการบริการ',
+    tag: 'ALLIANCE'
   },
   {
     year: '2559',
     date: 'มาตรฐานวิศวกรรมสากล',
-    title: 'ผ่านการรับรอง ISO/IEC 29110',
-    desc: 'ได้รับการตรวจประเมินและรับรองมาตรฐานสากล ISO/IEC 29110 ด้าน Project Management และ Software Implementation จาก TÜV NORD',
-    tag: 'ISO ACCREDITED',
-    highlight: true
+    title: 'ผ่านการรับรองมาตรฐาน ISO/IEC 29110',
+    desc: 'ได้รับการตรวจประเมินและรับรองมาตรฐานระดับสากล ISO/IEC 29110 ด้าน Project Management และ Software Implementation จากสถาบัน TÜV NORD',
+    tag: 'ACCREDITED'
   },
   {
     year: '2560',
-    date: 'ส่งเสริมการลงทุนแห่งชาติ',
+    date: 'การส่งเสริมการลงทุนแห่งชาติ',
     title: 'ได้รับการส่งเสริมการลงทุนจาก BOI',
-    desc: 'ได้รับการส่งเสริมการลงทุนจากสำนักงานคณะกรรมการส่งเสริมการลงทุน (BOI) ในกิจการพัฒนาซอฟต์แวร์และบริการด้านสารสนเทศ สัญชาติไทยอย่างแท้จริง',
-    tag: 'BOI PRIVILEGES',
-    highlight: true
+    desc: 'ได้รับการส่งเสริมการลงทุนจากสำนักงานคณะกรรมการส่งเสริมการลงทุน (BOI) ในกิจการพัฒนาซอฟต์แวร์และบริการด้านสารสนเทศ เป็นบริษัทสัญชาติไทยแท้อย่างแท้จริง',
+    tag: 'BOI PRIVILEGES'
   },
   {
     year: '2561',
     date: '21 มีนาคม 2561',
-    title: 'ครบรอบ 8 ปี มุ่งสู่ปีที่ 9 อย่างมั่นคง',
-    desc: 'ผู้บริหารและทีมงานร่วมจัดกิจกรรมบริจาคเงินและสิ่งของ ณ สถานสงเคราะห์เด็กอ่อนปากเกร็ด ในวาระก้าวสู่ปีที่ 9 เพื่อเป็นผู้ให้บริการระบบคอมพิวเตอร์ครบวงจรอย่างยั่งยืน',
-    tag: '8TH ANNIVERSARY',
-    highlight: true
+    title: 'ครบรอบ 8 ปี และมุ่งสู่ปีที่ 9 อย่างมั่นคง',
+    desc: 'ผู้บริหารและทีมงานร่วมจัดกิจกรรมบริจาคเงินและสิ่งของ ณ สถานสงเคราะห์เด็กอ่อนปากเกร็ด ในวาระก้าวสู่ปีที่ 9 เพื่อมุ่งสู่การเป็นผู้ให้บริการระบบงานคอมพิวเตอร์ครบวงจรอย่างยั่งยืน',
+    tag: '8TH ANNIVERSARY'
   }
 ]
 
-// Core Values (I-G-E-N)
+// Core Values 01-04 (I-G-E-N)
 const coreValues = [
   {
-    letter: 'I',
-    title: 'Innovation',
-    sub: 'นวัตกรรมสร้างสรรค์',
-    desc: 'พัฒนาผลิตภัณฑ์ซอฟต์แวร์ Web Application ที่เป็นนวัตกรรมใหม่ภายใต้แบรนด์ IGENCO'
+    num: '01',
+    code: 'INNOVATION',
+    title: 'นวัตกรรมสร้างสรรค์',
+    desc: 'มุ่งมั่นวิจัยและพัฒนาผลิตภัณฑ์ให้เป็นนวัตกรรมใหม่เพื่อเป็นทางเลือกที่มีประสิทธิภาพสูงสุด ภายใต้แบรนด์ "IGENCO" ซึ่งเป็นระบบ Web Application ที่ได้รับการการันตีคุณภาพ'
   },
   {
-    letter: 'G',
-    title: 'Growth',
-    sub: 'เติบโตเคียงข้างลูกค้า',
-    desc: 'นโยบายทำงานอย่างใกล้ชิด ใส่ใจทุกขั้นตอน เพื่อให้ระบบของลูกค้าเติบโตอย่างมั่นคง'
+    num: '02',
+    code: 'GROWTH',
+    title: 'เติบโตเคียงข้างลูกค้า',
+    desc: 'การบริหารองค์กรที่ยึดความสำเร็จของลูกค้าเป็นที่ตั้ง ทำงานอย่างใกล้ชิดและใส่ใจทุกขั้นตอน เพื่อให้ระบบงานขององค์กรลูกค้าสามารถขยายตัวได้อย่างมั่นคงและยั่งยืน'
   },
   {
-    letter: 'E',
-    title: 'Excellence',
-    sub: 'มาตรฐานคุณภาพเป็นเลิศ',
-    desc: 'ยึดมั่นในมาตรฐานสากล ISO/IEC 29110 และกระบวนการวิศวกรรมซอฟต์แวร์ระดับมืออาชีพ'
+    num: '03',
+    code: 'EXCELLENCE',
+    title: 'มาตรฐานคุณภาพเป็นเลิศ',
+    desc: 'ยึดมั่นในมาตรฐานวิศวกรรมซอฟต์แวร์ระดับสากล ISO/IEC 29110 จาก TÜV NORD ทั้งกระบวนการบริหารโครงการ (Project Management) และการพัฒนาซอฟต์แวร์ (Software Implementation)'
   },
   {
-    letter: 'N',
-    title: 'Network & Care',
-    sub: 'ความร่วมมือและความใส่ใจ',
-    desc: 'ส่งมอบงานที่เหนือความประทับใจ พร้อมความสัมพันธ์และบริการหลังการขายที่ยาวนาน'
+    num: '04',
+    code: 'NETWORK & CARE',
+    title: 'ความร่วมมือและความใส่ใจ',
+    desc: 'ส่งมอบงานระบบและบริการที่เหนือความประทับใจ ด้วยพลังแห่งความร่วมมือของทีมงานและการบริการด้วยความจริงใจ เอาใจใส่ในทุกรายละเอียดทั้งก่อนและหลังส่งมอบงาน'
   }
 ]
 
-// Management Structure Modules
-const managementTeams = [
-  { role: 'คณะกรรมการบริหาร', en: 'Executive Board', desc: 'กำหนดทิศทางกลยุทธ์และการบริหารองค์กร' },
-  { role: 'ฝ่ายสถาปัตยกรรม & ซอฟต์แวร์', en: 'Software Engineering', desc: 'ออกแบบและพัฒนา Web Application ระดับ Enterprise' },
-  { role: 'ฝ่ายโครงสร้างคลาวด์ & เครือข่าย', en: 'IT Infrastructure', desc: 'วางระบบแม่ข่าย ความปลอดภัย และเน็ตเวิร์ก' },
-  { role: 'ฝ่ายควบคุมคุณภาพ & มาตรฐาน', en: 'QA & Compliance', desc: 'ตรวจสอบคุณภาพตามกรอบมาตรฐาน ISO/IEC 29110' },
-  { role: 'ฝ่ายการตลาด & ลูกค้าสัมพันธ์', en: 'Sales & Client Success', desc: 'ประสานงานและดูแลความพึงพอใจของลูกค้าอย่างใกล้ชิด' }
+// 4 Service Capabilities
+const capabilities = [
+  {
+    num: '01',
+    title: 'IT Consultant',
+    th: 'การให้คำปรึกษาทางด้านเทคโนโลยีสารสนเทศ',
+    desc: 'วิเคราะห์โครงสร้างระบบ วางแผนกลยุทธ์ด้านสารสนเทศ และให้คำปรึกษาโครงการ IT ทั้งภาครัฐและเอกชน'
+  },
+  {
+    num: '02',
+    title: 'Software Development',
+    th: 'การพัฒนาระบบโปรแกรมคอมพิวเตอร์',
+    desc: 'ออกแบบและพัฒนาระบบงาน Web Application ครบวงจร รองรับผู้ใช้งานจำนวนมากด้วยความเสถียรและปลอดภัย'
+  },
+  {
+    num: '03',
+    title: 'IT Infrastructure',
+    th: 'การวางระบบคอมพิวเตอร์และเครือข่าย',
+    desc: 'ออกแบบระบบแม่ข่าย โครงสร้างพื้นฐานคลาวด์ และระบบเครือข่ายสารสนเทศที่มั่นคงตามมาตรฐานความปลอดภัย'
+  },
+  {
+    num: '04',
+    title: 'Business Application',
+    th: 'แอพพลิเคชั่นทางธุรกิจเฉพาะองค์กร',
+    desc: 'พัฒนาโซลูชันทางธุรกิจที่ปรับแต่งเฉพาะตามความต้องการขององค์กร ช่วยเพิ่มประสิทธิภาพและลดความซ้ำซ้อน'
+  }
 ]
 
-// Mouse Spotlight Tracking Effect on Bento Cards
-const handleMouseMove = (e: MouseEvent) => {
-  const card = (e.currentTarget as HTMLElement)
-  if (!card) return
-  const rect = card.getBoundingClientRect()
-  const x = e.clientX - rect.left
-  const y = e.clientY - rect.top
-  card.style.setProperty('--mouse-x', `${x}px`)
-  card.style.setProperty('--mouse-y', `${y}px`)
-}
+// Management Structure
+const managementStructure = [
+  { role: 'คณะกรรมการบริหาร', en: 'Executive Board', detail: 'กำหนดวิสัยทัศน์ นโยบาย และทิศทางการเติบโตขององค์กร' },
+  { role: 'ฝ่ายสถาปัตยกรรมและการพัฒนาซอฟต์แวร์', en: 'Software Engineering', detail: 'ออกแบบสถาปัตยกรรมระบบและเขียนโค้ด Web Application ระดับ Enterprise' },
+  { role: 'ฝ่ายโครงสร้างคลาวด์และเครือข่าย', en: 'IT Infrastructure & Cloud', detail: 'บริหารจัดการระบบแม่ข่าย ความปลอดภัยทางไซเบอร์ และเน็ตเวิร์ก' },
+  { role: 'ฝ่ายควบคุมคุณภาพและมาตรฐาน', en: 'QA & Compliance', detail: 'ตรวจสอบคุณภาพซอฟต์แวร์ตามกรอบมาตรฐานสากล ISO/IEC 29110' },
+  { role: 'ฝ่ายการตลาดและลูกค้าสัมพันธ์', en: 'Sales & Client Success', detail: 'ประสานงานและดูแลให้คำปรึกษาแก่ลูกค้าอย่างใกล้ชิดทุกขั้นตอน' }
+]
 
 onMounted(() => {
   if (import.meta.client && sectionRef.value) {
@@ -131,46 +136,23 @@ onMounted(() => {
     if (!prefersReducedMotion) {
       gsap.registerPlugin(ScrollTrigger)
       ctx = gsap.context(() => {
-        // Section Header Reveal
-        gsap.from('.about-header-anim', {
-          scrollTrigger: {
-            trigger: '.about-header-anim',
-            start: 'top 85%',
-            toggleActions: 'play none none none'
-          },
-          opacity: 0,
-          y: 40,
-          duration: 0.8,
-          ease: 'power3.out'
-        })
-
-        // Bento Cards Staggered Reveal
-        gsap.from('.bento-item', {
-          scrollTrigger: {
-            trigger: '.bento-grid-container',
-            start: 'top 80%',
-            toggleActions: 'play none none none'
-          },
-          opacity: 0,
-          y: 50,
-          duration: 0.9,
-          stagger: 0.12,
-          ease: 'power3.out'
-        })
-
-        // Timeline Items Scroll Reveal
-        gsap.from('.timeline-item-anim', {
-          scrollTrigger: {
-            trigger: '.timeline-container',
-            start: 'top 80%',
-            toggleActions: 'play none none none'
-          },
-          opacity: 0,
-          y: 35,
-          duration: 0.7,
-          stagger: 0.1,
-          ease: 'power2.out'
-        })
+        // Subtle Reveal on Major Sections
+        const elements = sectionRef.value?.querySelectorAll('.editorial-reveal')
+        if (elements) {
+          elements.forEach((el) => {
+            gsap.from(el, {
+              scrollTrigger: {
+                trigger: el,
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+              },
+              opacity: 0,
+              y: 30,
+              duration: 0.8,
+              ease: 'power2.out'
+            })
+          })
+        }
       }, sectionRef.value)
     }
   }
@@ -187,520 +169,453 @@ onBeforeUnmount(() => {
   <section
     id="about"
     ref="sectionRef"
-    class="py-28 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto relative z-10 scroll-mt-24 overflow-hidden"
+    class="py-24 sm:py-32 lg:py-40 bg-[#FBFDFB] dark:bg-[#030906] text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22] scroll-mt-24 relative overflow-hidden"
   >
-    <!-- Background Ambient Glow Accents -->
-    <div class="absolute top-1/4 -left-48 w-96 h-96 bg-[#00C864]/10 dark:bg-[#00FF88]/08 rounded-full blur-[140px] pointer-events-none" />
-    <div class="absolute bottom-1/3 -right-48 w-96 h-96 bg-[#00C864]/08 dark:bg-[#00FF88]/06 rounded-full blur-[140px] pointer-events-none" />
+    <div class="max-w-[1360px] mx-auto px-5 sm:px-10 lg:px-16">
 
-    <!-- ========================================================
-         1. HERO HEADER: LARGE TYPOGRAPHY & ENTERPRISE BADGES
-    ========================================================= -->
-    <div class="about-header-anim mb-16 max-w-4xl">
-      <!-- Eyebrow Pill -->
-      <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#00C864]/10 dark:bg-[#00FF88]/10 border border-[#00C864]/30 dark:border-[#00FF88]/30 mb-5 shadow-sm">
-        <Building2 class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-        <span class="text-xs font-mono font-bold uppercase tracking-[0.22em] text-[#00C864] dark:text-[#00FF88]">
-          ABOUT IGENCO // ข้อมูลองค์กรและวิสัยทัศน์ 2026
-        </span>
-      </div>
-
-      <!-- Main Headline -->
-      <h2 class="font-display font-extrabold text-3xl sm:text-5xl lg:text-6xl uppercase tracking-tight text-[#022C22] dark:text-[#F4FBF7] leading-[1.15]">
-        บริษัท ไอเจนโก้ จำกัด
-      </h2>
-
-      <!-- Lead Narrative -->
-      <p class="text-base sm:text-lg lg:text-xl text-[#022C22]/85 dark:text-[#F4FBF7]/85 mt-6 leading-relaxed font-normal">
-        ผู้ให้บริการด้านการพัฒนาระบบงานคอมพิวเตอร์และเทคโนโลยีสารสนเทศครบวงจร ด้วยประสบการณ์กว่า 8 ปี มุ่งสู่ปีที่ 9 อย่างมั่นคง ได้รับการรับรองมาตรฐานสากล <strong class="text-[#00C864] dark:text-[#00FF88] font-bold">ISO/IEC 29110</strong> จาก TÜV NORD และสิทธิประโยชน์การส่งเสริมการลงทุนจาก <strong class="text-[#00C864] dark:text-[#00FF88] font-bold">BOI</strong>
-      </p>
-
-      <!-- Enterprise Spec Highlights Bar -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-8">
-        <div class="p-3.5 rounded-2xl bg-current/5 border border-current/10 backdrop-blur-md">
-          <div class="text-[10px] font-mono opacity-60 uppercase tracking-wider">FOUNDED // จัดตั้ง</div>
-          <div class="text-xs sm:text-sm font-bold text-[#00C864] dark:text-[#00FF88] mt-1 font-mono">15 มีนาคม 2553</div>
-        </div>
-        <div class="p-3.5 rounded-2xl bg-current/5 border border-current/10 backdrop-blur-md">
-          <div class="text-[10px] font-mono opacity-60 uppercase tracking-wider">TRACK RECORD // ลูกค้า</div>
-          <div class="text-xs sm:text-sm font-bold text-[#00C864] dark:text-[#00FF88] mt-1 font-mono">100+ องค์กรรัฐ-เอกชน</div>
-        </div>
-        <div class="p-3.5 rounded-2xl bg-current/5 border border-current/10 backdrop-blur-md">
-          <div class="text-[10px] font-mono opacity-60 uppercase tracking-wider">STANDARD // มาตรฐาน</div>
-          <div class="text-xs sm:text-sm font-bold text-[#00C864] dark:text-[#00FF88] mt-1 font-mono">ISO/IEC 29110</div>
-        </div>
-        <div class="p-3.5 rounded-2xl bg-current/5 border border-current/10 backdrop-blur-md">
-          <div class="text-[10px] font-mono opacity-60 uppercase tracking-wider">PROMOTION // สิทธิประโยชน์</div>
-          <div class="text-xs sm:text-sm font-bold text-[#00C864] dark:text-[#00FF88] mt-1 font-mono">BOI THAI-OWNED</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================================================
-         2. MODERN BENTO GRID (HIERARCHICAL CARDS)
-    ========================================================= -->
-    <div class="bento-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 mb-24">
-
-      <!-- CARD 1: HERO BENTO (Span 8 Cols) - ประวัติความเป็นมา & 4 เสาหลัก -->
-      <div
-        id="history"
-        class="bento-item lg:col-span-8 spotlight-card rounded-3xl p-7 sm:p-10 border border-current/10 flex flex-col justify-between relative overflow-hidden group scroll-mt-28"
-        @mousemove="handleMouseMove"
-      >
-        <div class="relative z-10 space-y-5">
-          <div class="flex items-center justify-between">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864]/15 text-[#00C864] dark:bg-[#00FF88]/15 dark:text-[#00FF88] border border-[#00C864]/30">
-              <Calendar class="w-3.5 h-3.5" />
-              <span>EST. 2010 // ประวัติความเป็นมา</span>
-            </div>
-            <span class="text-xs font-mono opacity-60">IGENCO-HERITAGE-01</span>
+      <!-- ========================================================
+           1. HERO SECTION: MINIMALIST CORPORATE TYPOGRAPHY
+      ========================================================= -->
+      <div class="editorial-reveal pb-20 sm:pb-28 border-b border-black/10 dark:border-white/10">
+        <div class="max-w-4xl space-y-6">
+          <div class="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.25em] uppercase text-[#00A852] dark:text-[#00FF88]">
+            <Building2 class="w-4 h-4" />
+            <span>ABOUT IGENCO // ข้อมูลองค์กรและวิสัยทัศน์</span>
           </div>
 
-          <h3 class="text-2xl sm:text-3xl font-display font-extrabold text-[#022C22] dark:text-[#F4FBF7]">
-            การรวมตัวของบุคลากร IT ผู้เชี่ยวชาญ สู่การพัฒนาระบบครบวงจร
-          </h3>
+          <h1 class="text-4xl sm:text-6xl lg:text-7xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC] leading-[1.08]">
+            บริษัท ไอเจนโก้ จำกัด
+          </h1>
 
-          <p class="text-sm sm:text-base text-[#022C22]/80 dark:text-[#F4FBF7]/80 leading-relaxed font-normal">
-            บริษัท ไอเจนโก้ จำกัด จัดตั้งเมื่อวันที่ <strong>15 มีนาคม 2553</strong> จากการรวมตัวของทีมงานบุคลากรทางด้าน IT ที่มีความเชี่ยวชาญในการออกแบบและพัฒนาโปรแกรมระบบงาน การวิเคราะห์โครงสร้างระบบ การจัดการฐานข้อมูล รวมถึงการเป็นที่ปรึกษาโครงการต่าง ๆ ที่เกี่ยวข้องกับงานทางด้านเทคโนโลยีสารสนเทศมาทั้งในภาครัฐและเอกชน <strong>นับ 100 ราย</strong>
+          <p class="text-xl sm:text-2xl lg:text-3xl font-light text-[#334155] dark:text-[#94A3B8] leading-relaxed">
+            ผู้ให้บริการด้านการพัฒนาระบบงานคอมพิวเตอร์และเทคโนโลยีสารสนเทศครบวงจร ด้วยประสบการณ์กว่า 8 ปี มุ่งสู่ปีที่ 9 อย่างมั่นคง
           </p>
 
-          <!-- 4 Core Service Pillars -->
-          <div class="pt-3">
-            <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] mb-3">
-              ขอบเขตการบริการครอบคลุม 4 มิติ (SERVICE PILLARS):
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <div class="p-3 rounded-xl bg-current/5 border border-current/10 flex items-start gap-2.5">
-                <Terminal class="w-4 h-4 text-[#00C864] dark:text-[#00FF88] shrink-0 mt-0.5" />
-                <div>
-                  <div class="text-xs font-bold">1. IT Consultant</div>
-                  <div class="text-[11px] opacity-75">การให้คำปรึกษาทางด้านเทคโนโลยี</div>
-                </div>
-              </div>
-              <div class="p-3 rounded-xl bg-current/5 border border-current/10 flex items-start gap-2.5">
-                <Cpu class="w-4 h-4 text-[#00C864] dark:text-[#00FF88] shrink-0 mt-0.5" />
-                <div>
-                  <div class="text-xs font-bold">2. Software Development</div>
-                  <div class="text-[11px] opacity-75">การพัฒนาโปรแกรมและระบบงาน</div>
-                </div>
-              </div>
-              <div class="p-3 rounded-xl bg-current/5 border border-current/10 flex items-start gap-2.5">
-                <Network class="w-4 h-4 text-[#00C864] dark:text-[#00FF88] shrink-0 mt-0.5" />
-                <div>
-                  <div class="text-xs font-bold">3. IT Infrastructure</div>
-                  <div class="text-[11px] opacity-75">วางระบบคอมพิวเตอร์และเครือข่าย</div>
-                </div>
-              </div>
-              <div class="p-3 rounded-xl bg-current/5 border border-current/10 flex items-start gap-2.5">
-                <Layers class="w-4 h-4 text-[#00C864] dark:text-[#00FF88] shrink-0 mt-0.5" />
-                <div>
-                  <div class="text-xs font-bold">4. Business Application</div>
-                  <div class="text-[11px] opacity-75">แอพพลิเคชั่นทางธุรกิจเฉพาะองค์กร</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <p class="text-base sm:text-lg text-[#475569] dark:text-[#94A3B8]/90 leading-relaxed font-normal pt-2 max-w-3xl">
+            เราผสานความเชี่ยวชาญด้านวิศวกรรมซอฟต์แวร์ตามมาตรฐานสากล 
+            <strong class="font-semibold text-[#0A1A12] dark:text-white">ISO/IEC 29110</strong> 
+            โดยสถาบัน TÜV NORD พร้อมได้รับการส่งเสริมการลงทุนจาก 
+            <strong class="font-semibold text-[#0A1A12] dark:text-white">BOI</strong> 
+            เพื่อส่งมอบโซลูชันระบบงานที่เปี่ยมประสิทธิภาพให้กับหน่วยงานภาครัฐ สถาบันการศึกษา และองค์กรธุรกิจชั้นนำ
+          </p>
         </div>
 
-        <div class="pt-6 mt-6 border-t border-current/10 relative z-10 flex flex-wrap items-center justify-between gap-4">
-          <div class="text-xs opacity-70">
-            ครอบคลุมราชการ รัฐวิสาหกิจ สถาบันการศึกษา และเอกชน
+        <!-- Sleek Editorial Key Statistics (Clean Hairline Row) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 pt-16 sm:pt-20 border-t border-black/5 dark:border-white/5 mt-16 sm:mt-20">
+          <div class="space-y-1">
+            <div class="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
+              15 <span class="text-base sm:text-lg font-sans font-normal opacity-70">มี.ค. 2553</span>
+            </div>
+            <div class="text-xs font-mono tracking-wider uppercase opacity-60">
+              ปีที่เริ่มก่อตั้ง (ESTABLISHED)
+            </div>
           </div>
-          <NuxtLink
-            to="/news/2"
-            class="inline-flex items-center gap-1.5 text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline group-hover:translate-x-1 transition-transform"
-          >
-            <span>อ่านบทความประวัติครบรอบ 8 ปี มุ่งสู่ปีที่ 9</span>
-            <ArrowUpRight class="w-4 h-4" />
-          </NuxtLink>
+
+          <div class="space-y-1">
+            <div class="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-[#00A852] dark:text-[#00FF88]">
+              100<span class="text-2xl font-light">+</span>
+            </div>
+            <div class="text-xs font-mono tracking-wider uppercase opacity-60">
+              องค์กรรัฐและเอกชนที่ไว้วางใจ
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
+              ISO/IEC 29110
+            </div>
+            <div class="text-xs font-mono tracking-wider uppercase opacity-60">
+              มาตรฐานสากลโดย TÜV NORD
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
+              BOI THAI
+            </div>
+            <div class="text-xs font-mono tracking-wider uppercase opacity-60">
+              ส่งเสริมการลงทุนสัญชาติไทย
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- CARD 2: BENTO (Span 4 Cols) - มาตรฐานสากล ISO/IEC 29110 & BOI -->
-      <div
-        class="bento-item lg:col-span-4 spotlight-card rounded-3xl p-7 sm:p-8 border border-current/10 flex flex-col justify-between relative overflow-hidden group"
-        @mousemove="handleMouseMove"
-      >
-        <div class="relative z-10 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864]/15 text-[#00C864] dark:bg-[#00FF88]/15 dark:text-[#00FF88] border border-[#00C864]/30">
-            <Award class="w-3.5 h-3.5" />
-            <span>GLOBAL STANDARD</span>
-          </div>
-
-          <h3 class="text-xl sm:text-2xl font-bold text-[#022C22] dark:text-[#F4FBF7]">
-            มาตรฐานวิศวกรรมระดับสากล และการรับรองจากรัฐ
-          </h3>
-
-          <div class="space-y-3 pt-2">
-            <!-- ISO Feature -->
-            <div class="p-3.5 rounded-2xl bg-current/5 border border-current/10 space-y-1">
-              <div class="flex items-center gap-2 text-xs font-bold text-[#00C864] dark:text-[#00FF88]">
-                <CheckCircle2 class="w-4 h-4" />
-                <span>ISO/IEC 29110 (TÜV NORD)</span>
+      <!-- ========================================================
+           2. COMPANY PROFILE & HERITAGE (EDITORIAL ASYMMETRIC GRID)
+      ========================================================= -->
+      <div id="history" class="editorial-reveal py-20 sm:py-28 border-b border-black/10 dark:border-white/10 scroll-mt-24">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          
+          <!-- Left Column: Story & 4 Pillars (7 Cols) -->
+          <div class="lg:col-span-7 space-y-8">
+            <div class="space-y-4">
+              <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
+                COMPANY PROFILE // ประวัติความเป็นมา
               </div>
-              <p class="text-[11px] opacity-75 leading-relaxed">
-                ผ่านการรับรองกระบวนการบริหารโครงการ (Project Management) และการพัฒนาซอฟต์แวร์ (Software Implementation)
-              </p>
+              <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC] leading-tight">
+                การรวมตัวของบุคลากร IT สู่ผู้ให้บริการระบบครบวงจร
+              </h2>
             </div>
 
-            <!-- BOI & SIPA Feature -->
-            <div class="p-3.5 rounded-2xl bg-current/5 border border-current/10 space-y-1">
-              <div class="flex items-center gap-2 text-xs font-bold text-[#00C864] dark:text-[#00FF88]">
-                <ShieldCheck class="w-4 h-4" />
-                <span>BOI & Software Park Thailand</span>
+            <p class="text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-relaxed">
+              บริษัท ไอเจนโก้ จำกัด จัดตั้งเมื่อวันที่ <strong>15 มีนาคม 2553</strong> จากการรวมตัวของทีมงานบุคลากรทางด้าน IT ที่มีความเชี่ยวชาญในการออกแบบและพัฒนาโปรแกรมระบบงาน การวิเคราะห์โครงสร้างระบบ การจัดการฐานข้อมูล รวมถึงการเป็นที่ปรึกษาโครงการต่าง ๆ ที่เกี่ยวข้องกับงานทางด้านเทคโนโลยีสารสนเทศมาทั้งในภาครัฐและเอกชน <strong>นับ 100 ราย</strong>
+            </p>
+
+            <p class="text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-relaxed">
+              โดยประกอบธุรกิจบริการให้คำปรึกษา พัฒนาระบบคอมพิวเตอร์และงานเครือข่ายเทคโนโลยีสารสนเทศให้กับสถาบันและองค์กรต่าง ๆ ทั้งในภาคราชการ รัฐวิสาหกิจ สถาบันการศึกษา และภาคเอกชน
+            </p>
+
+            <!-- 4 Service Capabilities in Clean Typographic List -->
+            <div class="pt-6 space-y-6">
+              <div class="text-xs font-mono font-bold tracking-[0.18em] uppercase opacity-75">
+                ขอบเขตการบริการ 4 ด้านหลัก (CORE CAPABILITIES)
               </div>
-              <p class="text-[11px] opacity-75 leading-relaxed">
-                ได้รับการส่งเสริมการลงทุนจาก BOI สัญชาติไทยแท้ ร่วมมือกับ Software Park Thailand และ SIPA ยกระดับศักยภาพ
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                <div
+                  v-for="cap in capabilities"
+                  :key="cap.num"
+                  class="pt-3 border-t border-black/10 dark:border-white/10 space-y-1.5"
+                >
+                  <div class="text-xs font-mono font-bold text-[#00A852] dark:text-[#00FF88]">
+                    {{ cap.num }} / {{ cap.title }}
+                  </div>
+                  <div class="text-sm font-semibold text-[#0A1A12] dark:text-white">
+                    {{ cap.th }}
+                  </div>
+                  <div class="text-xs text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+                    {{ cap.desc }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Read Article Link -->
+            <div class="pt-4">
+              <NuxtLink
+                to="/news/2"
+                class="inline-flex items-center gap-2 text-sm font-bold text-[#00A852] dark:text-[#00FF88] hover:underline group"
+              >
+                <span>อ่านบทความประวัติการเดินทางครบรอบ 8 ปี มุ่งสู่ปีที่ 9</span>
+                <ArrowRight class="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Right Column: Authentic Company Photograph & Caption (5 Cols) -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="relative overflow-hidden rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 aspect-[4/3]">
+              <img
+                src="/images/news/igenco-8years-anniversary.jpg"
+                alt="คณะผู้บริหารและทีมงาน บริษัท ไอเจนโก้ จำกัด"
+                class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700 ease-out"
+                loading="lazy"
+              >
+            </div>
+            <div class="text-xs text-[#64748B] dark:text-[#94A3B8] leading-relaxed font-mono">
+              <strong>ภาพถ่ายจริง:</strong> ผู้บริหารและทีมงาน บริษัท ไอเจนโก้ จำกัด ร่วมกิจกรรมบริจาคเนื่องในวาระเปิดมาครบรอบ 8 ปี และมุ่งสู่ปีที่ 9 อย่างมั่นคง ณ สถานสงเคราะห์เด็กอ่อนปากเกร็ด (21 มีนาคม 2561)
+            </div>
+
+            <!-- National Partnerships Callout -->
+            <div class="p-6 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 space-y-2 mt-6">
+              <div class="text-xs font-mono font-bold uppercase text-[#00A852] dark:text-[#00FF88]">
+                NATIONAL ALLIANCE // ความร่วมมือระดับประเทศ
+              </div>
+              <p class="text-xs text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+                บริษัทฯ เข้าร่วมกิจกรรมกับหน่วยงานสนับสนุนการพัฒนาซอฟต์แวร์ของประเทศ ได้แก่ <strong>เขตอุตสาหกรรมซอฟต์แวร์แห่งประเทศไทย (Software Park Thailand)</strong> และ <strong>สำนักงานส่งเสริมอุตสาหกรรมซอฟต์แวร์แห่งชาติ (องค์การมหาชน) (SIPA)</strong> พร้อมได้รับการส่งเสริมการลงทุนจาก <strong>BOI</strong> เพื่อยืนยันศักยภาพความเป็นบริษัทซอฟต์แวร์สัญชาติไทยอย่างแท้จริง
               </p>
             </div>
           </div>
-        </div>
 
-        <div class="pt-5 mt-4 border-t border-current/10 relative z-10">
-          <NuxtLink
-            to="/news/1"
-            class="inline-flex items-center gap-1.5 text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline group-hover:translate-x-1 transition-transform"
-          >
-            <span>ดูรายละเอียดการรับรองมาตรฐาน ISO</span>
-            <ArrowUpRight class="w-3.5 h-3.5" />
-          </NuxtLink>
         </div>
       </div>
 
-      <!-- CARD 3: BENTO (Span 6 Cols) - นโยบายบริษัท & ปรัชญาการทำงาน -->
-      <div
-        id="policy"
-        class="bento-item lg:col-span-6 spotlight-card rounded-3xl p-7 sm:p-9 border border-current/10 flex flex-col justify-between relative overflow-hidden group scroll-mt-28"
-        @mousemove="handleMouseMove"
-      >
-        <div class="relative z-10 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864]/15 text-[#00C864] dark:bg-[#00FF88]/15 dark:text-[#00FF88] border border-[#00C864]/30">
-            <ShieldCheck class="w-3.5 h-3.5" />
-            <span>CLIENT-CENTRIC POLICY // นโยบายบริษัท</span>
+      <!-- ========================================================
+           3. VISION & POLICY (EDITORIAL MANIFESTO)
+      ========================================================= -->
+      <div id="policy" class="editorial-reveal py-20 sm:py-28 border-b border-black/10 dark:border-white/10 scroll-mt-24">
+        <div class="max-w-4xl space-y-8">
+          <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
+            PHILOSOPHY & POLICY // นโยบายบริษัทและปรัชญาการทำงาน
           </div>
 
-          <h3 class="text-xl sm:text-2xl font-bold text-[#022C22] dark:text-[#F4FBF7]">
-            "การทำงานอย่างใกล้ชิดกับลูกค้า ใส่ใจทุกขั้นตอน"
-          </h3>
+          <h2 class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC] leading-[1.12]">
+            "การทำงานอย่างใกล้ชิดกับลูกค้า ใส่ใจในทุกขั้นตอน เพื่อส่งมอบงานที่เหนือความประทับใจ"
+          </h2>
 
-          <p class="text-sm text-[#022C22]/80 dark:text-[#F4FBF7]/80 leading-relaxed">
-            บริษัทฯ มุ่งเน้นการบริหารองค์กรภายใต้นโยบายการทำงานอย่างใกล้ชิดกับลูกค้า ใส่ใจทุกขั้นตอนของกระบวนการพัฒนาระบบ เพื่อส่งมอบงานระบบและบริการที่เหนือความประทับใจ ควบคู่กับการวิจัยและพัฒนาผลิตภัณฑ์ให้เป็นนวัตกรรมใหม่เพื่อเป็นทางเลือกภายใต้แบรนด์ <strong>"IGENCO"</strong> ซึ่งเป็นระบบ Web Application ที่ได้รับการการันตีคุณภาพและความไว้วางใจจากลูกค้าของเราอย่างต่อเนื่อง
-          </p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6">
+            <div class="space-y-2">
+              <h3 class="text-base font-bold text-[#0A1A12] dark:text-white">
+                การทำงานอย่างใกล้ชิด
+              </h3>
+              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+                ใส่ใจทุกขั้นตอนของกระบวนการพัฒนาระบบ เพื่อให้มั่นใจว่างบประมาณและฟังก์ชันการทำงานตรงตามเป้าหมายขององค์กรอย่างแท้จริง
+              </p>
+            </div>
 
-          <div class="p-4 rounded-2xl bg-[#00C864]/10 dark:bg-[#00FF88]/10 border border-[#00C864]/20 text-xs leading-relaxed space-y-1">
-            <div class="font-bold text-[#00C864] dark:text-[#00FF88]">พันธกิจหลักในการส่งมอบงาน:</div>
-            <div class="opacity-80">• ส่งมอบผลงานตรงเวลาตามมาตรฐานวิศวกรรมซอฟต์แวร์</div>
-            <div class="opacity-80">• ตอบสนองต่อความต้องการทางธุรกิจอย่างแม่นยำและยืดหยุ่น</div>
-            <div class="opacity-80">• พร้อมสนับสนุนและบำรุงรักษาอย่างต่อเนื่องหลังการส่งมอบ</div>
-          </div>
-        </div>
+            <div class="space-y-2">
+              <h3 class="text-base font-bold text-[#0A1A12] dark:text-white">
+                ผลิตภัณฑ์แบรนด์ IGENCO
+              </h3>
+              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+                วิจัยและพัฒนาผลิตภัณฑ์ให้เป็นนวัตกรรมใหม่เพื่อเป็นทางเลือกที่มีประสิทธิภาพในรูปแบบ Web Application ที่ได้รับการการันตีคุณภาพ
+              </p>
+            </div>
 
-        <div class="pt-5 mt-4 border-t border-current/10 relative z-10">
-          <NuxtLink
-            to="/news/2#section-philosophy"
-            class="inline-flex items-center gap-1.5 text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline group-hover:translate-x-1 transition-transform"
-          >
-            <span>ดูปรัชญาและนโยบายการทำงานฉบับเต็ม</span>
-            <ArrowUpRight class="w-3.5 h-3.5" />
-          </NuxtLink>
-        </div>
-      </div>
-
-      <!-- CARD 4: BENTO (Span 6 Cols) - ค่านิยมและวัฒนธรรมองค์กร (I-G-E-N) -->
-      <div
-        id="values"
-        class="bento-item lg:col-span-6 spotlight-card rounded-3xl p-7 sm:p-9 border border-current/10 flex flex-col justify-between relative overflow-hidden group scroll-mt-28"
-        @mousemove="handleMouseMove"
-      >
-        <div class="relative z-10 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864]/15 text-[#00C864] dark:bg-[#00FF88]/15 dark:text-[#00FF88] border border-[#00C864]/30">
-            <Sparkles class="w-3.5 h-3.5" />
-            <span>CORE VALUES // ค่านิยมและวัฒนธรรมองค์กร</span>
-          </div>
-
-          <h3 class="text-xl sm:text-2xl font-bold text-[#022C22] dark:text-[#F4FBF7]">
-            วัฒนธรรมองค์กร 4 เสาหลัก (I - G - E - N)
-          </h3>
-
-          <!-- 4 Pillars Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div
-              v-for="val in coreValues"
-              :key="val.letter"
-              class="p-3.5 rounded-2xl bg-current/5 border border-current/10 space-y-1 group/val hover:border-[#00C864]/40 transition-colors"
-            >
-              <div class="flex items-center gap-2">
-                <span class="w-6 h-6 rounded-lg bg-[#00C864] text-white dark:bg-[#00FF88] dark:text-[#020806] font-mono font-extrabold text-xs flex items-center justify-center">
-                  {{ val.letter }}
-                </span>
-                <span class="text-xs font-bold">{{ val.title }}</span>
-              </div>
-              <div class="text-[11px] font-semibold text-[#00C864] dark:text-[#00FF88]">{{ val.sub }}</div>
-              <div class="text-[11px] opacity-75 leading-tight">{{ val.desc }}</div>
+            <div class="space-y-2">
+              <h3 class="text-base font-bold text-[#0A1A12] dark:text-white">
+                ความต่อเนื่องและยั่งยืน
+              </h3>
+              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+                มุ่งมั่นสร้างความไว้วางใจระยะยาว ด้วยการรับประกันและการสนับสนุนทางเทคนิคอย่างรวดเร็วและมืออาชีพ
+              </p>
             </div>
           </div>
-        </div>
 
-        <div class="pt-5 mt-4 border-t border-current/10 relative z-10 flex items-center justify-between text-xs opacity-70">
-          <span>ขับเคลื่อนด้วยมาตรฐาน ความเชี่ยวชาญ และความใส่ใจ</span>
-          <span class="font-mono text-[#00C864] dark:text-[#00FF88] font-bold">IGENCO CULTURE</span>
-        </div>
-      </div>
-
-      <!-- CARD 5: BENTO (Span 6 Cols) - แผนผังการบริหารองค์กร -->
-      <div
-        id="organization"
-        class="bento-item lg:col-span-6 spotlight-card rounded-3xl p-7 sm:p-8 border border-current/10 flex flex-col justify-between relative overflow-hidden group scroll-mt-28"
-        @mousemove="handleMouseMove"
-      >
-        <div class="relative z-10 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864]/15 text-[#00C864] dark:bg-[#00FF88]/15 dark:text-[#00FF88] border border-[#00C864]/30">
-            <Users class="w-3.5 h-3.5" />
-            <span>ORGANIZATION // แผนผังการบริหาร</span>
-          </div>
-
-          <h3 class="text-xl sm:text-2xl font-bold text-[#022C22] dark:text-[#F4FBF7]">
-            โครงสร้างการบริหารงานที่คล่องตัวและมีประสิทธิภาพ
-          </h3>
-
-          <div class="space-y-2 pt-1">
-            <div
-              v-for="(team, index) in managementTeams"
-              :key="team.role"
-              class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center justify-between gap-3 text-xs"
-            >
-              <div class="flex items-center gap-2.5">
-                <span class="w-5 h-5 rounded-md bg-[#00C864]/20 text-[#00C864] dark:text-[#00FF88] font-mono text-[10px] flex items-center justify-center font-bold">
-                  0{{ index + 1 }}
-                </span>
-                <div>
-                  <div class="font-bold">{{ team.role }}</div>
-                  <div class="text-[10px] opacity-60 font-mono">{{ team.en }}</div>
-                </div>
-              </div>
-              <div class="text-[11px] opacity-75 text-right hidden sm:block">
-                {{ team.desc }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="pt-5 mt-4 border-t border-current/10 relative z-10 text-xs opacity-70">
-          ทีมงานมืออาชีพ พร้อมดูแลและส่งมอบทุกระบบอย่างมีมาตรฐาน
-        </div>
-      </div>
-
-      <!-- CARD 6: BENTO (Span 3 Cols) - สมัครงาน (Careers) -->
-      <div
-        id="careers"
-        class="bento-item lg:col-span-3 spotlight-card rounded-3xl p-7 sm:p-8 border border-current/10 flex flex-col justify-between relative overflow-hidden group scroll-mt-28"
-        @mousemove="handleMouseMove"
-      >
-        <div class="relative z-10 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864]/15 text-[#00C864] dark:bg-[#00FF88]/15 dark:text-[#00FF88] border border-[#00C864]/30">
-            <Briefcase class="w-3.5 h-3.5" />
-            <span>CAREERS</span>
-          </div>
-
-          <h3 class="text-xl font-bold text-[#022C22] dark:text-[#F4FBF7]">
-            ร่วมงานกับเรา (สมัครงาน)
-          </h3>
-
-          <p class="text-xs text-[#022C22]/80 dark:text-[#F4FBF7]/80 leading-relaxed">
-            เปิดรับบุคลากรรุ่นใหม่ที่พร้อมเติบโตในสายงานเทคโนโลยี:
-          </p>
-
-          <div class="space-y-1.5 text-xs opacity-90 font-medium">
-            <div class="flex items-center gap-1.5">• Full-Stack Developer</div>
-            <div class="flex items-center gap-1.5">• System Analyst (SA)</div>
-            <div class="flex items-center gap-1.5">• DevOps & Cloud Engineer</div>
-            <div class="flex items-center gap-1.5">• Business Development</div>
-          </div>
-
-          <div class="pt-2 text-[11px] font-mono opacity-70">
-            อีเมล: hr@igenco.co.th<br>
-            โทร: 0-2523-3959
-          </div>
-        </div>
-
-        <div class="pt-5 mt-4 border-t border-current/10 relative z-10">
-          <NuxtLink
-            to="/#contact"
-            class="inline-flex items-center gap-1 text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline group-hover:translate-x-1 transition-transform"
-          >
-            <span>ติดต่อฝ่ายบุคคล / ส่งเรซูเม่</span>
-            <ArrowUpRight class="w-3.5 h-3.5" />
-          </NuxtLink>
-        </div>
-      </div>
-
-      <!-- CARD 7: BENTO (Span 3 Cols) - การคุ้มครองข้อมูลส่วนบุคคล (PDPA) -->
-      <div
-        id="privacy-policy"
-        class="bento-item lg:col-span-3 spotlight-card rounded-3xl p-7 sm:p-8 border border-current/10 flex flex-col justify-between relative overflow-hidden group scroll-mt-28"
-        @mousemove="handleMouseMove"
-      >
-        <div class="relative z-10 space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864]/15 text-[#00C864] dark:bg-[#00FF88]/15 dark:text-[#00FF88] border border-[#00C864]/30">
-            <Lock class="w-3.5 h-3.5" />
-            <span>PDPA</span>
-          </div>
-
-          <h3 class="text-xl font-bold text-[#022C22] dark:text-[#F4FBF7]">
-            การคุ้มครองข้อมูลส่วนบุคคล
-          </h3>
-
-          <p class="text-xs text-[#022C22]/80 dark:text-[#F4FBF7]/80 leading-relaxed">
-            เรายึดมั่นตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) อย่างเคร่งครัด พร้อมมาตรฐานความปลอดภัยทางสารสนเทศ
-          </p>
-
-          <div class="space-y-2 pt-1">
+          <div class="pt-2">
             <NuxtLink
-              to="/privacy-policy"
-              class="p-2.5 rounded-xl bg-current/5 border border-current/10 hover:border-[#00C864]/40 flex items-center justify-between text-xs font-semibold text-[#00C864] dark:text-[#00FF88] transition-all"
+              to="/news/2#section-philosophy"
+              class="inline-flex items-center gap-1.5 text-xs font-mono font-bold tracking-wider uppercase text-[#00A852] dark:text-[#00FF88] hover:underline"
             >
-              <span>นโยบายความเป็นส่วนตัว</span>
-              <ChevronRight class="w-3.5 h-3.5" />
-            </NuxtLink>
-            <NuxtLink
-              to="/cookie-policy"
-              class="p-2.5 rounded-xl bg-current/5 border border-current/10 hover:border-[#00C864]/40 flex items-center justify-between text-xs font-semibold text-[#00C864] dark:text-[#00FF88] transition-all"
-            >
-              <span>นโยบายการใช้คุกกี้</span>
-              <ChevronRight class="w-3.5 h-3.5" />
+              <span>อ่านนโยบายและแนวคิดการบริหารงานเพิ่มเติม</span>
+              <ArrowUpRight class="w-3.5 h-3.5" />
             </NuxtLink>
           </div>
         </div>
-
-        <div class="pt-5 mt-4 border-t border-current/10 relative z-10 text-[11px] opacity-70">
-          ความโปร่งใสและปลอดภัยตามมาตรฐานสากล
-        </div>
       </div>
 
-    </div>
-
-    <!-- ========================================================
-         3. COMPANY TIMELINE (ประวัติบริษัทตามข้อมูลจริง)
-    ========================================================= -->
-    <div class="timeline-container pt-8 border-t border-current/10 relative">
-      <div class="max-w-3xl mb-12">
-        <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.22em] text-[#00C864] dark:text-[#00FF88] mb-3 font-bold">
-          <Calendar class="w-4 h-4" />
-          <span>COMPANY TIMELINE // เส้นทางประวัติศาสตร์และความก้าวหน้า</span>
+      <!-- ========================================================
+           4. CORE VALUES: TYPOGRAPHIC 01–04 WITH DIVIDERS
+      ========================================================= -->
+      <div id="values" class="editorial-reveal py-20 sm:py-28 border-b border-black/10 dark:border-white/10 scroll-mt-24">
+        <div class="space-y-4 mb-14">
+          <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
+            CORE VALUES // ค่านิยมและวัฒนธรรมองค์กร
+          </div>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC]">
+            ค่านิยม 4 เสาหลัก (I - G - E - N)
+          </h2>
+          <p class="text-base text-[#475569] dark:text-[#94A3B8] max-w-2xl">
+            หลักยึดเหนี่ยวในการทำงานของบุคลากร IGENCO ทุกคน เพื่อขับเคลื่อนองค์กรและส่งมอบคุณค่าสูงสุดแก่ลูกค้า
+          </p>
         </div>
-        <h3 class="font-display font-extrabold text-2xl sm:text-4xl uppercase tracking-tight text-[#022C22] dark:text-[#F4FBF7]">
-          เส้นทางแห่งความมุ่งมั่น สู่ผู้ให้บริการระบบครบวงจร
-        </h3>
-        <p class="text-sm sm:text-base opacity-75 mt-3">
-          ตลอดเส้นทางการทำงานสายงาน IT ตั้งแต่วันก่อตั้งจนถึงการก้าวสู่ปีที่ 9 อย่างมั่นคง
-        </p>
-      </div>
 
-      <!-- Interactive Timeline Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-        <div
-          v-for="(item, idx) in timelineMilestones"
-          :key="item.year + idx"
-          class="timeline-item-anim spotlight-card rounded-3xl p-6 sm:p-7 border border-current/10 flex flex-col justify-between relative overflow-hidden group"
-          :class="item.highlight ? 'border-[#00C864]/30 shadow-lg shadow-[#00C864]/5' : ''"
-          @mousemove="handleMouseMove"
-        >
-          <div class="space-y-3 relative z-10">
-            <div class="flex items-center justify-between">
-              <span class="text-2xl font-mono font-extrabold text-[#00C864] dark:text-[#00FF88]">
-                {{ item.year }}
+        <!-- 01 - 04 Typographic Clean Rows / Columns with Dividers -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 pt-6">
+          <div
+            v-for="val in coreValues"
+            :key="val.num"
+            class="pt-6 border-t-2 border-black/10 dark:border-white/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-colors space-y-4 group"
+          >
+            <div class="flex items-baseline justify-between">
+              <span class="text-4xl sm:text-5xl font-mono font-extrabold text-[#00A852] dark:text-[#00FF88]">
+                {{ val.num }}
               </span>
-              <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-current/5 border border-current/10">
-                {{ item.tag }}
+              <span class="text-xs font-mono tracking-widest uppercase opacity-50">
+                {{ val.code }}
               </span>
             </div>
 
-            <div class="text-xs font-bold text-[#00C864] dark:text-[#00FF88]">
-              {{ item.date }}
+            <div class="space-y-1">
+              <h3 class="text-lg font-bold text-[#0A1A12] dark:text-white group-hover:text-[#00A852] dark:group-hover:text-[#00FF88] transition-colors">
+                {{ val.title }}
+              </h3>
             </div>
 
-            <h4 class="text-base sm:text-lg font-bold text-[#022C22] dark:text-[#F4FBF7]">
-              {{ item.title }}
-            </h4>
-
-            <p class="text-xs sm:text-sm text-[#022C22]/75 dark:text-[#F4FBF7]/75 leading-relaxed">
-              {{ item.desc }}
+            <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+              {{ val.desc }}
             </p>
           </div>
+        </div>
+      </div>
 
-          <div class="pt-4 mt-3 border-t border-current/10 text-[10px] font-mono opacity-50 flex items-center justify-between relative z-10">
-            <span>MILESTONE // 0{{ idx + 1 }}</span>
-            <span v-if="item.highlight" class="text-[#00C864] dark:text-[#00FF88] font-bold">KEY ACHIEVE</span>
+      <!-- ========================================================
+           5. COMPANY TIMELINE: CHRONOLOGICAL EDITORIAL LINE
+      ========================================================= -->
+      <div class="editorial-reveal py-20 sm:py-28 border-b border-black/10 dark:border-white/10">
+        <div class="space-y-4 mb-16">
+          <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
+            TIMELINE // เส้นทางประวัติศาสตร์และความก้าวหน้า
+          </div>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC]">
+            เส้นทางแห่งการเติบโตอย่างมั่นคง
+          </h2>
+          <p class="text-base text-[#475569] dark:text-[#94A3B8] max-w-2xl">
+            จากก้าวแรกในปี 2553 จนถึงการยืนหยัดในฐานะผู้เชี่ยวชาญการพัฒนาระบบคอมพิวเตอร์ครบวงจร
+          </p>
+        </div>
+
+        <!-- Sleek Editorial Timeline (Linear Staggered Flow) -->
+        <div class="space-y-12 relative before:absolute before:inset-0 before:left-4 md:before:left-32 before:w-[1px] before:bg-black/10 dark:before:bg-white/10">
+          <div
+            v-for="(item, idx) in timelineMilestones"
+            :key="item.year + idx"
+            class="relative flex flex-col md:flex-row items-start gap-4 md:gap-12 pl-10 md:pl-0 group"
+          >
+            <!-- Timeline Marker Dot -->
+            <div class="absolute left-2.5 md:left-32 -translate-x-1/2 top-1.5 w-3 h-3 rounded-full bg-white dark:bg-[#030906] border-2 border-[#00A852] dark:border-[#00FF88] group-hover:scale-125 transition-transform" />
+
+            <!-- Year Label on the Left (Desktop) -->
+            <div class="md:w-28 md:text-right shrink-0">
+              <div class="text-xl sm:text-2xl font-mono font-bold text-[#00A852] dark:text-[#00FF88]">
+                {{ item.year }}
+              </div>
+              <div class="text-[11px] font-mono opacity-50 uppercase tracking-wider">
+                {{ item.tag }}
+              </div>
+            </div>
+
+            <!-- Content on the Right -->
+            <div class="space-y-1.5 max-w-2xl pt-0.5">
+              <div class="text-xs font-mono font-semibold text-[#00A852] dark:text-[#00FF88]">
+                {{ item.date }}
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold text-[#0A1A12] dark:text-white">
+                {{ item.title }}
+              </h3>
+              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+                {{ item.desc }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
+      <!-- ========================================================
+           6. CORPORATE INFORMATION: 3 EDITORIAL COLUMNS
+           (โครงสร้างองค์กร สมัครงาน และการคุ้มครองข้อมูลส่วนบุคคล)
+      ========================================================= -->
+      <div class="editorial-reveal pt-20 sm:pt-28">
+        <div class="space-y-4 mb-16">
+          <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
+            CORPORATE GOVERNANCE // ข้อมูลองค์กรและการกำกับดูแล
+          </div>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC]">
+            โครงสร้างการบริหารและการดำเนินงาน
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          
+          <!-- Column 1: Organization Structure (6 Cols) -->
+          <div id="organization" class="lg:col-span-6 space-y-6 scroll-mt-28">
+            <div class="border-b border-black/10 dark:border-white/10 pb-4">
+              <h3 class="text-xl font-bold text-[#0A1A12] dark:text-white flex items-center gap-2">
+                <Users class="w-5 h-5 text-[#00A852] dark:text-[#00FF88]" />
+                <span>แผนผังการบริหาร (Organization Structure)</span>
+              </h3>
+              <p class="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
+                โครงสร้างสายงานที่ชัดเจน คล่องตัว และมีมาตรฐานการควบคุมคุณภาพ
+              </p>
+            </div>
+
+            <div class="space-y-3">
+              <div
+                v-for="(team, index) in managementStructure"
+                :key="team.role"
+                class="p-4 rounded-xl border border-black/5 dark:border-white/5 hover:border-black/15 dark:hover:border-white/15 transition-colors space-y-1"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-bold text-[#0A1A12] dark:text-white">
+                    0{{ index + 1 }}. {{ team.role }}
+                  </div>
+                  <div class="text-xs font-mono opacity-50">{{ team.en }}</div>
+                </div>
+                <div class="text-xs text-[#64748B] dark:text-[#94A3B8]">
+                  {{ team.detail }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2 & 3: Careers & PDPA (6 Cols Split) -->
+          <div class="lg:col-span-6 space-y-12">
+            
+            <!-- Careers (สมัครงาน) -->
+            <div id="careers" class="space-y-4 scroll-mt-28">
+              <div class="border-b border-black/10 dark:border-white/10 pb-4">
+                <h3 class="text-xl font-bold text-[#0A1A12] dark:text-white flex items-center gap-2">
+                  <Briefcase class="w-5 h-5 text-[#00A852] dark:text-[#00FF88]" />
+                  <span>ร่วมงานกับเรา (Careers)</span>
+                </h3>
+                <p class="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
+                  เปิดรับบุคลากรรุ่นใหม่ที่พร้อมเติบโตและสร้างสรรค์ระบบงานที่มีคุณค่า
+                </p>
+              </div>
+
+              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+                เราสนับสนุนบรรยากาศการทำงานที่เป็นมืออาชีพ เรียนรู้เทคโนโลยีสมัยใหม่ และการทำงานเป็นทีม เปิดรับตำแหน่ง:
+              </p>
+
+              <div class="grid grid-cols-2 gap-2 text-xs font-mono font-medium">
+                <div class="p-2.5 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5">• Full-Stack Developer</div>
+                <div class="p-2.5 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5">• System Analyst (SA)</div>
+                <div class="p-2.5 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5">• DevOps & Cloud Engineer</div>
+                <div class="p-2.5 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5">• Business Development</div>
+              </div>
+
+              <div class="pt-2 text-xs font-mono opacity-80 flex flex-wrap items-center justify-between gap-2">
+                <span>ติดต่อฝ่ายบุคคล: <strong>hr@igenco.co.th</strong> | โทร. 0-2523-3959</span>
+                <NuxtLink
+                  to="/#contact"
+                  class="font-bold text-[#00A852] dark:text-[#00FF88] hover:underline flex items-center gap-1"
+                >
+                  <span>ส่งเรซูเม่</span>
+                  <ArrowUpRight class="w-3.5 h-3.5" />
+                </NuxtLink>
+              </div>
+            </div>
+
+            <!-- PDPA & Privacy (การคุ้มครองข้อมูลส่วนบุคคล) -->
+            <div id="privacy-policy" class="space-y-4 scroll-mt-28">
+              <div class="border-b border-black/10 dark:border-white/10 pb-4">
+                <h3 class="text-xl font-bold text-[#0A1A12] dark:text-white flex items-center gap-2">
+                  <Lock class="w-5 h-5 text-[#00A852] dark:text-[#00FF88]" />
+                  <span>การคุ้มครองข้อมูลส่วนบุคคล (PDPA)</span>
+                </h3>
+                <p class="text-xs text-[#64748B] dark:text-[#94A3B8] mt-1">
+                  การปฏิบัติตามกฎหมายและมาตรฐานความปลอดภัยทางสารสนเทศ
+                </p>
+              </div>
+
+              <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+                บริษัท ไอเจนโก้ จำกัด ให้ความสำคัญสูงสุดต่อการรักษาความมั่นคงปลอดภัยของข้อมูลส่วนบุคคลและข้อมูลองค์กรตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)
+              </p>
+
+              <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <NuxtLink
+                  to="/privacy-policy"
+                  class="flex-1 p-3 rounded-xl border border-black/10 dark:border-white/10 hover:border-[#00C864] dark:hover:border-[#00FF88] flex items-center justify-between text-xs font-semibold text-[#0A1A12] dark:text-white transition-all group"
+                >
+                  <span>นโยบายความเป็นส่วนตัว (Privacy Policy)</span>
+                  <ChevronRight class="w-4 h-4 text-[#00A852] dark:text-[#00FF88] group-hover:translate-x-1 transition-transform" />
+                </NuxtLink>
+
+                <NuxtLink
+                  to="/cookie-policy"
+                  class="flex-1 p-3 rounded-xl border border-black/10 dark:border-white/10 hover:border-[#00C864] dark:hover:border-[#00FF88] flex items-center justify-between text-xs font-semibold text-[#0A1A12] dark:text-white transition-all group"
+                >
+                  <span>นโยบายการใช้คุกกี้ (Cookie Policy)</span>
+                  <ChevronRight class="w-4 h-4 text-[#00A852] dark:text-[#00FF88] group-hover:translate-x-1 transition-transform" />
+                </NuxtLink>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
   </section>
 </template>
 
 <style scoped>
-/* Apple VisionOS Specular Liquid Glass Spotlight Card */
-.spotlight-card {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
-}
-
-:global(.dark) .spotlight-card {
-  background: rgba(4, 20, 14, 0.75);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-}
-
-.spotlight-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(0, 200, 100, 0.45);
-  box-shadow: 0 20px 45px -12px rgba(0, 200, 100, 0.15);
-}
-
-:global(.dark) .spotlight-card:hover {
-  border-color: rgba(0, 255, 136, 0.5);
-  box-shadow: 0 20px 45px -12px rgba(0, 255, 136, 0.12);
-}
-
-/* Mouse tracking radial spotlight shine inside cards */
-.spotlight-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    450px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(0, 200, 100, 0.08),
-    transparent 60%
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: 1;
-}
-
-:global(.dark) .spotlight-card::before {
-  background: radial-gradient(
-    450px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(0, 255, 136, 0.1),
-    transparent 60%
-  );
-}
-
-.spotlight-card:hover::before {
-  opacity: 1;
-}
-
+/* Minimalist Corporate Typography & Smooth Transitions */
 @media (prefers-reduced-motion: reduce) {
-  .spotlight-card {
+  * {
     transition: none !important;
-    transform: none !important;
+    animation: none !important;
   }
 }
 </style>
