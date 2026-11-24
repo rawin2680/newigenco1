@@ -42,7 +42,7 @@ const navLinks: NavItem[] = [
     hasDropdown: true,
     children: [
       { name: 'ประวัติความเป็นมา', href: '/about/history' },
-      { name: 'นโยบายและวิสัยทัศน์', href: '/about/policy' },
+      { name: 'นโยบายบริษัท', href: '/about/policy' },
       { name: 'ค่านิยมและวัฒนธรรมองค์กร', href: '/about/values' },
       { name: 'แผนผังการบริหาร', href: '/about/organization' },
       { name: 'สมัครงาน', href: '/careers' },

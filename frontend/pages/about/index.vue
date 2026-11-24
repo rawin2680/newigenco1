@@ -30,7 +30,7 @@ useHead({
         <div class="hidden sm:flex items-center gap-4 text-[11px] opacity-60">
           <NuxtLink to="/about/history" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">ประวัติบริษัท</NuxtLink>
           <span>•</span>
-          <NuxtLink to="/about/policy" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">นโยบายและวิสัยทัศน์</NuxtLink>
+          <NuxtLink to="/about/policy" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">นโยบายบริษัท</NuxtLink>
           <span>•</span>
           <NuxtLink to="/about/values" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">ค่านิยม I-G-E-N</NuxtLink>
           <span>•</span>
