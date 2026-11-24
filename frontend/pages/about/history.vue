@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
-import { Building2, ArrowLeft, ArrowUpRight, Award, ShieldCheck, Calendar, Users, CheckCircle2, FileCheck2, Landmark, Sparkles, Quote } from 'lucide-vue-next'
+import { Building2, ArrowLeft, ArrowUpRight, Award, ShieldCheck, Calendar, Users, CheckCircle2, FileCheck2, Landmark, Sparkles, Quote, Check, Briefcase } from 'lucide-vue-next'
 
 useHead({
   title: 'ประวัติความเป็นมา (Heritage & Journey) - บริษัท ไอเจนโก้ จำกัด (IGENCO)',
@@ -19,14 +19,14 @@ const accreditations = [
     title: 'ที่ปรึกษาขึ้นทะเบียนกระทรวงการคลัง',
     code: 'ประเภทนิติบุคคล 4232 ระดับ 2',
     sub: 'สาขาเทคโนโลยีสารสนเทศและการสื่อสาร',
-    desc: 'ได้รับการขึ้นทะเบียนที่ปรึกษาจากสำนักบริหารหนี้สาธารณะ กระทรวงการคลัง การันตีความพร้อมและคุณสมบัติระดับชาติ'
+    desc: 'ได้รับการขึ้นทะเบียนที่ปรึกษาจากสำนักบริหารหนี้สาธารณะ กระทรวงการคลัง การันตีคุณสมบัติและมาตรฐานการให้บริการระดับชาติ'
   },
   {
     icon: Award,
     title: 'มาตรฐานสากล ISO/IEC 29110:2011',
     code: 'Management Systems Certification',
     sub: 'Software Project Management & Software Implementation Process',
-    desc: 'ผ่านการตรวจรับรองมาตรฐานวิศวกรรมซอฟต์แวร์ระดับสากล เพื่อให้เกิดความมั่นใจสูงสุดในผลิตภัณฑ์และบริการ'
+    desc: 'ผ่านการตรวจรับรองมาตรฐานวิศวกรรมซอฟต์แวร์ระดับสากล เพื่อสร้างความมั่นใจสูงสุดในกระบวนการพัฒนาและส่งมอบงาน'
   },
   {
     icon: ShieldCheck,
@@ -41,7 +41,7 @@ const alliances = [
   {
     name: 'depa',
     fullName: 'สำนักงานส่งเสริมเศรษฐกิจดิจิทัล',
-    desc: 'ร่วมขับเคลื่อนและยกระดับอุตสาหกรรมดิจิทัลของประเทศ'
+    desc: 'ร่วมส่งเสริมศักยภาพและขับเคลื่อนอุตสาหกรรมดิจิทัลของประเทศ'
   },
   {
     name: 'Software Park Thailand',
@@ -50,40 +50,36 @@ const alliances = [
   },
   {
     name: 'ATSI',
-    fullName: 'สมาคมอุตสาหกรรมซอฟต์แวร์ไทย',
-    desc: 'พันธมิตรความร่วมมือด้านมาตรฐานและเครือข่ายธุรกิจซอฟต์แวร์'
+    fullName: 'สมาคมอุตสาหกรรมซอฟแวร์ไทย',
+    desc: 'พันธมิตรความร่วมมือด้านมาตรฐานและเครือข่ายธุรกิจซอฟต์แวร์ไทย'
   },
   {
-    name: 'MOF Consultant Registry',
+    name: 'MOF Registry',
     fullName: 'สำนักบริหารหนี้สาธารณะ กระทรวงการคลัง',
     desc: 'ขึ้นทะเบียนที่ปรึกษาประเภทนิติบุคคล 4232 ระดับ 2'
   }
 ]
 
-const services = [
+const servicePillars = [
   {
-    code: '01',
-    en: 'IT Consultant',
-    th: 'การให้คำปรึกษาด้านเทคโนโลยีสารสนเทศ',
-    desc: 'บริการให้คำปรึกษา วางแผน และวิเคราะห์สถาปัตยกรรมระบบงานคอมพิวเตอร์ระดับองค์กร'
+    title: 'IT Consultant',
+    th: 'การให้คำปรึกษาด้านไอที',
+    desc: 'ให้คำปรึกษา วางแผน และวิเคราะห์ระบบสารสนเทศระดับองค์กร'
   },
   {
-    code: '02',
-    en: 'Software Development',
-    th: 'การพัฒนาระบบโปรแกรมคอมพิวเตอร์',
-    desc: 'ออกแบบและพัฒนาระบบ Web Application นวัตกรรมใหม่ภายใต้แบรนด์ IGENCO'
+    title: 'Software Development',
+    th: 'การพัฒนาระบบโปรแกรม',
+    desc: 'วิเคราะห์ ออกแบบ และพัฒนา Web Application คุณภาพสูง'
   },
   {
-    code: '03',
-    en: 'IT Infrastructure',
-    th: 'การวางระบบคอมพิวเตอร์และเครือข่ายสารสนเทศ',
-    desc: 'วางโครงสร้างพื้นฐานระบบแม่ข่าย เครือข่ายความปลอดภัยสูง และระบบเชื่อมโยงข้อมูล'
+    title: 'IT Infrastructure',
+    th: 'การวางระบบคอมพิวเตอร์และเครือข่าย',
+    desc: 'วางระบบแม่ข่าย เครือข่ายความปลอดภัย และศูนย์ข้อมูลสารสนเทศ'
   },
   {
-    code: '04',
-    en: 'Business Application',
-    th: 'แอพพลิเคชั่นทางธุรกิจเฉพาะทาง',
-    desc: 'โซลูชันระบบงานคอมพิวเตอร์และโปรแกรมประยุกต์เพื่อการบริหารจัดการข้อมูลครบวงจร'
+    title: 'Business Application',
+    th: 'แอพพลิเคชั่นทางธุรกิจ (IGENCO)',
+    desc: 'โซลูชันระบบงานคอมพิวเตอร์สำเร็จรูปที่ปรับแต่งเฉพาะหน่วยงาน'
   }
 ]
 </script>
@@ -92,7 +88,7 @@ const services = [
   <div class="min-h-screen bg-[#FBFDFB] dark:bg-[#030906] text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22]">
     <AppHeader />
 
-    <main class="pt-28 pb-24 max-w-[1200px] mx-auto px-5 sm:px-10 lg:px-16">
+    <main class="pt-28 pb-24 max-w-[1240px] mx-auto px-5 sm:px-10 lg:px-16">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-xs font-mono mb-10 opacity-70">
         <NuxtLink to="/" class="hover:text-[#00A852] dark:hover:text-[#00FF88] flex items-center gap-1">
@@ -106,12 +102,12 @@ const services = [
       </div>
 
       <!-- Header Section -->
-      <div class="pb-16 border-b border-black/10 dark:border-white/10 space-y-6 max-w-4xl">
+      <div class="pb-14 border-b border-black/10 dark:border-white/10 space-y-5 max-w-4xl">
         <div class="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.22em] uppercase text-[#00A852] dark:text-[#00FF88]">
           <Calendar class="w-4 h-4" />
           <span>HERITAGE & JOURNEY // ประวัติความเป็นมา</span>
         </div>
-        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC] leading-tight">
+        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC] leading-[1.15]">
           ประวัติความเป็นมา บริษัท ไอเจนโก้ จำกัด (IGENCO)
         </h1>
         <p class="text-lg sm:text-xl text-[#334155] dark:text-[#94A3B8] leading-relaxed font-light">
@@ -119,8 +115,8 @@ const services = [
         </p>
       </div>
 
-      <!-- Key Quick Numbers -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-12 border-b border-black/10 dark:border-white/10">
+      <!-- Key Quick Numbers (Sleek Hairline Stats Bar) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-10 border-b border-black/10 dark:border-white/10">
         <div class="space-y-1">
           <div class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold text-[#0A1A12] dark:text-white">
             15 มี.ค. 2553
@@ -158,87 +154,143 @@ const services = [
         </div>
       </div>
 
-      <!-- Official Narrative Story (จัดวางรูปแบบ Editorial สวยงาม อ่านง่าย) -->
+      <!-- Main Narrative Content (จัดวรรคตอน มีย่อหน้าสวยงาม และอ่านสบายตา) -->
       <div class="py-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start border-b border-black/10 dark:border-white/10">
-        <div class="lg:col-span-7 space-y-6 text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-relaxed">
-          <p>
-            <strong>บริษัท ไอเจนโก้ จำกัด หรือ IGENCO</strong> จัดตั้งเมื่อปี <strong>15 มีนาคม 2553</strong> โดยประกอบธุรกิจบริการให้คำปรึกษา พัฒนาระบบคอมพิวเตอร์และงานเครือข่ายงานด้านเทคโนโลยีสารสนเทศให้กับสถาบันและองค์กรต่างๆ ทั้งในภาคราชการ รัฐวิสาหกิจ สถาบันการศึกษา และภาคเอกชน งานโดยขอบเขตการบริการครอบคลุมตั้งแต่การให้คำปรึกษา (IT Consultant) การพัฒนา (Software Development) และวางระบบคอมพิวเตอร์และเครือข่ายสารสนเทศ (IT infrastructure) แอพพลิเคชั่นทางธุรกิจ (Business Application) มุ่งเน้นในการบริหารองค์กรภายใต้นโยบายการทำงานอย่างใกล้ชิดกับลูกค้า ใส่ใจทุกขั้นตอนของกระบวนการพัฒนาระบบ เพื่อส่งมอบงานระบบและบริการให้ลูกค้าอย่างเหนือความประทับใจ ควบคู่กับการพัฒนาผลิตภัณฑ์ให้เป็นนวัตกรรมใหม่เพื่อเป็นทางเลือกภายใต้แบรนด์ <strong>"IGENCO"</strong> ซึ่งเป็นระบบ Web Application ที่ได้รับการการันตีคุณภาพและความไว้วางใจจากลูกค้าของเราอย่างต่อเนื่อง
-          </p>
+        
+        <!-- Left Column: Well-Formatted Story with Indentations & Lead Typography -->
+        <div class="lg:col-span-7 space-y-12">
+          
+          <!-- Section 1: การจัดตั้งและขอบเขตบริการ -->
+          <div class="space-y-4">
+            <div class="flex items-center gap-2 text-xs font-mono font-bold tracking-wider uppercase text-[#00A852] dark:text-[#00FF88]">
+              <span class="w-2 h-2 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
+              <span>การจัดตั้งและขอบเขตการให้บริการ</span>
+            </div>
 
-          <p>
-            บริษัท ไอเจนโก้ จำกัด หรือ IGENCO ก่อตั้งจากการรวมตัวของทีมงานบุคลากรทางด้าน IT ที่มีความเชี่ยวชาญในการออกแบบและพัฒนาโปรแกรมระบบงาน การวิเคราะห์โครงสร้างระบบ การจัดการฐานข้อมูล รวมถึงการเป็นที่ปรึกษาโครงการต่าง ๆ ที่เกี่ยวข้องกับงานทางด้านเทคโนโลยีสารสนเทศมาทั้งในภาครัฐและเอกชน นับ 100 ราย มากกว่า 20 ปี ตลอดเส้นทางการทำงานสายงาน IT ปัจจุบันบริษัทฯ เข้าร่วมกิจกรรมกับหน่วยงานที่สนับสนุนการพัฒนาซอฟต์แวร์ของประเทศ เช่น <strong>สำนักงานส่งเสริมเศรษฐกิจดิจิทัล (depa)</strong>, <strong>เขตอุตสาหกรรมซอฟต์แวร์แห่งประเทศไทย (Software Park Thailand)</strong>, <strong>สมาคมอุตสาหกรรมซอฟแวร์ไทย (ATSI)</strong> ตลอดจนพันธมิตรทางการค้าอื่นๆ เพื่อเป็นการเพิ่มศักยภาพด้านการพัฒนาระบบและการบริการให้ดียิ่งขึ้น
-          </p>
+            <p class="indent-8 sm:indent-10 text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-[1.95] text-justify font-normal">
+              <strong class="text-[#0A1A12] dark:text-white font-bold">บริษัท ไอเจนโก้ จำกัด หรือ IGENCO</strong> จัดตั้งเมื่อปี <strong class="text-[#0A1A12] dark:text-white font-bold">15 มีนาคม 2553</strong> โดยประกอบธุรกิจบริการให้คำปรึกษา พัฒนาระบบคอมพิวเตอร์และงานเครือข่ายงานด้านเทคโนโลยีสารสนเทศให้กับสถาบันและองค์กรต่าง ๆ ทั้งในภาคราชการ รัฐวิสาหกิจ สถาบันการศึกษา และภาคเอกชน
+            </p>
 
-          <p>
-            นอกจากนี้บริษัทฯ ยังได้รับการส่งเสริมการลงทุนจาก <strong>BOI</strong> ในการประกอบธุรกิจเกี่ยวกับการพัฒนาระบบเทคโนโลยีสารสนเทศในด้านซอฟต์แวร์ และได้รับการขึ้นทะเบียนที่ปรึกษาจากสำนักบริหารหนี้สาธารณะ กระทรวงการคลัง ประเภทนิติบุคคล <strong>4232 ระดับ 2</strong> สาขาเทคโนโลยีสารสนเทศและการสื่อสาร และเพื่อให้เกิดความมั่นใจในผลิตภัณฑ์และบริการของ IGENCO ที่ผ่านมาตรฐานด้าน Software Project Management and Software Implementation Process ด้วย Management Systems as per <strong>ISO/IEC 29110</strong> และการให้บริการด้าน IT ซึ่งเป็นบริษัทฯ สัญชาติไทยอย่างแท้จริง
-          </p>
+            <p class="indent-8 sm:indent-10 text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-[1.95] text-justify font-normal">
+              โดยขอบเขตการบริการครอบคลุมตั้งแต่การให้คำปรึกษา <span class="font-semibold text-[#0A1A12] dark:text-white">(IT Consultant)</span> การพัฒนา <span class="font-semibold text-[#0A1A12] dark:text-white">(Software Development)</span> และวางระบบคอมพิวเตอร์และเครือข่ายสารสนเทศ <span class="font-semibold text-[#0A1A12] dark:text-white">(IT infrastructure)</span> แอพพลิเคชั่นทางธุรกิจ <span class="font-semibold text-[#0A1A12] dark:text-white">(Business Application)</span>
+            </p>
+
+            <p class="indent-8 sm:indent-10 text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-[1.95] text-justify font-normal">
+              มุ่งเน้นในการบริหารองค์กรภายใต้นโยบายการทำงานอย่างใกล้ชิดกับลูกค้า ใส่ใจทุกขั้นตอนของกระบวนการพัฒนาระบบ เพื่อส่งมอบงานระบบและบริการให้ลูกค้าอย่างเหนือความประทับใจ ควบคู่กับการพัฒนาผลิตภัณฑ์ให้เป็นนวัตกรรมใหม่เพื่อเป็นทางเลือกภายใต้แบรนด์ <strong class="text-[#00A852] dark:text-[#00FF88] font-bold">"IGENCO"</strong> ซึ่งเป็นระบบ Web Application ที่ได้รับการการันตีคุณภาพและความไว้วางใจจากลูกค้าของเราอย่างต่อเนื่อง
+            </p>
+          </div>
+
+          <!-- Section 2: ประสบการณ์และความร่วมมือระดับประเทศ -->
+          <div class="space-y-4 pt-4 border-t border-black/5 dark:border-white/5">
+            <div class="flex items-center gap-2 text-xs font-mono font-bold tracking-wider uppercase text-[#00A852] dark:text-[#00FF88]">
+              <span class="w-2 h-2 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
+              <span>ความเชี่ยวชาญของทีมงานและพันธมิตรระดับประเทศ</span>
+            </div>
+
+            <p class="indent-8 sm:indent-10 text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-[1.95] text-justify font-normal">
+              บริษัท ไอเจนโก้ จำกัด หรือ IGENCO ก่อตั้งจากการรวมตัวของทีมงานบุคลากรทางด้าน IT ที่มีความเชี่ยวชาญในการออกแบบและพัฒนาโปรแกรมระบบงาน การวิเคราะห์โครงสร้างระบบ การจัดการฐานข้อมูล รวมถึงการเป็นที่ปรึกษาโครงการต่าง ๆ ที่เกี่ยวข้องกับงานทางด้านเทคโนโลยีสารสนเทศมาทั้งในภาครัฐและเอกชน นับ <strong class="text-[#0A1A12] dark:text-white font-bold">100 ราย</strong> มากกว่า <strong class="text-[#0A1A12] dark:text-white font-bold">20 ปี</strong> ตลอดเส้นทางการทำงานสายงาน IT
+            </p>
+
+            <p class="indent-8 sm:indent-10 text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-[1.95] text-justify font-normal">
+              ปัจจุบันบริษัทฯ เข้าร่วมกิจกรรมกับหน่วยงานที่สนับสนุนการพัฒนาซอฟต์แวร์ของประเทศ เช่น <strong>สำนักงานส่งเสริมเศรษฐกิจดิจิทัล (depa)</strong>, <strong>เขตอุตสาหกรรมซอฟต์แวร์แห่งประเทศไทย (Software Park Thailand)</strong>, <strong>สมาคมอุตสาหกรรมซอฟแวร์ไทย (ATSI)</strong> ตลอดจนพันธมิตรทางการค้าอื่น ๆ เพื่อเป็นการเพิ่มศักยภาพด้านการพัฒนาระบบและการบริการให้ดียิ่งขึ้น
+            </p>
+          </div>
+
+          <!-- Section 3: มาตรฐานระดับสากลและการรับรองภาครัฐ -->
+          <div class="space-y-4 pt-4 border-t border-black/5 dark:border-white/5">
+            <div class="flex items-center gap-2 text-xs font-mono font-bold tracking-wider uppercase text-[#00A852] dark:text-[#00FF88]">
+              <span class="w-2 h-2 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
+              <span>มาตรฐานสากลและการรับรองจากภาครัฐ</span>
+            </div>
+
+            <p class="indent-8 sm:indent-10 text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-[1.95] text-justify font-normal">
+              นอกจากนี้บริษัทฯ ยังได้รับการส่งเสริมการลงทุนจาก <strong class="text-[#0A1A12] dark:text-white font-bold">BOI</strong> ในการประกอบธุรกิจเกี่ยวกับการพัฒนาระบบเทคโนโลยีสารสนเทศในด้านซอฟต์แวร์ และได้รับการขึ้นทะเบียนที่ปรึกษาจากสำนักบริหารหนี้สาธารณะ กระทรวงการคลัง ประเภทนิติบุคคล <strong class="text-[#00A852] dark:text-[#00FF88] font-bold">4232 ระดับ 2</strong> สาขาเทคโนโลยีสารสนเทศและการสื่อสาร
+            </p>
+
+            <p class="indent-8 sm:indent-10 text-base sm:text-lg text-[#334155] dark:text-[#94A3B8] leading-[1.95] text-justify font-normal">
+              และเพื่อให้เกิดความมั่นใจในผลิตภัณฑ์และบริการของ IGENCO ที่ผ่านมาตรฐานด้าน Software Project Management and Software Implementation Process ด้วย Management Systems as per <strong class="text-[#0A1A12] dark:text-white font-bold">ISO/IEC 29110</strong> และการให้บริการด้าน IT ซึ่งเป็นบริษัทฯ สัญชาติไทยอย่างแท้จริง
+            </p>
+          </div>
+
         </div>
 
-        <!-- Right Side: Anniversary Photo & Core Capabilities Card -->
-        <div class="lg:col-span-5 space-y-6">
-          <div class="overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 aspect-[4/3] bg-black/5 shadow-md">
-            <img
-              src="/images/news/igenco-8years-anniversary.jpg"
-              alt="ภาพผู้บริหารและทีมงาน บริษัท ไอเจนโก้ จำกัด (IGENCO)"
-              class="w-full h-full object-cover"
-            >
-          </div>
-          <div class="text-xs font-mono text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
-            ภาพกิจกรรมผู้บริหารและทีมงาน บริษัท ไอเจนโก้ จำกัด ณ สถานสงเคราะห์เด็กอ่อนปากเกร็ด ในวาระก้าวสู่ปีที่ 9 อย่างมั่นคง
+        <!-- Right Column: Visual Elements, Photo, and 4 Service Cards -->
+        <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-28">
+          
+          <!-- Corporate Photo -->
+          <div class="space-y-3">
+            <div class="overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 aspect-[4/3] bg-black/5 shadow-lg group">
+              <img
+                src="/images/news/igenco-8years-anniversary.jpg"
+                alt="ภาพผู้บริหารและทีมงาน บริษัท ไอเจนโก้ จำกัด (IGENCO)"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              >
+            </div>
+            <div class="text-xs font-mono text-[#64748B] dark:text-[#94A3B8] leading-relaxed px-1">
+              ภาพกิจกรรมผู้บริหารและทีมงาน บริษัท ไอเจนโก้ จำกัด ณ สถานสงเคราะห์เด็กอ่อนปากเกร็ด ในวาระก้าวสู่ปีที่ 9 อย่างมั่นคง
+            </div>
           </div>
 
-          <!-- Services Mini Pillar Box -->
-          <div class="p-6 rounded-2xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.01] space-y-3">
-            <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00A852] dark:text-[#00FF88]">
-              ขอบเขตการให้บริการ 4 ด้านหลัก
+          <!-- 4 Pillars of Services (Clean Editorial Box) -->
+          <div class="p-6 sm:p-7 rounded-3xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/[0.02] backdrop-blur-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
+              <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#00A852] dark:text-[#00FF88]">
+                ขอบเขตการให้บริการ 4 ด้านหลัก
+              </span>
+              <span class="text-[10px] font-mono opacity-50 uppercase">Core Services</span>
             </div>
-            <div class="space-y-2 text-xs">
-              <div class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
-                <span class="font-bold text-[#0A1A12] dark:text-white">IT Consultant:</span>
-                <span class="opacity-75">บริการให้คำปรึกษาเทคโนโลยีสารสนเทศ</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
-                <span class="font-bold text-[#0A1A12] dark:text-white">Software Development:</span>
-                <span class="opacity-75">การพัฒนาระบบโปรแกรมคอมพิวเตอร์</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
-                <span class="font-bold text-[#0A1A12] dark:text-white">IT Infrastructure:</span>
-                <span class="opacity-75">วางระบบคอมพิวเตอร์และเครือข่ายสารสนเทศ</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
-                <span class="font-bold text-[#0A1A12] dark:text-white">Business Application:</span>
-                <span class="opacity-75">แอพพลิเคชั่นทางธุรกิจ แบรนด์ IGENCO</span>
+
+            <div class="space-y-3">
+              <div
+                v-for="s in servicePillars"
+                :key="s.title"
+                class="p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 space-y-1 hover:border-[#00C864]/30 transition-colors"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
+                  <span class="text-xs font-bold font-mono text-[#0A1A12] dark:text-white">{{ s.title }}</span>
+                </div>
+                <div class="text-[11px] text-[#475569] dark:text-[#94A3B8] pl-3.5 leading-relaxed">
+                  {{ s.th }} — {{ s.desc }}
+                </div>
               </div>
             </div>
           </div>
+
         </div>
+
       </div>
 
-      <!-- Corporate Trust Statement Quote (Official Text) -->
-      <div class="py-16 border-b border-black/10 dark:border-white/10">
-        <div class="p-8 sm:p-12 rounded-3xl bg-black/[0.02] dark:bg-white/[0.02] border border-[#00C864]/30 space-y-6 relative overflow-hidden">
-          <div class="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
-            <Quote class="w-4 h-4" />
-            <span>CORPORATE TRUST & IMPACT // สัญญาแห่งความไว้วางใจ</span>
+      <!-- Corporate Trust Statement Quote (จัดรูปแบบโควทใหญ่อย่างสง่างาม น่าอ่าน) -->
+      <div class="py-16 sm:py-20 border-b border-black/10 dark:border-white/10">
+        <div class="relative p-8 sm:p-14 rounded-3xl bg-black/[0.02] dark:bg-white/[0.02] border border-[#00C864]/30 space-y-6 overflow-hidden">
+          
+          <div class="flex items-center justify-between">
+            <div class="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
+              <Quote class="w-4 h-4" />
+              <span>CORPORATE TRUST & IMPACT // ความไว้วางใจจากลูกค้า</span>
+            </div>
+            <div class="text-xs font-mono opacity-50 hidden sm:block">
+              IGENCO COMMITMENT
+            </div>
           </div>
 
-          <blockquote class="text-lg sm:text-2xl font-display font-medium text-[#0A1A12] dark:text-[#F8FAFC] leading-relaxed">
+          <blockquote class="text-lg sm:text-2xl font-display font-medium text-[#0A1A12] dark:text-[#F8FAFC] leading-[1.8] sm:leading-[1.85] text-justify sm:text-left">
             "จากการเอาใจใส่ต่อการพัฒนาระบบและบริการของเรา ปัจจุบันบริษัทฯ ได้รับความไว้วางใจจากลูกค้าทั้งองค์กรขนาดใหญ่ในภาครัฐและเอกชน ให้เป็นผู้พัฒนาและติดตั้งระบบงานสารสนเทศภายในองค์กร โดยระบบสามารถตอบสนองความต้องการและลดระยะเวลาในการปฏิบัติงานของผู้ใช้งาน ตลอดจนบูรณาการข้อมูลขององค์กร สามารถนำไปวางแผนทางการบริหารเพื่อพัฒนาองค์กรและศักยภาพของพนักงานให้มีประสิทธิภาพยิ่งขึ้นไป"
           </blockquote>
 
-          <div class="flex items-center gap-3 pt-2 text-xs font-mono opacity-60">
-            <span>บริษัท ไอเจนโก้ จำกัด (IGENCO)</span>
-            <span>•</span>
-            <span>ความไว้วางใจจากองค์กรชั้นนำระดับประเทศ</span>
+          <div class="pt-4 flex flex-wrap items-center justify-between gap-4 border-t border-black/5 dark:border-white/5 text-xs font-mono opacity-70">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#00A852] dark:bg-[#00FF88]" />
+              <span class="font-bold">บริษัท ไอเจนโก้ จำกัด (IGENCO)</span>
+            </div>
+            <span>ส่งมอบความสำเร็จและบูรณาการข้อมูลเพื่อการบริหาร</span>
           </div>
+
         </div>
       </div>
 
-      <!-- Accreditations & Certifications Section -->
+      <!-- Accreditations & Certifications Cards -->
       <div class="py-16 space-y-10 border-b border-black/10 dark:border-white/10">
         <div class="space-y-2">
           <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
@@ -268,7 +320,7 @@ const services = [
         </div>
       </div>
 
-      <!-- National Ecosystem & Alliances -->
+      <!-- National Alliances Grid -->
       <div class="py-16 space-y-8 border-b border-black/10 dark:border-white/10">
         <div class="space-y-2">
           <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
