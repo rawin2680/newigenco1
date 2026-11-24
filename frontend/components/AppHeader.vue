@@ -41,11 +41,11 @@ const navLinks: NavItem[] = [
     icon: Building2,
     hasDropdown: true,
     children: [
-      { name: 'ประวัติความเป็นมา', href: '/news/2' },
-      { name: 'นโยบายบริษัท', href: '/#policy' },
-      { name: 'ค่านิยมและวัฒนธรรมองค์กร', href: '/#values' },
-      { name: 'แผนผังการบริหาร', href: '/#organization' },
-      { name: 'สมัครงาน', href: '/#careers' },
+      { name: 'ประวัติความเป็นมา', href: '/about/history' },
+      { name: 'นโยบายและวิสัยทัศน์', href: '/about/policy' },
+      { name: 'ค่านิยมและวัฒนธรรมองค์กร', href: '/about/values' },
+      { name: 'แผนผังการบริหาร', href: '/about/organization' },
+      { name: 'สมัครงาน', href: '/careers' },
       {
         name: 'การคุ้มครองข้อมูลส่วนบุคคล',
         href: '/privacy-policy',
