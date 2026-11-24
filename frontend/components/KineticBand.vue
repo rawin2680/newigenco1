@@ -86,15 +86,15 @@ const track2Partners: PartnerItem[] = [
 </script>
 
 <template>
-  <section class="py-16 overflow-hidden relative z-20 reveal-init">
+  <section id="clients" class="py-16 overflow-hidden relative z-20 reveal-init scroll-mt-24">
     <div class="max-w-[1440px] mx-auto px-5 sm:px-10 mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div>
         <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-2 font-bold">
           <Sparkles class="w-3.5 h-3.5" />
-          <span>PARTNERS & SPONSOR ECOSYSTEM // พันธมิตรและผู้สนับสนุน</span>
+          <span>CLIENTS & PARTNER ECOSYSTEM // กลุ่มผู้ใช้ผลิตภัณฑ์และพันธมิตร</span>
         </div>
         <h3 class="text-xl sm:text-2xl font-bold tracking-tight">
-          พันธมิตรเทคโนโลยีและมาตรฐานที่ให้การสนับสนุนเรา
+          กลุ่มผู้ใช้ผลิตภัณฑ์และพันธมิตรที่ให้ความไว้วางใจ IGENCO
         </h3>
       </div>
 

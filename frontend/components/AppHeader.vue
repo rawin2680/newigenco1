@@ -1,17 +1,59 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { Contrast, Menu, X, ArrowUpRight, Home, Box, Newspaper, Mail } from 'lucide-vue-next'
+import { Contrast, Menu, X, ArrowUpRight, Home, Box, Newspaper, Mail, Building2, Users, ChevronDown } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
 const { toggleTheme } = useTheme()
 const isMobileMenuOpen = ref(false)
+const mobileOpenDropdown = ref<string | null>(null)
 const isScrolled = ref(false)
 
-const navLinks = [
+interface NavSubItem {
+  name: string
+  href: string
+  desc?: string
+}
+
+interface NavItem {
+  name: string
+  href: string
+  sectionId: string
+  icon: any
+  hasDropdown?: boolean
+  children?: NavSubItem[]
+}
+
+const navLinks: NavItem[] = [
   { name: 'หน้าแรก', href: '/#top', sectionId: 'top', icon: Home },
-  { name: 'สินค้าและบริการ', href: '/#products', sectionId: 'products', icon: Box },
-  { name: 'ข่าวสารและกิจกรรม', href: '/#news', sectionId: 'news', icon: Newspaper },
-  { name: 'ติดต่อเรา', href: '/#contact', sectionId: 'contact', icon: Mail },
+  { name: 'ข่าวสาร', href: '/#news', sectionId: 'news', icon: Newspaper },
+  {
+    name: 'เกี่ยวกับเรา',
+    href: '/#about',
+    sectionId: 'about',
+    icon: Building2,
+    hasDropdown: true,
+    children: [
+      { name: 'ประวัติความเป็นมาและก้าวสู่ปีที่ 9', href: '/news/2', desc: 'เส้นทางกว่า 8 ปีในการพัฒนาซอฟต์แวร์ครบวงจร' },
+      { name: 'การรับรองมาตรฐานสากล ISO/IEC 29110', href: '/news/1', desc: 'การรับรองกระบวนการ PM & SI โดย TÜV NORD' },
+      { name: 'ปรัชญาและนโยบายการบริหารงาน', href: '/news/2#section-philosophy', desc: 'การทำงานใกล้ชิดกับลูกค้า ส่งมอบงานคุณภาพสูง' },
+      { name: 'พันธมิตรและการส่งเสริม (BOI & SIPA)', href: '/news/2#section-partnerships', desc: 'ได้รับการส่งเสริมการลงทุนและร่วมมือระดับชาติ' }
+    ]
+  },
+  {
+    name: 'ผลิตภัณฑ์',
+    href: '/#products',
+    sectionId: 'products',
+    icon: Box,
+    hasDropdown: true,
+    children: [
+      { name: 'i-SMARTSOFT (e-Office ครบวงจร)', href: '/news/5', desc: '10 โมดูลบริหารงานสำนักงานอิเล็กทรอนิกส์' },
+      { name: 'I-SERFF (ระบบยื่นแบบ คปภ.)', href: '/news/3', desc: 'ระบบยื่นขอความเห็นชอบอัตราเบี้ยและกรมธรรม์' },
+      { name: 'EFMS (ระบบจัดเก็บข้อมูลการเงิน สคฝ.)', href: '/news/4', desc: 'ระบบเชื่อมโยงและนำส่งรายงานสถาบันการเงิน' },
+      { name: 'แคตตาล็อกสินค้าและบริการทั้งหมด', href: '/#products', desc: 'เลือกชมโซลูชันซอฟต์แวร์และฮาร์ดแวร์ IoT' }
+    ]
+  },
+  { name: 'กลุ่มผู้ใช้ผลิตภัณฑ์', href: '/#clients', sectionId: 'clients', icon: Users },
+  { name: 'ติดต่อเรา', href: '/#contact', sectionId: 'contact', icon: Mail }
 ]
 
 // Glassy Navigation Tabs State
@@ -19,6 +61,8 @@ const navContainerRef = ref<HTMLElement | null>(null)
 const tabRefs = ref<HTMLElement[]>([])
 const activeIndex = ref(0)
 const hoveredIndex = ref<number | null>(null)
+const activeDropdown = ref<number | null>(null)
+let dropdownTimeout: any = null
 
 const pillStyle = reactive({
   left: 0,
@@ -44,11 +88,26 @@ const updatePill = () => {
 }
 
 const onTabEnter = (idx: number) => {
+  clearTimeout(dropdownTimeout)
   hoveredIndex.value = idx
+  if (navLinks[idx]?.hasDropdown) {
+    activeDropdown.value = idx
+  } else {
+    activeDropdown.value = null
+  }
   updatePill()
 }
 
 const onTabLeave = () => {
+  dropdownTimeout = setTimeout(() => {
+    hoveredIndex.value = null
+    activeDropdown.value = null
+    updatePill()
+  }, 180)
+}
+
+const closeAllDropdowns = () => {
+  activeDropdown.value = null
   hoveredIndex.value = null
   updatePill()
 }
@@ -86,7 +145,7 @@ onMounted(() => {
     })
 
     // Sync active tab with user scroll position
-    const sectionIds = ['top', 'products', 'news', 'contact']
+    const sectionIds = ['top', 'news', 'about', 'products', 'clients', 'contact']
     sectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -119,6 +178,7 @@ onBeforeUnmount(() => {
     window.removeEventListener('scroll', onScroll)
     window.removeEventListener('resize', updatePill)
     sectionObserver?.disconnect()
+    clearTimeout(dropdownTimeout)
   }
 })
 </script>
@@ -150,12 +210,12 @@ onBeforeUnmount(() => {
       <!-- Desktop Glassy Navigation Tabs (Apple VisionOS Liquid Glass Style) -->
       <nav
         ref="navContainerRef"
-        class="hidden md:flex relative items-center p-1.5 rounded-full liquid-glass-tray transition-all duration-300"
+        class="hidden lg:flex relative items-center p-1 rounded-full liquid-glass-tray transition-all duration-300"
         @mouseleave="onTabLeave"
       >
         <!-- Liquid Glass Active / Hover Highlight Pill (Shared Layout Animation with Spring Damping) -->
         <div
-          class="liquid-glass-pill absolute top-1.5 bottom-1.5 pointer-events-none rounded-full"
+          class="liquid-glass-pill absolute top-1 bottom-1 pointer-events-none rounded-full"
           :style="{
             transform: `translateX(${pillStyle.left}px)`,
             width: `${pillStyle.width}px`,
@@ -165,36 +225,74 @@ onBeforeUnmount(() => {
         />
 
         <!-- Tab Items -->
-        <NuxtLink
+        <div
           v-for="(link, idx) in navLinks"
           :key="link.name"
           :ref="(el) => { if (el) tabRefs[idx] = (el as any).$el || el }"
-          :to="link.href"
-          :class="[
-            'relative z-10 flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-colors duration-250 select-none cursor-pointer',
-            (hoveredIndex !== null ? hoveredIndex === idx : activeIndex === idx)
-              ? 'text-[#022C22] dark:text-[#00FF88] font-bold'
-              : 'text-[#022C22]/70 dark:text-[#F4FBF7]/70 hover:text-[#022C22] dark:hover:text-white'
-          ]"
+          class="relative"
           @mouseenter="onTabEnter(idx)"
-          @click="onTabClick(idx, link.sectionId)"
+          @mouseleave="onTabLeave"
         >
-          <!-- Vector Icon (Lucide Icon) -->
-          <component
-            :is="link.icon"
+          <NuxtLink
+            :to="link.href"
             :class="[
-              'w-3.5 h-3.5 transition-transform duration-250',
+              'relative z-10 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-colors duration-250 select-none cursor-pointer',
               (hoveredIndex !== null ? hoveredIndex === idx : activeIndex === idx)
-                ? 'scale-110 text-[#00C864] dark:text-[#00FF88]'
-                : 'opacity-70'
+                ? 'text-[#022C22] dark:text-[#00FF88] font-bold'
+                : 'text-[#022C22]/75 dark:text-[#F4FBF7]/75 hover:text-[#022C22] dark:hover:text-white'
             ]"
-          />
-          <span>{{ link.name }}</span>
-        </NuxtLink>
+            @click="onTabClick(idx, link.sectionId)"
+          >
+            <!-- Vector Icon (Lucide Icon) -->
+            <component
+              :is="link.icon"
+              :class="[
+                'w-3.5 h-3.5 transition-transform duration-250 shrink-0',
+                (hoveredIndex !== null ? hoveredIndex === idx : activeIndex === idx)
+                  ? 'scale-110 text-[#00C864] dark:text-[#00FF88]'
+                  : 'opacity-70'
+              ]"
+            />
+            <span>{{ link.name }}</span>
+            <ChevronDown
+              v-if="link.hasDropdown"
+              :class="[
+                'w-3 h-3 transition-transform duration-200 shrink-0 opacity-60',
+                activeDropdown === idx ? 'rotate-180 text-[#00C864] dark:text-[#00FF88]' : ''
+              ]"
+            />
+          </NuxtLink>
+
+          <!-- Glassy Dropdown Menu -->
+          <div
+            v-if="link.hasDropdown && activeDropdown === idx"
+            class="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 z-50 w-72 pointer-events-auto"
+            @mouseenter="onTabEnter(idx)"
+            @mouseleave="onTabLeave"
+          >
+            <div class="p-2.5 rounded-2xl bg-white/95 dark:bg-[#03150e]/95 border border-[#00C864]/30 shadow-2xl backdrop-blur-xl space-y-1">
+              <NuxtLink
+                v-for="sub in link.children"
+                :key="sub.name"
+                :to="sub.href"
+                class="block p-2.5 rounded-xl hover:bg-[#00C864]/10 dark:hover:bg-[#00FF88]/15 transition-all group"
+                @click="closeAllDropdowns"
+              >
+                <div class="text-xs font-bold text-[#022C22] dark:text-white group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] flex items-center justify-between">
+                  <span>{{ sub.name }}</span>
+                  <ArrowUpRight class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#00C864] dark:text-[#00FF88]" />
+                </div>
+                <div v-if="sub.desc" class="text-[11px] opacity-65 leading-tight mt-0.5 line-clamp-1 font-mono">
+                  {{ sub.desc }}
+                </div>
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
       </nav>
 
       <!-- Right Buttons (โหมดมืด + ปุ่มติดต่อเรา) -->
-      <div class="hidden md:flex items-center gap-3.5">
+      <div class="hidden lg:flex items-center gap-3.5">
         <!-- Theme Toggle -->
         <button
           type="button"
@@ -216,7 +314,7 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- Mobile Hamburger Button -->
-      <div class="flex items-center gap-2 md:hidden">
+      <div class="flex items-center gap-2 lg:hidden">
         <button
           type="button"
           aria-label="Toggle Theme"
@@ -241,21 +339,49 @@ onBeforeUnmount(() => {
     <!-- Mobile Dropdown Menu -->
     <div
       v-if="isMobileMenuOpen"
-      class="md:hidden px-5 py-6 bg-[#F6F9F7] dark:bg-[#020806] border-b border-current/10 space-y-4 shadow-xl"
+      class="lg:hidden px-5 py-6 bg-[#F6F9F7] dark:bg-[#020806] border-b border-current/10 space-y-3 shadow-xl max-h-[85vh] overflow-y-auto"
     >
-      <NuxtLink
-        v-for="link in navLinks"
-        :key="link.name"
-        :to="link.href"
-        class="flex items-center gap-2.5 text-base font-semibold text-[#022C22] dark:text-[#F4FBF7] py-2"
-        @click="isMobileMenuOpen = false"
-      >
-        <component :is="link.icon" class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-        <span>{{ link.name }}</span>
-      </NuxtLink>
+      <div v-for="link in navLinks" :key="link.name" class="border-b border-current/5 pb-2">
+        <div class="flex items-center justify-between">
+          <NuxtLink
+            :to="link.href"
+            class="flex items-center gap-2.5 text-base font-semibold text-[#022C22] dark:text-[#F4FBF7] py-1.5"
+            @click="isMobileMenuOpen = false"
+          >
+            <component :is="link.icon" class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
+            <span>{{ link.name }}</span>
+          </NuxtLink>
+          <button
+            v-if="link.hasDropdown"
+            type="button"
+            class="p-2 opacity-60 hover:opacity-100"
+            @click="mobileOpenDropdown === link.name ? mobileOpenDropdown = null : mobileOpenDropdown = link.name"
+          >
+            <ChevronDown :class="['w-4 h-4 transition-transform', mobileOpenDropdown === link.name ? 'rotate-180 text-[#00C864] dark:text-[#00FF88]' : '']" />
+          </button>
+        </div>
+
+        <!-- Mobile Sublinks -->
+        <div
+          v-if="link.hasDropdown && mobileOpenDropdown === link.name"
+          class="pl-7 pt-1 pb-2 space-y-2 animate-in fade-in duration-150"
+        >
+          <NuxtLink
+            v-for="sub in link.children"
+            :key="sub.name"
+            :to="sub.href"
+            class="block text-xs opacity-75 hover:opacity-100 hover:text-[#00C864] dark:hover:text-[#00FF88] py-1 font-medium"
+            @click="isMobileMenuOpen = false"
+          >
+            • {{ sub.name }}
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Mobile CTA Button -->
       <NuxtLink
         to="/#contact"
-        class="block w-full py-3 text-center rounded-xl font-bold text-sm bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] mt-4 shadow-md"
+        class="block w-full py-3 text-center rounded-xl font-bold text-sm uppercase bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md mt-4"
         @click="isMobileMenuOpen = false"
       >
         สอบถาม / ขอคำปรึกษา
