@@ -38,6 +38,21 @@ const { showToast } = useTheme()
 const articleId = computed(() => Number(route.params.id))
 const article = computed(() => getNewsById(articleId.value))
 
+// Navigation: Previous & Next Article
+const currentIndex = computed(() => newsList.findIndex(n => n.id === articleId.value))
+const prevArticle = computed(() => {
+  if (currentIndex.value > 0) {
+    return newsList[currentIndex.value - 1]
+  }
+  return null
+})
+const nextArticle = computed(() => {
+  if (currentIndex.value >= 0 && currentIndex.value < newsList.length - 1) {
+    return newsList[currentIndex.value + 1]
+  }
+  return null
+})
+
 // -------------------------------------------------------------
 // Interactive Compact Photo Gallery Slider
 // -------------------------------------------------------------
@@ -73,13 +88,25 @@ const tableOfContents = computed(() => {
   ]
 
   if (art?.services && art.services.length > 0) {
-    toc.push({ id: 'section-history', label: 'ประวัติและการจัดตั้งองค์กร' })
-    toc.push({ id: 'section-services', label: 'ขอบเขตการให้บริการ IT' })
+    toc.push({
+      id: 'section-history',
+      label: art?.id === 3 ? 'วัตถุประสงค์และภาพรวมโครงการ' : (art?.id === 2 ? 'ประวัติและการจัดตั้งองค์กร' : 'รายละเอียดการดำเนินงาน')
+    })
+    toc.push({
+      id: 'section-services',
+      label: art?.id === 3 ? 'ฟังก์ชันและขอบเขตระบบ I-SERFF' : 'ขอบเขตการให้บริการ IT'
+    })
     if (art.fullContent && art.fullContent[2]) {
-      toc.push({ id: 'section-philosophy', label: 'ปรัชญาและนโยบายบริหาร' })
+      toc.push({
+        id: 'section-philosophy',
+        label: art?.id === 3 ? 'การถ่ายทอดองค์ความรู้และการอบรม' : 'ปรัชญาและนโยบายบริหาร'
+      })
     }
     if (art.partnerships && art.partnerships.length > 0) {
-      toc.push({ id: 'section-partnerships', label: 'พันธมิตรและการรับรอง' })
+      toc.push({
+        id: 'section-partnerships',
+        label: art?.id === 3 ? 'ความร่วมมือไตรภาคี' : 'พันธมิตรและการรับรอง'
+      })
     }
   } else {
     toc.push({ id: 'section-body', label: 'เนื้อหาบทความ' })
@@ -562,7 +589,7 @@ useHead(() => ({
             <div v-if="article.fullContent[1]" id="section-history" class="space-y-3 scroll-mt-28">
               <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
-                <span>ประวัติและการจัดตั้งองค์กร</span>
+                <span>{{ article.id === 3 ? 'วัตถุประสงค์และภาพรวมโครงการ I-SERFF' : (article.id === 2 ? 'ประวัติและการจัดตั้งองค์กร' : 'รายละเอียดการดำเนินงาน') }}</span>
               </h3>
               <p class="leading-[2.2] opacity-90">
                 {{ article.fullContent[1] }}
@@ -573,7 +600,7 @@ useHead(() => ({
             <div v-if="article.services && article.services.length > 0" id="section-services" class="my-6 space-y-4 scroll-mt-28">
               <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] flex items-center gap-1.5">
                 <Layers class="w-3.5 h-3.5" />
-                <span>COMPREHENSIVE IT SERVICES // ขอบเขตการให้บริการ</span>
+                <span>{{ article.id === 3 ? 'I-SERFF SYSTEM CAPABILITIES // ฟังก์ชันและขอบเขตระบบ' : 'COMPREHENSIVE IT SERVICES // ขอบเขตการให้บริการ' }}</span>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div
@@ -604,7 +631,7 @@ useHead(() => ({
             <div v-if="article.fullContent[2]" id="section-philosophy" class="space-y-3 scroll-mt-28">
               <h3 class="font-display font-bold text-xl sm:text-2xl text-[#022C22] dark:text-[#F4FBF7] flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
-                <span>ปรัชญาและนโยบายการบริหารงาน</span>
+                <span>{{ article.id === 3 ? 'การถ่ายทอดองค์ความรู้และอบรมเชิงปฏิบัติการ' : (article.id === 2 ? 'ปรัชญาและนโยบายการบริหารงาน' : 'แนวทางการดำเนินงาน') }}</span>
               </h3>
               <div class="p-6 sm:p-7 rounded-2xl bg-current/5 border-l-4 border-[#00C864] italic text-base sm:text-lg leading-[2.2] opacity-95">
                 {{ article.fullContent[2] }}
@@ -615,7 +642,7 @@ useHead(() => ({
             <div v-if="article.partnerships && article.partnerships.length > 0" id="section-partnerships" class="my-6 space-y-4 scroll-mt-28">
               <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#00C864] dark:text-[#00FF88] flex items-center gap-1.5">
                 <Award class="w-3.5 h-3.5" />
-                <span>NATIONAL ACCREDITATIONS // พันธมิตรและการรับรอง</span>
+                <span>{{ article.id === 3 ? 'TRIPARTITE COLLABORATION // ความร่วมมือไตรภาคี' : 'NATIONAL ACCREDITATIONS // พันธมิตรและการรับรอง' }}</span>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div
@@ -875,15 +902,44 @@ useHead(() => ({
           </div>
 
           <!-- Bottom Navigation: Prev & Next Article -->
-          <div class="pt-4 flex items-center justify-between border-t border-current/10 text-xs font-mono">
-            <NuxtLink to="/#news" class="hover:underline flex items-center gap-1.5 opacity-75 hover:opacity-100">
-              <ArrowLeft class="w-3.5 h-3.5" />
-              <span>กลับสู่คลังข่าวสาร</span>
-            </NuxtLink>
-            <NuxtLink to="/news/2" class="hover:underline flex items-center gap-1.5 text-[#00C864] dark:text-[#00FF88] font-bold">
-              <span>อ่านข่าวถัดไป: IGENCO ครบรอบ 8 ปี</span>
-              <ArrowRight class="w-3.5 h-3.5" />
-            </NuxtLink>
+          <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-current/10 text-xs font-mono">
+            <div>
+              <NuxtLink
+                v-if="prevArticle"
+                :to="'/news/' + prevArticle.id"
+                class="hover:underline flex items-center gap-1.5 opacity-75 hover:opacity-100 hover:text-[#00C864] dark:hover:text-[#00FF88] transition-colors"
+              >
+                <ArrowLeft class="w-3.5 h-3.5" />
+                <span class="truncate max-w-[220px] sm:max-w-xs">ข่าวก่อนหน้า: {{ prevArticle.title }}</span>
+              </NuxtLink>
+              <NuxtLink
+                v-else
+                to="/#news"
+                class="hover:underline flex items-center gap-1.5 opacity-75 hover:opacity-100 hover:text-[#00C864] dark:hover:text-[#00FF88] transition-colors"
+              >
+                <ArrowLeft class="w-3.5 h-3.5" />
+                <span>กลับสู่คลังข่าวสาร</span>
+              </NuxtLink>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <NuxtLink
+                v-if="prevArticle"
+                to="/#news"
+                class="hover:underline hidden sm:flex items-center gap-1.5 opacity-50 hover:opacity-100"
+              >
+                <span>คลังข่าวสาร</span>
+              </NuxtLink>
+              
+              <NuxtLink
+                v-if="nextArticle"
+                :to="'/news/' + nextArticle.id"
+                class="hover:underline flex items-center gap-1.5 text-[#00C864] dark:text-[#00FF88] font-bold"
+              >
+                <span class="truncate max-w-[220px] sm:max-w-xs">อ่านข่าวถัดไป: {{ nextArticle.title }}</span>
+                <ArrowRight class="w-3.5 h-3.5" />
+              </NuxtLink>
+            </div>
           </div>
 
         </article>
