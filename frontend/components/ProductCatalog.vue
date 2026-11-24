@@ -327,9 +327,10 @@ const inquireProduct = (title: string) => {
             </div>
           </div>
         </div>
-      </div>
-    </Transition>
-  </div>
+          </div>
+        </div>
+      </Transition>
+    </div>
 
     <!-- Product Detail Modal Drawer -->
     <Teleport to="body">
