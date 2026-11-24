@@ -1,17 +1,25 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { Contrast, Menu, X, ArrowUpRight, Home, Box, Newspaper, Mail, Building2, Users, ChevronDown } from 'lucide-vue-next'
+import { Contrast, Menu, X, ArrowUpRight, Home, Box, Newspaper, Mail, Building2, Users, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
 const { toggleTheme } = useTheme()
 const isMobileMenuOpen = ref(false)
 const mobileOpenDropdown = ref<string | null>(null)
+const mobileSubDropdown = ref<string | null>(null)
 const isScrolled = ref(false)
+
+interface NavSubChildItem {
+  name: string
+  href: string
+}
 
 interface NavSubItem {
   name: string
   href: string
   desc?: string
+  hasSubmenu?: boolean
+  children?: NavSubChildItem[]
 }
 
 interface NavItem {
@@ -33,10 +41,20 @@ const navLinks: NavItem[] = [
     icon: Building2,
     hasDropdown: true,
     children: [
-      { name: 'ประวัติความเป็นมาและก้าวสู่ปีที่ 9', href: '/news/2', desc: 'เส้นทางกว่า 8 ปีในการพัฒนาซอฟต์แวร์ครบวงจร' },
-      { name: 'การรับรองมาตรฐานสากล ISO/IEC 29110', href: '/news/1', desc: 'การรับรองกระบวนการ PM & SI โดย TÜV NORD' },
-      { name: 'ปรัชญาและนโยบายการบริหารงาน', href: '/news/2#section-philosophy', desc: 'การทำงานใกล้ชิดกับลูกค้า ส่งมอบงานคุณภาพสูง' },
-      { name: 'พันธมิตรและการส่งเสริม (BOI & SIPA)', href: '/news/2#section-partnerships', desc: 'ได้รับการส่งเสริมการลงทุนและร่วมมือระดับชาติ' }
+      { name: 'ประวัติความเป็นมา', href: '/news/2' },
+      { name: 'นโยบายบริษัท', href: '/#policy' },
+      { name: 'ค่านิยมและวัฒนธรรมองค์กร', href: '/#values' },
+      { name: 'แผนผังการบริหาร', href: '/#organization' },
+      { name: 'สมัครงาน', href: '/#careers' },
+      {
+        name: 'การคุ้มครองข้อมูลส่วนบุคคล',
+        href: '/privacy-policy',
+        hasSubmenu: true,
+        children: [
+          { name: 'นโยบายความเป็นส่วนตัว', href: '/privacy-policy' },
+          { name: 'นโยบายการใช้คุกกี้', href: '/cookie-policy' }
+        ]
+      }
     ]
   },
   {
@@ -62,6 +80,7 @@ const tabRefs = ref<HTMLElement[]>([])
 const activeIndex = ref(0)
 const hoveredIndex = ref<number | null>(null)
 const activeDropdown = ref<number | null>(null)
+const activeSubmenu = ref<string | null>(null)
 let dropdownTimeout: any = null
 
 const pillStyle = reactive({
@@ -102,13 +121,16 @@ const onTabLeave = () => {
   dropdownTimeout = setTimeout(() => {
     hoveredIndex.value = null
     activeDropdown.value = null
+    activeSubmenu.value = null
     updatePill()
-  }, 180)
+  }, 200)
 }
 
 const closeAllDropdowns = () => {
   activeDropdown.value = null
+  activeSubmenu.value = null
   hoveredIndex.value = null
+  isMobileMenuOpen.value = false
   updatePill()
 }
 
@@ -266,26 +288,64 @@ onBeforeUnmount(() => {
           <!-- Glassy Dropdown Menu -->
           <div
             v-if="link.hasDropdown && activeDropdown === idx"
-            class="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 z-50 w-72 pointer-events-auto"
+            class="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 z-50 min-w-[240px] pointer-events-auto"
             @mouseenter="onTabEnter(idx)"
             @mouseleave="onTabLeave"
           >
-            <div class="p-2.5 rounded-2xl bg-white/95 dark:bg-[#03150e]/95 border border-[#00C864]/30 shadow-2xl backdrop-blur-xl space-y-1">
-              <NuxtLink
-                v-for="sub in link.children"
-                :key="sub.name"
-                :to="sub.href"
-                class="block p-2.5 rounded-xl hover:bg-[#00C864]/10 dark:hover:bg-[#00FF88]/15 transition-all group"
-                @click="closeAllDropdowns"
-              >
-                <div class="text-xs font-bold text-[#022C22] dark:text-white group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] flex items-center justify-between">
-                  <span>{{ sub.name }}</span>
-                  <ArrowUpRight class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#00C864] dark:text-[#00FF88]" />
+            <div class="p-2 rounded-2xl bg-white/95 dark:bg-[#03150e]/95 border border-[#00C864]/30 shadow-2xl backdrop-blur-xl space-y-1">
+              <template v-for="sub in link.children" :key="sub.name">
+                <!-- If item has submenu (e.g. การคุ้มครองข้อมูลส่วนบุคคล) -->
+                <div
+                  v-if="sub.hasSubmenu"
+                  class="relative"
+                  @mouseenter="activeSubmenu = sub.name"
+                >
+                  <div
+                    :class="[
+                      'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer select-none',
+                      activeSubmenu === sub.name
+                        ? 'bg-[#00C864] text-white shadow-md'
+                        : 'text-[#022C22] dark:text-white hover:bg-[#00C864]/10 dark:hover:bg-[#00FF88]/15 hover:text-[#00C864] dark:hover:text-[#00FF88]'
+                    ]"
+                  >
+                    <span>{{ sub.name }}</span>
+                    <ChevronRight :class="['w-3.5 h-3.5 transition-transform', activeSubmenu === sub.name ? 'text-white' : 'opacity-60']" />
+                  </div>
+
+                  <!-- Flyout Submenu to the right -->
+                  <div
+                    v-if="activeSubmenu === sub.name"
+                    class="absolute left-full top-0 ml-1.5 z-50 min-w-[200px] p-2 rounded-2xl bg-white/95 dark:bg-[#03150e]/95 border border-[#00C864]/30 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in duration-150"
+                  >
+                    <NuxtLink
+                      v-for="child in sub.children"
+                      :key="child.name"
+                      :to="child.href"
+                      class="block px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#022C22] dark:text-white hover:bg-[#00C864]/10 dark:hover:bg-[#00FF88]/15 hover:text-[#00C864] dark:hover:text-[#00FF88] transition-all"
+                      @click="closeAllDropdowns"
+                    >
+                      {{ child.name }}
+                    </NuxtLink>
+                  </div>
                 </div>
-                <div v-if="sub.desc" class="text-[11px] opacity-65 leading-tight mt-0.5 line-clamp-1 font-mono">
-                  {{ sub.desc }}
-                </div>
-              </NuxtLink>
+
+                <!-- Normal Sub Item -->
+                <NuxtLink
+                  v-else
+                  :to="sub.href"
+                  class="block px-3.5 py-2.5 rounded-xl hover:bg-[#00C864]/10 dark:hover:bg-[#00FF88]/15 transition-all group"
+                  @click="closeAllDropdowns"
+                  @mouseenter="activeSubmenu = null"
+                >
+                  <div class="text-xs font-semibold text-[#022C22] dark:text-white group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] flex items-center justify-between">
+                    <span>{{ sub.name }}</span>
+                    <ArrowUpRight v-if="sub.desc" class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#00C864] dark:text-[#00FF88]" />
+                  </div>
+                  <div v-if="sub.desc" class="text-[11px] opacity-65 leading-tight mt-0.5 line-clamp-1 font-mono">
+                    {{ sub.desc }}
+                  </div>
+                </NuxtLink>
+              </template>
             </div>
           </div>
         </div>
@@ -364,17 +424,41 @@ onBeforeUnmount(() => {
         <!-- Mobile Sublinks -->
         <div
           v-if="link.hasDropdown && mobileOpenDropdown === link.name"
-          class="pl-7 pt-1 pb-2 space-y-2 animate-in fade-in duration-150"
+          class="pl-7 pt-1 pb-2 space-y-1.5 animate-in fade-in duration-150"
         >
-          <NuxtLink
-            v-for="sub in link.children"
-            :key="sub.name"
-            :to="sub.href"
-            class="block text-xs opacity-75 hover:opacity-100 hover:text-[#00C864] dark:hover:text-[#00FF88] py-1 font-medium"
-            @click="isMobileMenuOpen = false"
-          >
-            • {{ sub.name }}
-          </NuxtLink>
+          <template v-for="sub in link.children" :key="sub.name">
+            <!-- Normal Sublink -->
+            <NuxtLink
+              v-if="!sub.hasSubmenu"
+              :to="sub.href"
+              class="block text-xs opacity-80 hover:opacity-100 hover:text-[#00C864] dark:hover:text-[#00FF88] py-1 font-medium"
+              @click="isMobileMenuOpen = false"
+            >
+              • {{ sub.name }}
+            </NuxtLink>
+
+            <!-- Nested Sublink (การคุ้มครองข้อมูลส่วนบุคคล) -->
+            <div v-else class="pt-1">
+              <div
+                class="flex items-center justify-between text-xs font-semibold text-[#00C864] dark:text-[#00FF88] py-1 cursor-pointer"
+                @click="mobileSubDropdown === sub.name ? mobileSubDropdown = null : mobileSubDropdown = sub.name"
+              >
+                <span>• {{ sub.name }}</span>
+                <ChevronDown :class="['w-3.5 h-3.5 transition-transform', mobileSubDropdown === sub.name ? 'rotate-180' : '']" />
+              </div>
+              <div v-if="mobileSubDropdown === sub.name" class="pl-4 pt-1 space-y-1">
+                <NuxtLink
+                  v-for="child in sub.children"
+                  :key="child.name"
+                  :to="child.href"
+                  class="block text-[11px] opacity-75 hover:opacity-100 hover:text-[#00C864] dark:hover:text-[#00FF88] py-1"
+                  @click="isMobileMenuOpen = false"
+                >
+                  ▸ {{ child.name }}
+                </NuxtLink>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
 
