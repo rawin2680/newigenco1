@@ -1,0 +1,25 @@
+# =========================================================================
+# ใช้สำหรับรันเฉพาะ Frontend ในช่วงที่กำลังออกแบบหน้าบ้าน (ก่อนเริ่ม Backend)
+# คำสั่งรัน: docker-compose -f docker-compose.frontend.yml up --build
+# =========================================================================
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: verdant_frontend_standalone
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 3000
+      FRONTEND_PORT: 3001
+      NUXT_PUBLIC_STRAPI_URL: http://localhost:1337
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "${FRONTEND_PORT:-3001}:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.nuxt

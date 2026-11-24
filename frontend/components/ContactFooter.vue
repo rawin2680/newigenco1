@@ -1,0 +1,418 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import {
+  Send,
+  Phone,
+  Mail,
+  MapPin,
+  Check,
+  Copy,
+  ArrowUpRight,
+  ShieldCheck,
+  ChevronRight,
+  Clock,
+  Building2,
+  FileText
+} from 'lucide-vue-next'
+import { useStrapiContent } from '~/composables/useStrapiContent'
+import { useTheme } from '~/composables/useTheme'
+
+const { submitInquiry } = useStrapiContent()
+const { showToast } = useTheme()
+
+const form = ref({
+  name: '',
+  email: '',
+  phone: '',
+  projectSummary: '',
+  message: ''
+})
+
+const isSubmitting = ref(false)
+
+const handleSubmit = async () => {
+  if (!form.value.name || !form.value.email) {
+    showToast('กรุณากรอกชื่อและอีเมลให้ครบถ้วน')
+    return
+  }
+
+  isSubmitting.value = true
+  const summary = form.value.projectSummary || 'สอบถามข้อมูลทั่วไปเกี่ยวกับโซลูชัน IGENCO'
+  const fullMessage = form.value.message
+    ? `${summary} | เบอร์โทร: ${form.value.phone} | ข้อความ: ${form.value.message}`
+    : `${summary} | เบอร์โทร: ${form.value.phone}`
+
+  await submitInquiry({
+    name: form.value.name,
+    email: form.value.email,
+    projectSummary: fullMessage
+  })
+  isSubmitting.value = false
+
+  showToast('ส่งข้อความสอบถามเรียบร้อยแล้ว ทีมงาน IGENCO จะติดต่อกลับโดยเร็วที่สุด')
+  form.value = { name: '', email: '', phone: '', projectSummary: '', message: '' }
+}
+
+// ฟังก์ชันคัดลอกเบอร์โทรและอีเมลในคลิกเดียว (One-Click Copy)
+const copiedPhone = ref(false)
+const copiedEmail = ref(false)
+
+const copyToClipboard = (text: string, type: 'phone' | 'email') => {
+  if (import.meta.client) {
+    navigator.clipboard.writeText(text)
+    if (type === 'phone') {
+      copiedPhone.value = true
+      showToast(`คัดลอกเบอร์โทร ${text} เรียบร้อยแล้ว`)
+      setTimeout(() => { copiedPhone.value = false }, 2500)
+    } else {
+      copiedEmail.value = true
+      showToast(`คัดลอกอีเมล ${text} เรียบร้อยแล้ว`)
+      setTimeout(() => { copiedEmail.value = false }, 2500)
+    }
+  }
+}
+
+const scrollToTop = () => {
+  if (import.meta.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+</script>
+
+<template>
+  <footer id="contact" class="relative z-10 overflow-hidden">
+    
+    <!-- =========================================================
+         1. CONSULTATION FORM SECTION (ส่วนรับเรื่องขอคำปรึกษา)
+    ========================================================== -->
+    <div class="pt-20 pb-16 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto">
+      <div class="spatial-glass rounded-[2.5rem] p-8 sm:p-14 lg:p-16 border border-current/10 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start relative z-10">
+          
+          <!-- Left Column: Title & Key Highlights -->
+          <div class="lg:col-span-5 space-y-6">
+            <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] font-bold">
+              <ShieldCheck class="w-4 h-4" />
+              <span>CONSULTATION & INQUIRY // ติดต่อเรา</span>
+            </div>
+            
+            <h2 class="font-display font-extrabold text-3xl sm:text-5xl leading-tight uppercase">
+              ติดต่อสอบถาม<br>หรือ <span class="text-[#00C864] dark:text-[#00FF88]">ขอคำปรึกษา</span>
+            </h2>
+            
+            <p class="text-sm sm:text-base opacity-85 leading-relaxed">
+              สนใจระบบซอฟต์แวร์ตัวไหน หรือต้องการปรึกษาเพื่อนำโซลูชันไปปรับใช้กับองค์กรของคุณ สามารถกรอกฟอร์มได้ทันทีโดยไม่ต้องลงทะเบียนล่วงหน้า ทีมผู้เชี่ยวชาญ IGENCO จะติดต่อกลับอย่างรวดเร็ว
+            </p>
+
+            <!-- Quick Trust Badges -->
+            <div class="pt-4 space-y-3">
+              <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-[#00C864]/10 dark:bg-[#00FF88]/10 border border-[#00C864]/20">
+                <ShieldCheck class="w-5 h-5 text-[#00A854] dark:text-[#00FF88] shrink-0" />
+                <div class="text-xs">
+                  <span class="font-bold">มาตรฐานระดับสากล ISO/IEC 29110</span>
+                  <p class="opacity-75">ผ่านการรับรองโดย TÜV NORD (Thailand) Co., Ltd.</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
+                <Clock class="w-5 h-5 text-[#00A854] dark:text-[#00FF88] shrink-0" />
+                <div class="text-xs">
+                  <span class="font-bold">ตอบกลับรวดเร็วภายใน 24 ชม.</span>
+                  <p class="opacity-75">วันจันทร์ - ศุกร์ เวลา 08:30 - 17:30 น.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Consultation Form -->
+          <form class="lg:col-span-7 space-y-4" @submit.prevent="handleSubmit">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">ชื่อผู้ติดต่อ / หน่วยงาน *</label>
+                <input
+                  v-model="form.name"
+                  type="text"
+                  required
+                  placeholder="ระบุชื่อ - นามสกุล หรือชื่อองค์กร"
+                  class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                >
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">อีเมลติดต่อกลับ *</label>
+                <input
+                  v-model="form.email"
+                  type="email"
+                  required
+                  placeholder="name@company.com"
+                  class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                >
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">เบอร์โทรศัพท์ติดต่อ</label>
+                <input
+                  v-model="form.phone"
+                  type="tel"
+                  placeholder="08X-XXX-XXXX หรือ 02-XXX-XXXX"
+                  class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                >
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">หัวข้อหรือโซลูชันที่สนใจ</label>
+                <input
+                  id="projectSummaryInput"
+                  v-model="form.projectSummary"
+                  type="text"
+                  placeholder="เช่น ระบบ iSmartFlow, I-SERFF หรือพัฒนาซอฟต์แวร์เฉพาะทาง"
+                  class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+                >
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">รายละเอียดความต้องการเพิ่มเติม</label>
+              <textarea
+                v-model="form.message"
+                rows="4"
+                placeholder="ระบุขอบเขตงาน จำนวนผู้ใช้งาน หรือฟังก์ชันที่ต้องการให้ระบบรองรับ..."
+                class="w-full px-4 py-3 rounded-xl bg-white/70 dark:bg-black/60 border border-current/20 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              :disabled="isSubmitting"
+              class="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-[#022C22] text-white dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+            >
+              <span>{{ isSubmitting ? 'กำลังส่งข้อมูล...' : 'ส่งแบบฟอร์มสอบถาม / ขอรับคำปรึกษา' }}</span>
+              <Send class="w-4 h-4" />
+            </button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         2. MODERN MULTI-COLUMN FOOTER (Dark-Emerald Edition)
+         ข้อมูลติดต่อ IGENCO แท้ + One-Click Copy + ลิขสิทธิ์ปัจจุบัน
+    ========================================================== -->
+    <div class="bg-[#021811] dark:bg-[#010D09] text-white pt-16 pb-12 border-t border-[#00FF88]/20 transition-colors">
+      <div class="max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16">
+        
+        <!-- 4-Column Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-14 border-b border-white/10">
+          
+          <!-- Column 1: Company Profile & ISO Certification (4 Cols) -->
+          <div class="lg:col-span-4 space-y-5">
+            <!-- Brand Logo -->
+            <NuxtLink to="/" class="flex items-center gap-2.5 group">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#00FF88] shadow-[0_0_15px_#00FF88]" />
+              <span class="font-display font-extrabold text-2xl tracking-wider text-white">
+                IGENCO<span class="text-[#00FF88]">//</span>TECH
+              </span>
+            </NuxtLink>
+
+            <p class="text-sm text-slate-300 leading-relaxed max-w-sm">
+              บริษัท ไอเจนโก้ จำกัด (IGENCO CO., LTD.) มุ่งมั่นส่งมอบระบบซอฟต์แวร์บริหารจัดการระดับองค์กร โครงสร้างฐานข้อมูลความปลอดภัยสูง และนวัตกรรมดิจิทัลที่ขับเคลื่อนธุรกิจสู่ความสำเร็จ
+            </p>
+
+            <!-- ISO Certification Badge Card -->
+            <div class="p-4 rounded-2xl bg-white/5 border border-[#00FF88]/30 flex items-center gap-3.5 max-w-sm">
+              <div class="w-11 h-11 rounded-xl bg-[#00FF88]/20 flex items-center justify-center shrink-0 text-[#00FF88]">
+                <ShieldCheck class="w-6 h-6" />
+              </div>
+              <div class="text-xs">
+                <div class="font-bold text-white">TÜV NORD CERTIFIED</div>
+                <div class="text-[#00FF88] font-mono">ISO/IEC 29110:2011</div>
+                <div class="text-[11px] text-slate-400">Software Implementation & PM</div>
+              </div>
+            </div>
+
+            <!-- Tax ID -->
+            <div class="text-xs font-mono text-slate-400 flex items-center gap-2">
+              <FileText class="w-3.5 h-3.5 text-[#00FF88]" />
+              <span>เลขประจำตัวผู้เสียภาษี : 0105553000748</span>
+            </div>
+          </div>
+
+          <!-- Column 2: Navigation Links (2.5 Cols) -->
+          <div class="lg:col-span-2 space-y-4">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-[#00FF88]">
+              NAVIGATION // เมนูหลัก
+            </h3>
+            <ul class="space-y-2.5 text-sm text-slate-300">
+              <li>
+                <NuxtLink to="/#top" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                  <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
+                  <span>หน้าแรก (Home)</span>
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/#products" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                  <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
+                  <span>สินค้าและบริการ</span>
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/#news" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                  <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
+                  <span>ข่าวสารและกิจกรรม</span>
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/news/1" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                  <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
+                  <span>มาตรฐาน ISO/IEC 29110</span>
+                </NuxtLink>
+              </li>
+              <li>
+                <a href="#contact" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                  <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
+                  <span>ติดต่อขอคำปรึกษา</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Solutions & Services (2.5 Cols) -->
+          <div class="lg:col-span-2 space-y-4">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-[#00FF88]">
+              SOLUTIONS // ผลิตภัณฑ์
+            </h3>
+            <ul class="space-y-2.5 text-sm text-slate-300">
+              <li>
+                <NuxtLink to="/news/5" class="hover:text-[#00FF88] transition-colors">
+                  iSmartFlow (สำนักงานอิเล็กทรอนิกส์)
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/news/3" class="hover:text-[#00FF88] transition-colors">
+                  I-SERFF (ระบบยื่นแบบ คปภ.)
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/news/4" class="hover:text-[#00FF88] transition-colors">
+                  EFMS (ระบบเชื่อมต่อข้อมูล สคฝ.)
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/#products" class="hover:text-[#00FF88] transition-colors">
+                  Enterprise Cloud & Data Lake
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/#products" class="hover:text-[#00FF88] transition-colors">
+                  AI Analytics & Machine Learning
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 4: Contact & Location in Bang Khen / Don Mueang (3.5 Cols) -->
+          <div class="lg:col-span-4 space-y-4">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-[#00FF88]">
+              HEADQUARTERS // ที่ตั้งสำนักงาน
+            </h3>
+            
+            <!-- Address with MapPin -->
+            <div class="flex items-start gap-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
+              <MapPin class="w-4 h-4 text-[#00FF88] shrink-0 mt-1" />
+              <span>
+                88/35 อาคารบูรพาโฮมออฟฟิศ ซอยพหลโยธิน 69/1 แยก 1 แขวงอนุสาวรีย์ เขตบางเขน กรุงเทพมหานคร 10220 (ย่านบางเขน - ดอนเมือง)
+              </span>
+            </div>
+
+            <!-- Phone Numbers with One-Click Copy -->
+            <div class="space-y-2 pt-1">
+              <div class="text-xs font-semibold text-slate-400">เบอร์โทรศัพท์ติดต่อ (คลิกเพื่อโทรหรือคัดลอก) :</div>
+              <div class="flex flex-wrap items-center gap-2">
+                <a
+                  href="tel:025233959"
+                  class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
+                >
+                  <Phone class="w-3 h-3 text-[#00FF88]" />
+                  <span>0-2523-3959</span>
+                </a>
+                <a
+                  href="tel:025233960"
+                  class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all"
+                >
+                  0-2523-3960
+                </a>
+                <a
+                  href="tel:0615294050"
+                  class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all"
+                >
+                  061-529-4050
+                </a>
+
+                <!-- One-Click Copy Phone Button -->
+                <button
+                  type="button"
+                  title="คัดลอกเบอร์โทรหลัก"
+                  class="p-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] transition-all text-xs"
+                  @click="copyToClipboard('02-523-3959, 061-529-4050', 'phone')"
+                >
+                  <Check v-if="copiedPhone" class="w-3.5 h-3.5 text-[#00FF88]" />
+                  <Copy v-else class="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Email with One-Click Copy -->
+            <div class="space-y-1.5 pt-1">
+              <div class="text-xs font-semibold text-slate-400">อีเมลติดต่อฝ่ายขายและบริการ :</div>
+              <div class="flex items-center gap-2">
+                <a
+                  href="mailto:sale@igenco.com"
+                  class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
+                >
+                  <Mail class="w-3.5 h-3.5 text-[#00FF88]" />
+                  <span>sale@igenco.com</span>
+                </a>
+                <!-- One-Click Copy Email Button -->
+                <button
+                  type="button"
+                  title="คัดลอกอีเมล"
+                  class="p-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] transition-all text-xs"
+                  @click="copyToClipboard('sale@igenco.com', 'email')"
+                >
+                  <Check v-if="copiedEmail" class="w-3.5 h-3.5 text-[#00FF88]" />
+                  <Copy v-else class="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Bottom Line: Copyright, Status, Scroll to Top -->
+        <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400 font-mono">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#00FF88] animate-pulse" />
+            <span>© 2026 บริษัท ไอเจนโก้ จำกัด (IGENCO CO., LTD.) — ALL RIGHTS RESERVED</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <span class="hidden md:inline text-slate-500">ISO/IEC 29110 QUALITY STANDARDS</span>
+            <button
+              type="button"
+              class="hover:text-[#00FF88] transition-colors flex items-center gap-1 font-bold"
+              @click="scrollToTop"
+            >
+              <span>กลับขึ้นด้านบน</span>
+              <ArrowUpRight class="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </footer>
+</template>

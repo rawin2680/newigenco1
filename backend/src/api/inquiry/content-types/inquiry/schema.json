@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "inquiries",
+  "info": {
+    "singularName": "inquiry",
+    "pluralName": "inquiries",
+    "displayName": "Contact Inquiry",
+    "description": "Enterprise Contact Inquiries and Leads"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "projectSummary": {
+      "type": "text"
+    },
+    "blueprintSpec": {
+      "type": "text"
+    }
+  }
+}

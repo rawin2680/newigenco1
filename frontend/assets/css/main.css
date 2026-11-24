@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #F6F9F7;
+  --text-primary: #022C22;
+  --accent-color: #00C864;
+  --glass-surface: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(2, 44, 34, 0.12);
+  --glass-highlight: rgba(0, 200, 100, 0.28);
+  --grid-line: rgba(2, 44, 34, 0.05);
+}
+
+html.dark {
+  --bg-primary: #020806;
+  --text-primary: #F4FBF7;
+  --accent-color: #00FF88;
+  --glass-surface: rgba(5, 18, 13, 0.65);
+  --glass-border: rgba(0, 255, 136, 0.2);
+  --glass-highlight: rgba(0, 255, 136, 0.35);
+  --grid-line: rgba(0, 255, 136, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Global Apple iPhone Font Stack */
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro TH", "Sukhumvit Set", "Inter", "Anuphan", "Segoe UI", Roboto, sans-serif !important;
+  overflow-x: hidden;
+  transition: background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Apple iPhone Headline Typography */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro TH", "Sukhumvit Set", "Inter", "Anuphan", sans-serif !important;
+  letter-spacing: -0.015em;
+}
+
+/* Architectural Grid Pattern */
+.architectural-grid {
+  background-size: 64px 64px;
+  background-image: 
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+}
+
+/* Spatial Glassmorphism */
+.spatial-glass {
+  background: var(--glass-surface);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.spatial-glass:hover {
+  border-color: var(--glass-highlight);
+}
+
+/* Outlined Editorial Stroke Typography */
+.text-stroke-emerald {
+  color: transparent;
+  -webkit-text-stroke: 1.5px #022C22;
+}
+
+html.dark .text-stroke-emerald {
+  -webkit-text-stroke: 1.5px #00FF88;
+}
+
+/* Standard Native Cursor (Easy to use) */
+a, button, input, select, textarea {
+  cursor: pointer;
+}
+
+/* X-Ray Blueprint Mode */
+body.xray-active .spatial-glass {
+  background: rgba(0, 210, 106, 0.06) !important;
+  border: 1px dashed var(--accent-color) !important;
+  box-shadow: inset 0 0 20px rgba(0, 210, 106, 0.12);
+}
+
+body.xray-active .xray-meta {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Diagonal Kinetic Strip */
+.diagonal-band {
+  transform: rotate(-2.2deg) scale(1.03);
+}
+
+/* Smooth Horizontal Showcase Scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom Modal Scrollbar */
+.custom-modal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-modal-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 9999px;
+}
+.custom-modal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 200, 100, 0.4);
+  border-radius: 9999px;
+}
+.custom-modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 200, 100, 0.75);
+}

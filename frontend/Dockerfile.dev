@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package descriptors
+COPY package.json ./
+
+# Clean install dependencies
+RUN npm install
+
+# Expose Nuxt port
+EXPOSE 3000
+
+ENV NUXT_HOST=0.0.0.0
+ENV NUXT_PORT=3000
+ENV NODE_ENV=development
+
+CMD ["npm", "run", "dev"]
