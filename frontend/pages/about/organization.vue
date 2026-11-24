@@ -216,6 +216,7 @@ const divisions = ref<DivisionNode[]>([
         name: 'Business Application',
         en: 'ระบบงานธุรกิจระดับองค์กร',
         icon: Laptop,
+        image: '/images/about/business-application-avatar.jpg',
         desc: 'วิจัยและพัฒนา Web Application สำเร็จรูปแบรนด์ IGENCO',
         responsibilities: [
           'ออกแบบและพัฒนาซอฟต์แวร์ e-Office และ ERP เฉพาะองค์กร',
