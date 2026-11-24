@@ -214,14 +214,17 @@ const inquireProduct = (title: string) => {
       </div>
     </div>
 
-    <!-- Product Cards Grid: 6 Modern Equal Cards with Staggered Entrance & Motion Hover -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+    <!-- Product Cards Grid: Modern Filterable Cards with Fluid Spring Motion -->
+    <TransitionGroup
+      name="catalog-card"
+      tag="div"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+    >
       <div
         v-for="(product, idx) in filteredProducts"
         :key="product.id"
-        class="product-card spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2.5 transition-all duration-400 border border-current/10 relative reveal-init reveal-blur"
+        class="product-card spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2.5 transition-all duration-300 border border-current/10 relative"
         :style="{
-          transitionDelay: `${idx * 35}ms`,
           '--brand-accent': product.accentColor,
           '--brand-glow': product.glowColor
         }"
@@ -324,7 +327,7 @@ const inquireProduct = (title: string) => {
           </div>
         </div>
       </div>
-    </div>
+    </TransitionGroup>
 
     <!-- Product Detail Modal Drawer -->
     <Teleport to="body">
@@ -462,5 +465,22 @@ const inquireProduct = (title: string) => {
 .product-card:hover {
   box-shadow: 0 20px 40px var(--brand-glow);
   border-color: var(--brand-accent);
+}
+
+/* Fluid Transition for Category Switching */
+.catalog-card-enter-active,
+.catalog-card-leave-active {
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.catalog-card-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.96);
+}
+.catalog-card-leave-to {
+  opacity: 0;
+  transform: scale(0.94);
+}
+.catalog-card-move {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 </style>

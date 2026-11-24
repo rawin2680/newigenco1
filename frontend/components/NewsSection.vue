@@ -167,14 +167,15 @@ const toggleAiSummary = (id: number) => {
          NEWS CARDS GRID: EXACTLY 3 CARDS AT A TIME
          Glassmorphism & Dynamic Glow with Direct Navigation
     ========================================================== -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+    <TransitionGroup
+      name="news-card"
+      tag="div"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch"
+    >
       <article
         v-for="(item, idx) in displayedNews"
         :key="item.id"
-        :class="[
-          'spatial-glass rounded-3xl overflow-hidden relative group transition-all duration-300 hover:-translate-y-2.5 flex flex-col justify-between border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] hover:shadow-[0_20px_45px_rgba(0,200,100,0.18)] hover-lift reveal-init reveal-blur',
-          idx === 0 ? 'delay-75' : idx === 1 ? 'delay-150' : 'delay-250'
-        ]"
+        class="spatial-glass rounded-3xl overflow-hidden relative group transition-all duration-300 hover:-translate-y-2.5 flex flex-col justify-between border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] hover:shadow-[0_20px_45px_rgba(0,200,100,0.18)] hover-lift"
         @mousemove="onCardMouseMove($event, item.id)"
       >
         <!-- Mouse-Tracking Dynamic Glow Spotlight -->
@@ -285,7 +286,7 @@ const toggleAiSummary = (id: number) => {
           <span class="text-[11px] font-mono opacity-50">IGENCO // 0{{ item.id }}</span>
         </div>
       </article>
-    </div>
+    </TransitionGroup>
 
     <!-- Empty State (กรณีไม่พบข้อมูลในหมวดที่เลือก) -->
     <div
@@ -367,3 +368,21 @@ const toggleAiSummary = (id: number) => {
 
   </section>
 </template>
+
+<style scoped>
+.news-card-enter-active,
+.news-card-leave-active {
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.news-card-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.96);
+}
+.news-card-leave-to {
+  opacity: 0;
+  transform: scale(0.94);
+}
+.news-card-move {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+</style>
