@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
   ShieldCheck,
   ChevronRight,
+  ChevronDown,
   Clock,
   Building2,
   FileText
@@ -19,6 +20,20 @@ import { useTheme } from '~/composables/useTheme'
 
 const { submitInquiry } = useStrapiContent()
 const { showToast } = useTheme()
+
+const solutionOptions = [
+  'ปรึกษาเรื่องทั่วไป',
+  'iGenQ',
+  'i-FinSoft',
+  'i-SmartSoft',
+  'i-SmartFlow',
+  'Regist.ai',
+  'HR.ai',
+  'บริการพัฒนาระบบ',
+  'ขอใบเสนอราคา',
+  'ขอนัดหมายสาธิตระบบ',
+  'อื่น ๆ'
+]
 
 const form = ref({
   name: '',
@@ -31,16 +46,16 @@ const form = ref({
 const isSubmitting = ref(false)
 
 const handleSubmit = async () => {
-  if (!form.value.name || !form.value.email) {
-    showToast('กรุณากรอกชื่อและอีเมลให้ครบถ้วน')
+  if (!form.value.name || !form.value.email || !form.value.projectSummary) {
+    showToast('กรุณากรอกชื่อ อีเมล และเลือกหัวข้อที่สนใจให้ครบถ้วน')
     return
   }
 
   isSubmitting.value = true
   const summary = form.value.projectSummary || 'สอบถามข้อมูลทั่วไปเกี่ยวกับโซลูชัน IGENCO'
   const fullMessage = form.value.message
-    ? `${summary} | เบอร์โทร: ${form.value.phone} | ข้อความ: ${form.value.message}`
-    : `${summary} | เบอร์โทร: ${form.value.phone}`
+    ? `${summary} | เบอร์โทร: ${form.value.phone || '-'} | ข้อความ: ${form.value.message}`
+    : `${summary} | เบอร์โทร: ${form.value.phone || '-'}`
 
   await submitInquiry({
     name: form.value.name,
@@ -129,69 +144,89 @@ const scrollToTop = () => {
             </div>
           </div>
 
-          <!-- Right Column: Consultation Form -->
+          <!-- Right Column: Consultation Form (Single Column Vertical Layout) -->
           <form class="lg:col-span-7 space-y-4 reveal-init reveal-right delay-150" @submit.prevent="handleSubmit">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">ชื่อผู้ติดต่อ / หน่วยงาน *</label>
-                <input
-                  v-model="form.name"
-                  type="text"
-                  required
-                  placeholder="ระบุชื่อ - นามสกุล หรือชื่อองค์กร"
-                  class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
-                >
-              </div>
-              <div>
-                <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">อีเมลติดต่อกลับ *</label>
-                <input
-                  v-model="form.email"
-                  type="email"
-                  required
-                  placeholder="name@company.com"
-                  class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
-                >
-              </div>
+            <!-- 1. ชื่อผู้ติดต่อ / หน่วยงาน * -->
+            <div>
+              <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">ชื่อผู้ติดต่อ / หน่วยงาน *</label>
+              <input
+                v-model="form.name"
+                type="text"
+                required
+                placeholder="ระบุชื่อ - นามสกุล หรือชื่อองค์กร"
+                class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all text-[#0A1A12] dark:text-[#F8FAFC]"
+              >
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">เบอร์โทรศัพท์ติดต่อ</label>
-                <input
-                  v-model="form.phone"
-                  type="tel"
-                  placeholder="08X-XXX-XXXX หรือ 02-XXX-XXXX"
-                  class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
-                >
-              </div>
-              <div>
-                <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">หัวข้อหรือโซลูชันที่สนใจ</label>
-                <input
+            <!-- 2. อีเมลติดต่อกลับ * -->
+            <div>
+              <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">อีเมลติดต่อกลับ *</label>
+              <input
+                v-model="form.email"
+                type="email"
+                required
+                placeholder="name@company.com"
+                class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all text-[#0A1A12] dark:text-[#F8FAFC]"
+              >
+            </div>
+
+            <!-- 3. เบอร์โทรศัพท์ติดต่อ -->
+            <div>
+              <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">เบอร์โทรศัพท์ติดต่อ</label>
+              <input
+                v-model="form.phone"
+                type="tel"
+                placeholder="08X-XXX-XXXX หรือ 02-XXX-XXXX"
+                class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all text-[#0A1A12] dark:text-[#F8FAFC]"
+              >
+            </div>
+
+            <!-- 4. หัวข้อหรือโซลูชันที่สนใจ * (Dropdown) -->
+            <div>
+              <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">หัวข้อหรือโซลูชันที่สนใจ *</label>
+              <div class="relative">
+                <select
                   id="projectSummaryInput"
                   v-model="form.projectSummary"
-                  type="text"
-                  placeholder="เช่น ระบบ iSmartFlow, I-SERFF หรือพัฒนาซอฟต์แวร์เฉพาะทาง"
-                  class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
+                  required
+                  class="w-full px-4 py-3.5 pr-10 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all appearance-none cursor-pointer text-[#0A1A12] dark:text-[#F8FAFC]"
                 >
+                  <option value="" disabled selected class="text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0A1A12]">
+                    -- เลือกหัวข้อหรือโซลูชันที่ต้องการ --
+                  </option>
+                  <option
+                    v-for="opt in solutionOptions"
+                    :key="opt"
+                    :value="opt"
+                    class="text-[#0A1A12] dark:text-[#F8FAFC] bg-white dark:bg-[#0A1A12] py-1.5"
+                  >
+                    {{ opt }}
+                  </option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-current opacity-60">
+                  <ChevronDown class="w-4 h-4" />
+                </div>
               </div>
             </div>
 
+            <!-- 5. รายละเอียดเพิ่มเติม -->
             <div>
-              <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">รายละเอียดความต้องการเพิ่มเติม</label>
+              <label class="block text-xs font-semibold uppercase opacity-80 mb-1.5">รายละเอียดเพิ่มเติม</label>
               <textarea
                 v-model="form.message"
                 rows="4"
                 placeholder="ระบุขอบเขตงาน จำนวนผู้ใช้งาน หรือฟังก์ชันที่ต้องการให้ระบบรองรับ..."
-                class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all"
+                class="w-full px-4 py-3.5 rounded-xl bg-white/80 dark:bg-black/60 border border-current/15 text-sm focus:outline-none focus:border-[#00C864] dark:focus:border-[#00FF88] focus:ring-2 focus:ring-[#00C864]/20 transition-all text-[#0A1A12] dark:text-[#F8FAFC]"
               />
             </div>
 
+            <!-- 6. ปุ่มส่งแบบฟอร์มสอบถาม / ขอคำปรึกษา -->
             <button
               type="submit"
               :disabled="isSubmitting"
               class="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-xl hover:shadow-[0_8px_25px_rgba(0,200,100,0.35)] disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
             >
-              <span>{{ isSubmitting ? 'กำลังส่งข้อมูล...' : 'ส่งแบบฟอร์มสอบถาม / ขอรับคำปรึกษา' }}</span>
+              <span>{{ isSubmitting ? 'กำลังส่งข้อมูล...' : 'ส่งแบบฟอร์มสอบถาม / ขอคำปรึกษา' }}</span>
               <Send class="w-4 h-4" />
             </button>
           </form>
