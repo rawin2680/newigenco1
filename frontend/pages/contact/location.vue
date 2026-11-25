@@ -19,16 +19,20 @@ import {
   Bus,
   Car,
   Compass,
-  FileText
+  FileText,
+  Map,
+  Download,
+  ZoomIn,
+  X
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
 useHead({
-  title: 'ตำแหน่งที่ตั้งสำนักงาน (Headquarters Location) - บริษัท ไอเจนโก้ จำกัด (IGENCO)',
+  title: 'ตำแหน่งที่ตั้งและแผนที่สำนักงาน (Headquarters Location & Map) - บริษัท ไอเจนโก้ จำกัด (IGENCO)',
   meta: [
     {
       name: 'description',
-      content: 'ตำแหน่งที่ตั้งและแผนที่สำนักงานใหญ่ บริษัท ไอเจนโก้ จำกัด 89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร โทร 0-2523-3559'
+      content: 'แผนที่และตำแหน่งที่ตั้งสำนักงานใหญ่ บริษัท ไอเจนโก้ จำกัด 89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร โทร 0-2523-3559 หรือ 063-525-4850'
     }
   ]
 })
@@ -36,10 +40,16 @@ useHead({
 const { showToast } = useTheme()
 
 const companyAddress = '89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร 10210'
-const googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=89%2F35+%E0%B8%AD%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%A3%E0%B8%88%E0%B8%B9%E0%B9%80%E0%B8%84%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B9%80%E0%B8%A5%E0%B9%89%E0%B8%87+%E0%B8%96%E0%B8%99%E0%B8%99%E0%B8%A7%E0%B8%B4%E0%B8%A0%E0%B8%B2%E0%B8%A7%E0%B8%94%E0%B8%B5%E0%B8%A3%E0%B8%B1%E0%B8%87%E0%B8%AA%E0%B8%B4%E0%B8%95+%E0%B8%94%E0%B8%AD%E0%B8%99%E0%B9%80%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%87'
+// ลิงก์หมุดพิกัดบริษัท ไอเจนโก้ จำกัด บน Google Maps (จากที่ผู้ใช้ระบุ)
+const googleMapsPinUrl = 'https://maps.app.goo.gl/ogodVkNqs3Fvs3rx7'
+// ลิงก์นำทางอัตโนมัติจากตำแหน่งปัจจุบันของผู้ใช้มายังบริษัท ไอเจนโก้ จำกัด (Turn-by-Turn Navigation)
+const googleMapsDirectionsUrl = 'https://www.google.com/maps/dir/?api=1&destination=13.9352181,100.6120949'
+const mapImagePath = '/images/contact/igenco-office-map.jpg'
 
 const copiedAddress = ref(false)
 const copiedPhone = ref<string | null>(null)
+const activeMapTab = ref<'graphic' | 'google'>('graphic')
+const isLightboxOpen = ref(false)
 
 const copyToClipboard = (text: string, type: 'address' | 'phone') => {
   if (import.meta.client) {
@@ -78,6 +88,29 @@ const transitGuides = [
     desc: 'เดินทางบนถนนวิภาวดีรังสิต (ฝั่งขาออก มุ่งหน้าดอนเมือง/รังสิต) มีลานจอดรถรองรับผู้มาติดต่อภายในอาคาร'
   }
 ]
+
+const landmarkSteps = [
+  {
+    step: '01',
+    title: 'เดินทางบนถนนวิภาวดีรังสิต (ขาออก)',
+    desc: 'มุ่งหน้าไปทางสนามบินดอนเมือง / รังสิต สังเกตป้ายบอกทางสะพานกลับรถเข้าฐานทัพอากาศ'
+  },
+  {
+    step: '02',
+    title: 'ชิดซ้ายขึ้นสะพานกลับรถ',
+    desc: 'ชิดซ้ายขึ้นสะพานกลับรถเข้าฐานทัพอากาศ (Air Force Base U-Turn Bridge)'
+  },
+  {
+    step: '03',
+    title: 'ผ่านประตูทางเข้าฐานทัพอากาศ / จุดกลับรถ',
+    desc: 'เลี้ยวตามแนวเส้นทางลูกศร เข้าสู่แนวกลุ่มอาคารสำนักงาน'
+  },
+  {
+    step: '04',
+    title: 'ถึงอาคารจูเคี่ยวเล้ง ชั้น 3',
+    desc: 'อาคารเลขที่ 89/35 ชั้น 3 สังเกตป้ายบริษัท ไอเจนโก้ จำกัด มีที่จอดรถสำหรับผู้มาติดต่อ'
+  }
+]
 </script>
 
 <template>
@@ -95,7 +128,7 @@ const transitGuides = [
         <span>/</span>
         <NuxtLink to="/contact" class="hover:text-[#00C864] dark:hover:text-[#00FF88]">ติดต่อเรา</NuxtLink>
         <span>/</span>
-        <span class="text-[#00C864] dark:text-[#00FF88] font-bold">ตำแหน่งที่ตั้ง</span>
+        <span class="text-[#00C864] dark:text-[#00FF88] font-bold">ตำแหน่งที่ตั้งสำนักงาน</span>
       </nav>
 
       <!-- Page Header -->
@@ -108,14 +141,14 @@ const transitGuides = [
           ตำแหน่งที่ตั้ง <span class="text-[#00C864] dark:text-[#00FF88]">สำนักงานใหญ่</span>
         </h1>
         <p class="text-sm sm:text-base opacity-75 mt-3 max-w-3xl leading-relaxed">
-          สำนักงานใหญ่ บริษัท ไอเจนโก้ จำกัด ตั้งอยู่บนถนนวิภาวดีรังสิต เขตดอนเมือง กรุงเทพมหานคร การเดินทางสะดวกสบายใกล้สนามบินดอนเมือง และรถไฟฟ้าสายสีแดง
+          สำนักงานใหญ่ บริษัท ไอเจนโก้ จำกัด (IGENCO) ตั้งอยู่บนถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร ใกล้สนามบินดอนเมือง และสะพานกลับรถเข้าฐานทัพอากาศ
         </p>
       </div>
 
-      <!-- Main Grid: Info on Left + Interactive Map on Right -->
+      <!-- Main Section: Info Column (Left) + Dual Map Viewer (Right) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start mb-16">
         
-        <!-- Left Column: Address, Phone & Actions -->
+        <!-- Left Column: Address, Phone & Contact Info -->
         <div class="lg:col-span-5 space-y-6">
           
           <!-- Headquarters Address Card -->
@@ -174,7 +207,7 @@ const transitGuides = [
                 <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-current/10">
                   <div class="flex items-center gap-2">
                     <Phone class="w-3.5 h-3.5 text-[#00C864] dark:text-[#00FF88]" />
-                    <span class="font-mono font-bold">06-3525-4850</span>
+                    <span class="font-mono font-bold">063-5254850</span>
                     <span class="opacity-60">(สายด่วน)</span>
                   </div>
                   <a href="tel:0635254850" class="px-2 py-0.5 rounded text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline">โทรออก</a>
@@ -194,17 +227,42 @@ const transitGuides = [
               </div>
             </div>
 
-            <!-- Open in Google Maps Button -->
-            <a
-              :href="googleMapsUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="w-full py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_8px_25px_rgba(0,200,100,0.3)] hover:scale-[1.01] active:scale-[0.99]"
-            >
-              <Navigation class="w-4 h-4" />
-              <span>เปิดดูเส้นทางบน Google Maps</span>
-              <ExternalLink class="w-3.5 h-3.5" />
-            </a>
+            <!-- Action Buttons: Google Maps Navigation & Map Links -->
+            <div class="space-y-2.5 pt-2">
+              <!-- 1. ปุ่มหลัก: กดนำทางจากตำแหน่งของผู้ใช้มายังบริษัทโดยตรง -->
+              <a
+                :href="googleMapsDirectionsUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full py-4 rounded-xl font-bold text-sm tracking-wider bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 transition-all flex items-center justify-center gap-2.5 shadow-xl hover:shadow-[0_8px_30px_rgba(0,200,100,0.35)] hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+              >
+                <Navigation class="w-5 h-5 animate-pulse" />
+                <span>กดนำทาง Google Maps (จากตำแหน่งของคุณ)</span>
+                <ExternalLink class="w-4 h-4 opacity-75" />
+              </a>
+
+              <!-- 2. ปุ่มดูหมุดพิกัดบริษัท ไอเจนโก้ บน Google Maps -->
+              <a
+                :href="googleMapsPinUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full py-3 rounded-xl font-semibold text-xs tracking-wider bg-black/[0.04] dark:bg-white/[0.06] hover:bg-[#00C864]/10 dark:hover:bg-[#00FF88]/15 text-[#022C22] dark:text-[#F1F5F9] transition-all flex items-center justify-center gap-2 border border-current/10 cursor-pointer"
+              >
+                <MapPin class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
+                <span>เปิดดูหมุดพิกัด บริษัท ไอเจนโก้ บน Google Maps</span>
+                <ExternalLink class="w-3.5 h-3.5 opacity-60" />
+              </a>
+
+              <!-- 3. ปุ่มดาวน์โหลดภาพแผนที่เส้นทาง -->
+              <a
+                :href="mapImagePath"
+                download="igenco-office-map.jpg"
+                class="w-full py-2.5 rounded-xl font-semibold text-xs tracking-wider bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/10 dark:hover:bg-white/10 text-[#022C22] dark:text-[#F1F5F9] transition-all flex items-center justify-center gap-2 border border-current/10 cursor-pointer"
+              >
+                <Download class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
+                <span>ดาวน์โหลดภาพแผนที่เส้นทาง (Save Map Image)</span>
+              </a>
+            </div>
 
           </div>
 
@@ -234,48 +292,173 @@ const transitGuides = [
 
         </div>
 
-        <!-- Right Column: Interactive Map Container -->
+        <!-- Right Column: Dual Map Viewer (Graphic Route Map & Google Maps) -->
         <div class="lg:col-span-7 space-y-6">
-          <div class="spatial-glass rounded-3xl p-4 sm:p-6 border border-current/10 shadow-2xl overflow-hidden">
+          <div class="spatial-glass rounded-3xl p-5 sm:p-7 border border-current/10 shadow-2xl overflow-hidden">
             
-            <div class="flex items-center justify-between mb-4 px-2">
+            <!-- Map Mode Switcher Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-current/10">
               <div class="flex items-center gap-2">
-                <Compass class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-                <span class="text-xs font-mono uppercase tracking-wider font-bold">แผนที่พิกัดสำนักงาน (Google Maps)</span>
+                <Compass class="w-5 h-5 text-[#00C864] dark:text-[#00FF88]" />
+                <span class="text-sm font-bold uppercase tracking-wide">แผนที่แสดงตำแหน่งและเส้นทาง</span>
               </div>
-              <a
-                :href="googleMapsUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-xs text-[#00C864] dark:text-[#00FF88] font-bold hover:underline flex items-center gap-1"
+
+              <!-- Tabs: Graphic Map vs Google Maps -->
+              <div class="inline-flex p-1 rounded-xl bg-black/[0.05] dark:bg-white/[0.08] border border-current/10 text-xs font-semibold">
+                <button
+                  type="button"
+                  :class="[
+                    'px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer',
+                    activeMapTab === 'graphic'
+                      ? 'bg-[#00C864] text-white shadow-md font-bold'
+                      : 'opacity-70 hover:opacity-100'
+                  ]"
+                  @click="activeMapTab = 'graphic'"
+                >
+                  <Map class="w-3.5 h-3.5" />
+                  <span>แผนที่ภาพเส้นทาง (Graphic Map)</span>
+                </button>
+                <button
+                  type="button"
+                  :class="[
+                    'px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer',
+                    activeMapTab === 'google'
+                      ? 'bg-[#00C864] text-white shadow-md font-bold'
+                      : 'opacity-70 hover:opacity-100'
+                  ]"
+                  @click="activeMapTab = 'google'"
+                >
+                  <Compass class="w-3.5 h-3.5" />
+                  <span>Google Maps พิกัดจริง</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- View 1: Official Graphic Route Map -->
+            <div v-if="activeMapTab === 'graphic'" class="space-y-4">
+              <div
+                class="relative rounded-2xl overflow-hidden border border-current/15 bg-white group cursor-zoom-in shadow-inner"
+                @click="isLightboxOpen = true"
               >
-                <span>ขยายเต็มจอ</span>
-                <ExternalLink class="w-3 h-3" />
-              </a>
+                <img
+                  :src="mapImagePath"
+                  alt="แผนที่เส้นทางการเดินทาง บริษัท ไอเจนโก้ จำกัด อาคารจูเคี่ยวเล้ง ดอนเมือง"
+                  class="w-full h-auto object-contain max-h-[500px] mx-auto block hover:scale-[1.02] transition-transform duration-300"
+                />
+                
+                <!-- Zoom Overlay Badge -->
+                <div class="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/75 text-white backdrop-blur-md text-xs font-mono flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+                  <ZoomIn class="w-3.5 h-3.5 text-[#00FF88]" />
+                  <span>คลิกเพื่อขยายภาพขนาดใหญ่</span>
+                </div>
+              </div>
+
+              <!-- Graphic Map Information Bar -->
+              <div class="p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-current/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div class="space-y-1">
+                  <div class="font-bold text-[#00C864] dark:text-[#00FF88]">จุดสังเกตสำคัญในแผนที่ภาพ:</div>
+                  <p class="opacity-75">
+                    ถนนวิภาวดีรังสิต (ขาออก) $\rightarrow$ ชิดซ้ายขึ้นสะพานกลับรถเข้าฐานทัพอากาศ $\rightarrow$ เข้าสู่อาคารจูเคี่ยวเล้ง ชั้น 3
+                  </p>
+                </div>
+                <div class="shrink-0 flex items-center gap-2">
+                  <button
+                    type="button"
+                    class="px-3 py-1.5 rounded-lg bg-[#00C864]/15 hover:bg-[#00C864] text-[#00C864] dark:text-[#00FF88] hover:text-white font-bold transition-all flex items-center gap-1"
+                    @click="isLightboxOpen = true"
+                  >
+                    <ZoomIn class="w-3.5 h-3.5" />
+                    <span>ขยายเต็มจอ</span>
+                  </button>
+                  <a
+                    :href="mapImagePath"
+                    download="igenco-office-map.jpg"
+                    class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864] hover:text-white transition-all"
+                    title="ดาวน์โหลดภาพแผนที่"
+                  >
+                    <Download class="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
             </div>
 
-            <!-- Embedded Google Map -->
-            <div class="w-full h-[460px] rounded-2xl overflow-hidden border border-current/10 bg-black/5 relative">
-              <iframe
-                title="แผนที่ตั้ง บริษัท ไอเจนโก้ จำกัด อาคารจูเคี่ยวเล้ง ดอนเมือง"
-                src="https://maps.google.com/maps?q=89/35%20ถนนวิภาวดีรังสิต%20ดอนเมือง%20กรุงเทพมหานคร&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                width="100%"
-                height="100%"
-                style="border:0;"
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-                class="w-full h-full grayscale-[15%] contrast-[105%] hover:grayscale-0 transition-all duration-300"
-              />
+            <!-- View 2: Google Maps Interactive Iframe -->
+            <div v-else class="space-y-4">
+              <div class="w-full h-[460px] rounded-2xl overflow-hidden border border-current/15 bg-black/5 relative shadow-inner">
+                <iframe
+                  title="แผนที่ตั้ง บริษัท ไอเจนโก้ จำกัด อาคารจูเคี่ยวเล้ง ดอนเมือง"
+                  src="https://maps.google.com/maps?q=13.9352181,100.6120949&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style="border:0;"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  class="w-full h-full contrast-[105%] transition-all duration-300"
+                />
+              </div>
+
+              <div class="p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] border border-current/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div class="space-y-1">
+                  <div class="font-bold text-[#00C864] dark:text-[#00FF88]">พิกัดสำนักงานใหญ่ บริษัท ไอเจนโก้ จำกัด:</div>
+                  <p class="opacity-75 font-mono">
+                    13.9352181, 100.6120949 (อาคารจูเคี่ยวเล้ง ซอยวิภาวดีรังสิต 33)
+                  </p>
+                </div>
+                <div class="shrink-0 flex items-center gap-2">
+                  <a
+                    :href="googleMapsDirectionsUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="px-3.5 py-2 rounded-xl bg-[#00C864] text-white font-bold transition-all flex items-center gap-1.5 shadow-md hover:opacity-90"
+                  >
+                    <Navigation class="w-3.5 h-3.5" />
+                    <span>กดนำทางทันที</span>
+                  </a>
+                  <a
+                    :href="googleMapsPinUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 font-semibold transition-all flex items-center gap-1"
+                  >
+                    <span>เปิดหมุดพิกัด</span>
+                    <ExternalLink class="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
             </div>
 
-            <!-- Map Caption -->
-            <div class="mt-4 px-2 flex items-center justify-between text-xs opacity-70">
-              <span>📍 พิกัด: อาคารจูเคี่ยวเล้ง ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง</span>
-              <span class="font-mono">IGENCO TECH</span>
-            </div>
           </div>
         </div>
 
+      </div>
+
+      <!-- Step-by-Step Navigation Guide (ลำดับขั้นตอนการเดินทางตามแผนที่ภาพ) -->
+      <div class="mb-16">
+        <div class="mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold uppercase tracking-tight flex items-center gap-2">
+            <Navigation class="w-5 h-5 text-[#00C864] dark:text-[#00FF88]" />
+            <span>แนวทางเส้นทางการเดินทางเข้าสู่อาคาร (Step-by-Step)</span>
+          </h2>
+          <p class="text-xs opacity-70 mt-1">
+            อ้างอิงจากแผนที่เส้นทางการเดินทางอย่างเป็นทางการของบริษัท ไอเจนโก้ จำกัด
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div
+            v-for="item in landmarkSteps"
+            :key="item.step"
+            class="p-5 rounded-2xl spatial-glass border border-current/10 hover-lift space-y-3 relative overflow-hidden"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-extrabold text-[#00C864] dark:text-[#00FF88] px-2.5 py-1 rounded-lg bg-[#00C864]/10">
+                STEP {{ item.step }}
+              </span>
+            </div>
+            <h3 class="text-sm font-bold leading-snug">{{ item.title }}</h3>
+            <p class="text-xs opacity-75 leading-relaxed">{{ item.desc }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- Travel & Transit Guides -->
@@ -283,7 +466,7 @@ const transitGuides = [
         <div class="mb-6">
           <h2 class="text-xl sm:text-2xl font-bold uppercase tracking-tight flex items-center gap-2">
             <Compass class="w-5 h-5 text-[#00C864] dark:text-[#00FF88]" />
-            <span>คำแนะนำการเดินทางและจุดสังเกตสำคัญ</span>
+            <span>คำแนะนำการเดินทางด้วยยานพาหนะต่าง ๆ</span>
           </h2>
           <p class="text-xs opacity-70 mt-1">
             ข้อมูลการเดินทางด้วยระบบขนส่งสาธารณะและรถยนต์ส่วนบุคคลเพื่อความสะดวกในการเดินทางมายังสำนักงาน
@@ -306,6 +489,65 @@ const transitGuides = [
       </div>
 
     </main>
+
+    <!-- Lightbox Modal for Fullscreen Graphic Map -->
+    <div
+      v-if="isLightboxOpen"
+      class="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-200"
+      @click="isLightboxOpen = false"
+    >
+      <div
+        class="relative max-w-5xl w-full max-h-[92vh] bg-white rounded-3xl overflow-hidden shadow-2xl p-4 sm:p-6 flex flex-col"
+        @click.stop
+      >
+        <!-- Modal Top Bar -->
+        <div class="flex items-center justify-between pb-4 border-b border-gray-200 text-[#022C22]">
+          <div class="flex items-center gap-2.5">
+            <Map class="w-5 h-5 text-[#00C864]" />
+            <h3 class="font-bold text-sm sm:text-base">แผนที่เส้นทาง บริษัท ไอเจนโก้ จำกัด (อาคารจูเคี่ยวเล้ง ดอนเมือง)</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <a
+              :href="mapImagePath"
+              download="igenco-office-map.jpg"
+              class="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-[#00C864] hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 text-gray-800"
+            >
+              <Download class="w-3.5 h-3.5" />
+              <span>ดาวน์โหลด</span>
+            </a>
+            <button
+              type="button"
+              class="p-2 rounded-xl bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-500 transition-colors"
+              aria-label="Close Modal"
+              @click="isLightboxOpen = false"
+            >
+              <X class="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal Image -->
+        <div class="flex-1 overflow-auto flex items-center justify-center py-4 bg-gray-50 rounded-2xl my-2">
+          <img
+            :src="mapImagePath"
+            alt="แผนที่เส้นทาง บริษัท ไอเจนโก้ จำกัด"
+            class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-sm"
+          />
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="pt-3 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-gray-500 gap-2">
+          <span>เลขที่ 89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กทม. โทร 063-525-4850</span>
+          <button
+            type="button"
+            class="px-4 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold self-end sm:self-auto transition-colors"
+            @click="isLightboxOpen = false"
+          >
+            ปิดหน้าต่าง
+          </button>
+        </div>
+      </div>
+    </div>
 
     <ContactFooter />
   </div>
