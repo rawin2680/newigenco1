@@ -78,7 +78,7 @@ const products: ProductItem[] = [
       { label: 'การเชื่อมต่อระบบ', value: 'Modbus TCP / MQTT Over TLS' },
       { label: 'การรับประกัน', value: '5 ปี พร้อมบริการตรวจเช็กรายไตรมาส' }
     ],
-    image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb395?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
     accentColor: '#F59E0B',
     glowColor: 'rgba(245, 158, 11, 0.22)',
     icon: 'Zap'
