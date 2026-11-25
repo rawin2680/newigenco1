@@ -62,7 +62,52 @@ export interface SectorBlueprint {
 export interface ContactInquiry {
   name: string
   email: string
+  phone?: string
   projectSummary: string
-  source?: string
   blueprintSpec?: string
+}
+
+// 5. News Article from Strapi
+export interface StrapiNewsItem {
+  id: number
+  documentId?: string
+  title: string
+  category: string
+  date: string
+  readTime: string
+  excerpt: string
+  content?: string
+  image: string
+}
+
+// 6. iGenQ Portfolio Case from Strapi
+export interface StrapiPortfolioItem {
+  id: number
+  documentId?: string
+  clientName: string
+  title: string
+  category: string
+  location: string
+  servicePoints: string
+  queueMode: string
+  highlight: string
+  description: string
+  results: string[]
+  tags: string[]
+  image: string
+}
+
+// 7. Product from Strapi
+export interface StrapiProductItem {
+  id: number
+  documentId?: string
+  name: string
+  slug: string
+  category: string
+  badge: string
+  shortDesc: string
+  fullDetails?: string
+  features: string[]
+  image: string
+  detailRoute?: string
 }

@@ -10,65 +10,262 @@ export default {
    * your application gets started.
    */
   async bootstrap({ strapi }: { strapi: any }) {
-    // Automatically seed initial capabilities and cases if empty
+    // 1. Configure Public Role Permissions automatically so frontend can read public data and submit inquiries
     try {
-      const existingCapabilities = await strapi.entityService.findMany('api::capability.capability', {
-        limit: 1,
-      })
+      const publicRole = await strapi
+        .query('plugin::users-permissions.role')
+        .findOne({ where: { type: 'public' } })
 
-      if (!existingCapabilities || existingCapabilities.length === 0) {
-        console.log('[VERDANT STRAPI] Seeding default capabilities...')
-        const defaultCapabilities = [
-          {
-            code: '01',
-            title: 'Enterprise AI & Autonomous Workflows',
-            description: 'วางระบบผู้ช่วย AI อัจฉริยะที่เชื่อมต่อกับฐานข้อมูลภายในองค์กร ช่วยวิเคราะห์ยอดขาย ตอบคำถามลูกค้าเชิงลึก และตัดสินใจทางธุรกิจแบบอัตโนมัติ 24 ชั่วโมง',
-            tags: ['LLM Integration', 'Predictive Ops', 'RAG Pipeline'],
-            archLayer: '[ARCH_LAYER: NEURAL_AUTOMATION_V4 // LATENCY < 18ms]',
-            icon: 'BrainCircuit',
-            isHighlighted: false,
-            publishedAt: new Date(),
-          },
-          {
-            code: '02',
-            title: 'Interactive 3D & Spatial Web Experiences',
-            description: 'เปลี่ยนหน้าเว็บธรรมดาให้กลายเป็นพื้นที่ 3 มิติแบบโต้ตอบได้ (WebGL / Three.js) สร้างการจดจำแบรนด์ที่เหนือกว่าคู่แข่งและเพิ่มระยะเวลาการมีส่วนร่วมของผู้ใช้',
-            tags: ['Three.js / Shaders', 'Kinetic Typography', '60fps Motion'],
-            archLayer: '[ARCH_LAYER: WEBGL_SHADER_PIPELINE // 60-120 FPS]',
-            icon: 'Box',
-            isHighlighted: false,
-            publishedAt: new Date(),
-          },
-          {
-            code: '03',
-            title: 'High-Contrast Green Cloud Infrastructure',
-            description: 'สถาปัตยกรรมคลาวด์ความเร็วสูงที่รองรับการขยายตัวแบบไร้ขีดจำกัด พร้อมระบบความปลอดภัยระดับ Zero-Trust และใช้พลังงานสะอาด 100% เพื่อองค์กรยุคยั่งยืน',
-            tags: ['Edge Deployment', 'Zero-Trust Auth', 'Carbon Neutral'],
-            archLayer: '[ARCH_LAYER: EDGE_COMPUTE_MESH // GREEN_ENERGY]',
-            icon: 'ShieldCheck',
-            isHighlighted: false,
-            publishedAt: new Date(),
-          },
-          {
-            code: '04',
-            title: 'Real-Time Executive Telemetry & BI',
-            description: 'รวมศูนย์ข้อมูลทุกแผนกไว้ในหน้าจอควบคุมเดียว เห็นแนวโน้มกำไร ต้นทุน และพฤติกรรมลูกค้าแบบเรียลไทม์ เพื่อการตัดสินใจที่แม่นยำและฉับไวที่สุด',
-            tags: ['Real-Time Stream', 'Executive Dash', 'ROI +240%'],
-            archLayer: '[ARCH_LAYER: REALTIME_TELEMETRY_BI // ROI +240%]',
-            icon: 'Activity',
-            isHighlighted: true,
-            publishedAt: new Date(),
-          },
+      if (publicRole) {
+        const actionsToEnable = [
+          'api::inquiry.inquiry.create',
+          'api::news-article.news-article.find',
+          'api::news-article.news-article.findOne',
+          'api::portfolio-case.portfolio-case.find',
+          'api::portfolio-case.portfolio-case.findOne',
+          'api::product.product.find',
+          'api::product.product.findOne',
+          'api::capability.capability.find',
+          'api::capability.capability.findOne',
+          'api::case.case.find',
+          'api::case.case.findOne'
         ]
 
-        for (const cap of defaultCapabilities) {
-          await strapi.entityService.create('api::capability.capability', {
-            data: cap,
+        for (const action of actionsToEnable) {
+          const existing = await strapi
+            .query('plugin::users-permissions.permission')
+            .findOne({
+              where: {
+                action,
+                role: publicRole.id
+              }
+            })
+
+          if (!existing) {
+            await strapi.query('plugin::users-permissions.permission').create({
+              data: {
+                action,
+                role: publicRole.id
+              }
+            })
+          }
+        }
+        console.log('[IGENCO STRAPI] Public API permissions verified.')
+      }
+    } catch (err) {
+      console.warn('[IGENCO STRAPI] Permission bootstrap skipped:', err)
+    }
+
+    // 2. Seed initial News Articles if empty
+    try {
+      const existingNews = await strapi.documents('api::news-article.news-article').findMany({ limit: 1 })
+      if (!existingNews || existingNews.length === 0) {
+        console.log('[IGENCO STRAPI] Seeding default News Articles...')
+        const defaultNews = [
+          {
+            title: 'IGENCO ผ่านการรับรองมาตรฐาน ISO/IEC 29110',
+            category: 'Enterprise Software',
+            dateText: '25 กรกฎาคม 2561',
+            readTime: '3 นาทีในการอ่าน',
+            excerpt: 'บริษัท ไอเจนโก้ จำกัด ผ่านการรับรองมาตรฐาน ISO/IEC 29110 สำหรับการบริหารจัดการโครงการซอฟต์แวร์และการพัฒนาระบบอย่างมีประสิทธิภาพ',
+            content: 'มาตรฐาน ISO/IEC 29110 ช่วยสร้างความเชื่อมั่นให้กับแบรนด์องค์กร ทำให้มีการบริหารจัดการงานคุณภาพและบริการด้านซอฟต์แวร์ที่ดี มีประสิทธิภาพ และตรวจสอบย้อนกลับได้ในทุกขั้นตอน',
+            fallbackImageUrl: '/images/news/iso-29110.jpg',
+            status: 'published'
+          },
+          {
+            title: 'IGENCO ครบรอบ 8 ปี กิจกรรม CSR เพื่อสังคม',
+            category: 'กิจกรรมองค์กร',
+            dateText: '21 มีนาคม 2561',
+            readTime: '3 นาทีในการอ่าน',
+            excerpt: 'ผู้บริหารและทีมงาน บริษัท ไอเจนโก้ จำกัด ร่วมกันจัดกิจกรรมบริจาคเงินสนับสนุนและสิ่งของเครื่องใช้จำเป็นให้กับน้องๆ ในสถานสงเคราะห์เด็กอ่อนปากเกร็ด',
+            content: 'เนื่องในโอกาสครบรอบ 8 ปี แห่งการก่อตั้งบริษัท ไอเจนโก้ จำกัด คณะผู้บริหารและพนักงานได้ร่วมแบ่งปันความสุขและมอบสิ่งของจำเป็นเพื่อส่งเสริมคุณภาพชีวิตที่ดีแก่เยาวชน',
+            fallbackImageUrl: '/images/news/anniversary-8th.jpg',
+            status: 'published'
+          },
+          {
+            title: 'I-SERFF Training Day สำหรับตัวแทนบริษัทประกันภัย',
+            category: 'Service Development',
+            dateText: '27 กุมภาพันธ์ 2558',
+            readTime: '3 นาทีในการอ่าน',
+            excerpt: 'ภาพกิจกรรมการจัดอบรมหลักสูตรสำหรับผู้ใช้งานตัวแทนบริษัทประกันภัย สำหรับการใช้งานระบบ I-SERFF เพื่อยื่นแบบและข้อความกรมธรรม์ผ่านระบบอิเล็กทรอนิกส์',
+            content: 'การจัดอบรมเชิงปฏิบัติการการใช้งานระบบ I-SERFF ช่วยให้ตัวแทนจากบริษัทประกันภัยทั่วประเทศสามารถยื่นขอรับความเห็นชอบแบบและข้อความกรมธรรม์ต่อสำนักงาน คปภ. ได้อย่างถูกต้อง รวดเร็ว และลดข้อผิดพลาด',
+            fallbackImageUrl: '/images/news/iserff-training.jpg',
+            status: 'published'
+          }
+        ]
+
+        for (const item of defaultNews) {
+          await strapi.documents('api::news-article.news-article').create({
+            data: item,
+            status: 'published'
           })
         }
       }
     } catch (err) {
-      console.warn('[VERDANT STRAPI] Bootstrap seed check completed.')
+      console.warn('[IGENCO STRAPI] News seed skipped:', err)
     }
-  },
+
+    // 3. Seed initial iGenQ Portfolio Cases if empty
+    try {
+      const existingPortfolio = await strapi.documents('api::portfolio-case.portfolio-case').findMany({ limit: 1 })
+      if (!existingPortfolio || existingPortfolio.length === 0) {
+        console.log('[IGENCO STRAPI] Seeding default iGenQ Portfolio Cases...')
+        const defaultPortfolio = [
+          {
+            clientName: 'ที่ว่าการอำเภอสัตหีบ จังหวัดชลบุรี',
+            title: 'ระบบบริหารคิวงานทะเบียนราษฎร์และบริการประชาชน',
+            category: 'หน่วยงานราชการ',
+            location: 'อำเภอสัตหีบ จังหวัดชลบุรี',
+            servicePoints: 'เคาน์เตอร์บริการงานทะเบียน & บัตรประจำตัวประชาชน (8+ ช่องบริการ)',
+            queueMode: 'ตู้กดบัตรคิว Kiosk + จอแสดงผล LED/TV + เสียงเรียกคิวอัตโนมัติ',
+            highlight: 'จัดระเบียบการเข้ารับบริการประชาชน ลดความแออัดหน้าเคาน์เตอร์อย่างเป็นระบบ',
+            description: 'ติดตั้งระบบบริหารคิวอัจฉริยะ iGenQ ณ ที่ว่าการอำเภอสัตหีบ จังหวัดชลบุรี เพื่อบริหารจัดการคิวประชาชนที่มาติดต่อทำบัตรประชาชน ทะเบียนบ้าน และงานทะเบียนราษฎร์',
+            results: [
+              'แยกประเภทคิวตามลักษณะงานได้อย่างชัดเจน',
+              'มีหน้าจอแสดงผลลำดับคิวชัดเจนทั่วพื้นที่พักคอย พร้อมเสียงประกาศเรียกคิว',
+              'บันทึกสถิติจำนวนผู้รับบริการและเวลาเฉลี่ยต่อรายสำหรับผู้บริหาร'
+            ],
+            tags: ['หน่วยงานราชการ', 'อำเภอสัตหีบ', 'Smart Queue'],
+            fallbackImageUrl: '/images/products/client-sattahip.svg'
+          },
+          {
+            clientName: 'ศูนย์บริการภาครัฐจังหวัดจันทบุรี (OSS)',
+            title: 'ระบบลงทะเบียนคิวออนไลน์ & ตู้กดบัตรคิว Touch Screen (OSS)',
+            category: 'หน่วยงานราชการ',
+            location: 'ศาลากลางจังหวัดจันทบุรี ถ.เลียบเนิน',
+            servicePoints: 'ครอบคลุม 8 หน่วยงานราชการบริการร่วม (One Stop Service)',
+            queueMode: 'Touch Screen Kiosk + คิวออนไลน์ + เชื่อมโยงระบบบริการ 8 หน่วยงาน',
+            highlight: 'ได้รับหนังสือรับรองผลงานอย่างเป็นทางการ (ที่ จบ ๐๐๑๗.๓/๒๑๐) ลงนามแทนผู้ว่าฯ',
+            description: 'บริษัท ไอเจนโก้ จำกัด ได้รับจ้างทำเครื่องกดบัตรคิวแบบ Touch Screen พร้อมพัฒนาระบบโปรแกรมสำเร็จรูป ครอบคลุม 8 หน่วยงานหลักของจังหวัดจันทบุรี',
+            results: [
+              'ได้รับหนังสือรับรองผลงานอย่างเป็นทางการ ให้ไว้ ณ วันที่ ๒๖ กันยายน ๒๕๖๖',
+              'เชื่อมโยงบริการ 8 หน่วยงานราชการในศูนย์บริการร่วมจังหวัดจันทบุรี',
+              'ระบบทำงานเสถียรและใช้งานอย่างมีประสิทธิภาพต่อเนื่องมาจนถึงปัจจุบัน'
+            ],
+            tags: ['หนังสือรับรองผลงาน', 'ศาลากลางจังหวัดจันทบุรี', 'OSS'],
+            fallbackImageUrl: '/images/products/igenq-cert-chanthaburi.jpg'
+          },
+          {
+            clientName: 'บริษัท เพอร์เฟค คอมพาเนียน กรุ๊ป จำกัด (PCG)',
+            title: 'ระบบบริหารคิวรถขนส่งและผู้ติดต่อคลังสินค้าขนาดใหญ่',
+            category: 'องค์กรเอกชน',
+            location: 'สมุทรปราการ (คลังสินค้าและโรงงาน)',
+            servicePoints: 'ประตูทางเข้าโรงงาน จุดชั่งน้ำหนัก และท่าเทียบรถโหลดสินค้า',
+            queueMode: 'Mobile QR e-Ticket + LINE Notify แจ้งเรียกเข้าท่าเทียบรถ',
+            highlight: 'จัดการคิวรถบรรทุกและซัพพลายเออร์บนพื้นที่โรงงานขนาดใหญ่กว่า 100 ไร่',
+            description: 'นำระบบ iGenQ มาประยุกต์ใช้จัดระเบียบคิวรถขนส่งสินค้าและผู้ติดต่อคลังสินค้า พนักงานขับรถสแกนรับบัตรคิวผ่านสมาร์ทโฟนและรับการแจ้งเตือนผ่าน LINE',
+            results: [
+              'ลดปัญหาการจราจรติดขัดบริเวณประตูทางเข้าและลานจอดรถบรรทุก',
+              'ติดตามสถานะคิวรถเข้า-ออกและระยะเวลาเทียบท่าโหลดได้อย่างแม่นยำ',
+              'เก็บบันทึกข้อมูลสถิติ Log การดำเนินงานแบบเรียลไทม์ตลอด 24 ชั่วโมง'
+            ],
+            tags: ['PCG', 'Logistics Queue', 'LINE Notify'],
+            fallbackImageUrl: '/images/products/client-pcg.svg'
+          },
+          {
+            clientName: 'โรงพยาบาลซีจีเอช (CGH Hospital)',
+            title: 'ระบบบริหารคิวผู้ป่วยนอกและแผนกตรวจสุขภาพ (OPD)',
+            category: 'โรงพยาบาล',
+            location: 'กรุงเทพมหานคร',
+            servicePoints: 'แผนกผู้ป่วยนอก (OPD), ห้องตรวจ, แผนกตรวจสุขภาพ และจุดรับยา',
+            queueMode: 'e-Ticket บนมือถือ + LINE แจ้งเตือนก่อนถึงคิว + จอ Android TV',
+            highlight: 'ลดเวลารอคอยและลดความแออัดในพื้นที่พักคอยโรงพยาบาลกว่า 45%',
+            description: 'ติดตั้งระบบคิวอัจฉริยะ iGenQ สำหรับโรงพยาบาล ผู้ป่วยสามารถสแกน QR Code ติดตามจำนวนคิวรอผ่านสมาร์ทโฟนและรับการแจ้งเตือนผ่าน LINE',
+            results: [
+              'ลดความแออัดในโถงพักคอยผู้ป่วยนอกได้อย่างมีประสิทธิภาพ',
+              'แจ้งเตือนผู้รับบริการล่วงหน้า 3 ลำดับผ่านระบบ LINE โดยอัตโนมัติ',
+              'เชื่อมต่อหน้าจอ Android TV แสดงผลคิวตามห้องตรวจแบบเรียลไทม์'
+            ],
+            tags: ['CGH Hospital', 'OPD Queue', 'LINE Notify'],
+            fallbackImageUrl: '/images/products/client-cgh.svg'
+          }
+        ]
+
+        for (const item of defaultPortfolio) {
+          await strapi.documents('api::portfolio-case.portfolio-case').create({
+            data: item,
+            status: 'published'
+          })
+        }
+      }
+    } catch (err) {
+      console.warn('[IGENCO STRAPI] Portfolio seed skipped:', err)
+    }
+
+    // 4. Seed initial Products if empty
+    try {
+      const existingProducts = await strapi.documents('api::product.product').findMany({ limit: 1 })
+      if (!existingProducts || existingProducts.length === 0) {
+        console.log('[IGENCO STRAPI] Seeding default Products...')
+        const defaultProducts = [
+          {
+            name: 'Regist.ai (ระบบบริหารการลงทะเบียนอัจฉริยะ)',
+            slug: 'regist-ai',
+            category: 'Enterprise Software',
+            badge: 'ENTERPRISE GRADE',
+            shortDesc: 'ระบบบริหารการลงทะเบียนและจัดการคิวอัจฉริยะ ตอบโจทย์งานสัมมนา ฝึกอบรม โรงพยาบาล และร้านอาหาร ทั้ง Online / Offline',
+            features: ['ลงทะเบียนล่วงหน้าผ่าน Web/LINE', 'สแกน QR Code เช็กอินหน้างาน', 'ระบบ i-Queue จัดการคิวอัตโนมัติ'],
+            fallbackImageUrl: '/images/products/regist-ai-banner.png',
+            detailRoute: '/products/regist-ai'
+          },
+          {
+            name: 'HR.ai (ระบบบริหารทรัพยากรมนุษย์อัจฉริยะ)',
+            slug: 'hr-ai',
+            category: 'Enterprise Software',
+            badge: 'AWARD WINNER',
+            shortDesc: 'ระบบบริหารทรัพยากรมนุษย์อัจฉริยะ ตอบโจทย์ทุกงานบริหารคน ครอบคลุม HRM, HRD และ OD รางวัล The Winner OIIO 2019',
+            features: ['Web-Based HRIS/HRMS', 'รองรับ Single Sign-on (AD)', 'ระบบประเมินผลและพัฒนาบุคลากร'],
+            fallbackImageUrl: '/images/products/hr-ai-office-banner.jpg',
+            detailRoute: '/products/hr-ai'
+          },
+          {
+            name: 'iGenQ (ระบบบริหารคิวอัจฉริยะ)',
+            slug: 'igenq',
+            category: 'Enterprise Software',
+            badge: 'NEW NORMAL QUEUE',
+            shortDesc: 'ระบบจัดการคิวแบบ New Normal แจ้งเตือนผ่าน LINE ไม่ต้องยืนรอ มีหนังสือรับรองผลงานจากศาลากลางจันทบุรี ซอฟต์แวร์คนไทย 100%',
+            features: ['สแกน QR รับคิวทันทีไม่ต้องโหลด App', 'แจ้งเตือนถึงคิวผ่าน LINE', 'ออกเสียงเรียกผ่าน Bluetooth / Android TV'],
+            fallbackImageUrl: '/images/products/igenq-poster-1.jpg',
+            detailRoute: '/products/igenq'
+          },
+          {
+            name: 'Software OnDemand (บริการพัฒนาซอฟต์แวร์ตามสั่ง)',
+            slug: 'software-ondemand',
+            category: 'Service Development',
+            badge: 'ISO/IEC 29110',
+            shortDesc: 'บริการออกแบบและพัฒนาซอฟต์แวร์ตามความต้องการเฉพาะองค์กร พัฒนาแอปพลิเคชันและระบบการทำงานระดับ Web, Mobile และ Cloud',
+            features: ['วิเคราะห์และออกแบบระบบโดยทีมมืออาชีพ', 'มาตรฐานวิศวกรรมซอฟต์แวร์ ISO/IEC 29110', 'รองรับการเชื่อมต่อ API องค์กร'],
+            fallbackImageUrl: '/images/products/software-ondemand.svg'
+          },
+          {
+            name: 'OutSource Service (บริการจัดหาทีมงานไอที)',
+            slug: 'outsource-service',
+            category: 'Service Development',
+            badge: 'DEDICATED TEAM',
+            shortDesc: 'บริการจัดส่งและดูแลทีมงานผู้เชี่ยวชาญด้าน IT เข้าปฏิบัติงานร่วมกับองค์กร ทั้งแบบ On-Site และ Remote Dedicated Team',
+            features: ['Programmer / Developer มืออาชีพ', 'System Analyst & QA Engineer', 'ยืดหยุ่นตามระยะเวลาโครงการ'],
+            fallbackImageUrl: '/images/products/outsource-service.svg'
+          },
+          {
+            name: 'iMme Application (แอปพลิเคชันระบบสั่งซื้อสินค้า)',
+            slug: 'imme-application',
+            category: 'E-Commerce',
+            badge: 'MOBILE COMMERCE',
+            shortDesc: 'แพลตฟอร์มแอปพลิเคชันสั่งซื้อสินค้าและบริการบนสมาร์ทโฟน เชื่อมต่อระบบชำระเงิน e-Payment และระบบสมาชิก Loyalty Program ครบวงจร',
+            features: ['รองรับ iOS และ Android', 'เชื่อมต่อระบบชำระเงินออนไลน์', 'ระบบสะสมแต้มและโปรโมชัน'],
+            fallbackImageUrl: '/images/products/imme-application.svg'
+          }
+        ]
+
+        for (const item of defaultProducts) {
+          await strapi.documents('api::product.product').create({
+            data: item,
+            status: 'published'
+          })
+        }
+      }
+    } catch (err) {
+      console.warn('[IGENCO STRAPI] Product seed skipped:', err)
+    }
+  }
 }

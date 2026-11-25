@@ -20,16 +20,40 @@ import {
   ChevronRight
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
+import { useStrapiContent } from '~/composables/useStrapiContent'
 
 const route = useRoute()
 const { showToast } = useTheme()
+const { getProducts } = useStrapiContent()
 
 const activeCategory = ref('ทั้งหมด')
 const categories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'E-Commerce']
 
-onMounted(() => {
+onMounted(async () => {
   if (route.query.cat && categories.includes(route.query.cat as string)) {
     activeCategory.value = route.query.cat as string
+  }
+
+  const strapiProducts = await getProducts()
+  if (strapiProducts && strapiProducts.length > 0) {
+    const mapped = strapiProducts.map((sp, idx) => ({
+      id: sp.id || (2000 + idx),
+      title: sp.name,
+      category: sp.category,
+      desc: sp.shortDesc,
+      detailedDesc: sp.fullDetails || sp.shortDesc,
+      price: sp.badge || 'ENTERPRISE GRADE',
+      tags: sp.features?.slice(0, 4) || ['IGENCO Solution'],
+      specs: (sp.features || []).map((f, i) => ({ label: `คุณสมบัติ ${i + 1}`, value: f })),
+      image: sp.image,
+      accentColor: '#00C864',
+      glowColor: 'rgba(0, 200, 100, 0.25)',
+      icon: 'Box',
+      detailLink: sp.detailRoute || ''
+    }))
+    const strapiTitles = new Set(mapped.map(m => m.title.trim()))
+    const remainingStatic = products.filter(p => !strapiTitles.has(p.title.trim()))
+    activeProductsList.value = [...mapped, ...remainingStatic]
   }
 })
 
@@ -213,9 +237,11 @@ const products: ProductItem[] = [
   }
 ]
 
+const activeProductsList = ref(products)
+
 const filteredProducts = computed(() => {
-  if (activeCategory.value === 'ทั้งหมด') return products
-  return products.filter(p => p.category === activeCategory.value)
+  if (activeCategory.value === 'ทั้งหมด') return activeProductsList.value
+  return activeProductsList.value.filter(p => p.category === activeCategory.value)
 })
 
 // -------------------------------------------------------------

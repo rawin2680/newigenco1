@@ -5,7 +5,7 @@
     "singularName": "inquiry",
     "pluralName": "inquiries",
     "displayName": "Contact Inquiry",
-    "description": "Enterprise Contact Inquiries and Leads"
+    "description": "ข้อมูลติดต่อสอบถามและขอคำปรึกษาจากหน้าเว็บไซต์"
   },
   "options": {
     "draftAndPublish": false
@@ -20,10 +20,26 @@
       "type": "email",
       "required": true
     },
+    "phone": {
+      "type": "string"
+    },
     "projectSummary": {
       "type": "text"
     },
     "blueprintSpec": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "in_progress",
+        "contacted",
+        "closed"
+      ],
+      "default": "pending"
+    },
+    "adminNote": {
       "type": "text"
     }
   }

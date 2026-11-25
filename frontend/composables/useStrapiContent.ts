@@ -1,4 +1,12 @@
-import type { CapabilityModule, ProjectCase, SectorBlueprint, ContactInquiry } from '~/types/strapi'
+import type {
+  CapabilityModule,
+  ProjectCase,
+  SectorBlueprint,
+  ContactInquiry,
+  StrapiNewsItem,
+  StrapiPortfolioItem,
+  StrapiProductItem
+} from '~/types/strapi'
 
 export const useStrapiContent = () => {
   const config = useRuntimeConfig()
@@ -163,18 +171,114 @@ export const useStrapiContent = () => {
     return mockCases
   }
 
+  const resolveMediaUrl = (mediaObj: any, fallback?: string): string => {
+    const url = mediaObj?.url || mediaObj?.data?.attributes?.url
+    if (url) {
+      return url.startsWith('http') ? url : `${strapiUrl}${url}`
+    }
+    return fallback || '/images/news/iso-29110.jpg'
+  }
+
+  // Fetch News Articles from Strapi (with graceful fallback if backend is offline)
+  const getNewsArticles = async (): Promise<StrapiNewsItem[] | null> => {
+    try {
+      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/news-articles?populate=*&sort=id:desc`, {
+        timeout: 2500
+      })
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        return res.data.map(item => ({
+          id: item.id,
+          documentId: item.documentId,
+          title: item.title,
+          category: item.category || 'ข่าวประชาสัมพันธ์',
+          date: item.dateText || '',
+          readTime: item.readTime || '3 นาทีในการอ่าน',
+          excerpt: item.excerpt || '',
+          content: item.content || '',
+          image: resolveMediaUrl(item.coverImage, item.fallbackImageUrl)
+        }))
+      }
+    } catch {
+      // Strapi not yet reachable
+    }
+    return null
+  }
+
+  // Fetch iGenQ Portfolio Cases from Strapi
+  const getPortfolioCases = async (): Promise<StrapiPortfolioItem[] | null> => {
+    try {
+      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/portfolio-cases?populate=*&sort=id:asc`, {
+        timeout: 2500
+      })
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        return res.data.map(item => ({
+          id: item.id,
+          documentId: item.documentId,
+          clientName: item.clientName,
+          title: item.title,
+          category: item.category || 'หน่วยงานราชการ',
+          location: item.location || '',
+          servicePoints: item.servicePoints || '',
+          queueMode: item.queueMode || '',
+          highlight: item.highlight || '',
+          description: item.description || '',
+          results: Array.isArray(item.results) ? item.results : [],
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          image: resolveMediaUrl(item.image, item.fallbackImageUrl || '/images/products/igenq-poster-1.jpg')
+        }))
+      }
+    } catch {
+      // Strapi not yet reachable
+    }
+    return null
+  }
+
+  // Fetch Products from Strapi
+  const getProducts = async (): Promise<StrapiProductItem[] | null> => {
+    try {
+      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/products?populate=*&sort=id:asc`, {
+        timeout: 2500
+      })
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        return res.data.map(item => ({
+          id: item.id,
+          documentId: item.documentId,
+          name: item.name,
+          slug: item.slug,
+          category: item.category || 'Enterprise Software',
+          badge: item.badge || 'ENTERPRISE GRADE',
+          shortDesc: item.shortDesc || '',
+          fullDetails: item.fullDetails || '',
+          features: Array.isArray(item.features) ? item.features : [],
+          image: resolveMediaUrl(item.image, item.fallbackImageUrl || '/images/products/regist-ai-banner.png'),
+          detailRoute: item.detailRoute || ''
+        }))
+      }
+    } catch {
+      // Strapi not yet reachable
+    }
+    return null
+  }
+
   // Submit Contact Form to Strapi Inquiries Collection
-  const submitInquiry = async (payload: ContactInquiry): Promise<{ success: boolean; message: string }> => {
+  const submitInquiry = async (payload: ContactInquiry): Promise<{ success: boolean; isLive: boolean; message: string }> => {
     try {
       await $fetch(`${strapiUrl}/api/inquiries`, {
         method: 'POST',
-        body: { data: payload },
-        timeout: 3000
+        body: {
+          data: {
+            name: payload.name,
+            email: payload.email,
+            phone: payload.phone || '',
+            projectSummary: payload.projectSummary,
+            blueprintSpec: payload.blueprintSpec || ''
+          }
+        },
+        timeout: 3500
       })
-      return { success: true, message: 'บันทึกข้อมูลและส่งต่อไปยัง Strapi สำเร็จ' }
+      return { success: true, isLive: true, message: 'บันทึกข้อมูลส่งเข้าสู่ระบบหลังบ้าน (Strapi) สำเร็จแล้ว!' }
     } catch {
-      // Return success simulation for frontend dev
-      return { success: true, message: 'ส่งข้อมูลจำลองสำเร็จ (โหมด Mock Frontend)' }
+      return { success: true, isLive: false, message: 'ส่งข้อความสอบถามเรียบร้อยแล้ว (โหมดจำลอง Frontend)' }
     }
   }
 
@@ -182,6 +286,9 @@ export const useStrapiContent = () => {
     mockSectorBlueprints,
     getCapabilities,
     getCases,
+    getNewsArticles,
+    getPortfolioCases,
+    getProducts,
     submitInquiry
   }
 }

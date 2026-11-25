@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
+import { useStrapiContent } from '~/composables/useStrapiContent'
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -29,6 +30,16 @@ import {
 import { useTheme } from '~/composables/useTheme'
 
 const { showToast } = useTheme()
+const { getPortfolioCases } = useStrapiContent()
+
+onMounted(async () => {
+  const strapiCases = await getPortfolioCases()
+  if (strapiCases && strapiCases.length > 0) {
+    const strapiNames = new Set(strapiCases.map(c => c.clientName.trim()))
+    const remainingStatic = portfolioList.value.filter(p => !strapiNames.has(p.clientName.trim()))
+    portfolioList.value = [...strapiCases, ...remainingStatic]
+  }
+})
 
 useHead({
   title: 'ผลงานและความสำเร็จของ iGenQ (Case Studies & Portfolio) - บริษัท ไอเจนโก้ จำกัด',

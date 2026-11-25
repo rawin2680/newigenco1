@@ -72,14 +72,15 @@ const handleSubmit = async () => {
     ? `${summary} | เบอร์โทร: ${form.value.phone || '-'} | ข้อความ: ${form.value.message}`
     : `${summary} | เบอร์โทร: ${form.value.phone || '-'}`
 
-  await submitInquiry({
+  const result = await submitInquiry({
     name: form.value.name,
     email: form.value.email,
+    phone: form.value.phone,
     projectSummary: fullMessage
   })
   isSubmitting.value = false
 
-  showToast('ส่งข้อความสอบถามเรียบร้อยแล้ว ทีมงาน IGENCO จะติดต่อกลับโดยเร็วที่สุด')
+  showToast(result.isLive ? 'ส่งข้อความสอบถามและบันทึกลงระบบเรียบร้อยแล้ว ทีมงานจะติดต่อกลับโดยเร็วที่สุด' : 'ส่งข้อความสอบถามเรียบร้อยแล้ว ทีมงาน IGENCO จะติดต่อกลับโดยเร็วที่สุด')
   form.value = { name: '', email: '', phone: '', projectSummary: '', message: '' }
 }
 

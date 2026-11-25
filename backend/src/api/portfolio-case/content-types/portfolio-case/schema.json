@@ -1,0 +1,61 @@
+{
+  "kind": "collectionType",
+  "collectionName": "portfolio_cases",
+  "info": {
+    "singularName": "portfolio-case",
+    "pluralName": "portfolio-cases",
+    "displayName": "iGenQ Portfolio",
+    "description": "ผลงานและความสำเร็จการติดตั้งระบบคิวอัจฉริยะ iGenQ"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "clientName": {
+      "type": "string",
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "category": {
+      "type": "string",
+      "default": "หน่วยงานราชการ",
+      "required": true
+    },
+    "location": {
+      "type": "string"
+    },
+    "servicePoints": {
+      "type": "string"
+    },
+    "queueMode": {
+      "type": "string"
+    },
+    "highlight": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "results": {
+      "type": "json"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "fallbackImageUrl": {
+      "type": "string"
+    }
+  }
+}

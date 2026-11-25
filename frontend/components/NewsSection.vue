@@ -1,21 +1,47 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { Calendar, ArrowRight, ArrowUpRight, Sparkles, BookOpen, ChevronLeft, ChevronRight, Clock, X } from 'lucide-vue-next'
 import { useNews, type NewsItem } from '~/composables/useNews'
+import { useStrapiContent } from '~/composables/useStrapiContent'
 import { useTheme } from '~/composables/useTheme'
 
 const { showToast } = useTheme()
-const { newsList } = useNews()
+const { newsList: staticNewsList } = useNews()
+const { getNewsArticles } = useStrapiContent()
+
+const activeNewsList = ref<NewsItem[]>(staticNewsList)
+
+onMounted(async () => {
+  const strapiNews = await getNewsArticles()
+  if (strapiNews && strapiNews.length > 0) {
+    // Merge Strapi articles at the top, or use them if titles differ from static
+    const mapped: NewsItem[] = strapiNews.map((sn, index) => ({
+      id: sn.id || (1000 + index),
+      title: sn.title,
+      category: sn.category,
+      date: sn.date,
+      readTime: sn.readTime,
+      excerpt: sn.excerpt,
+      image: sn.image,
+      aiSummary: [sn.excerpt],
+      content: sn.content ? [sn.content] : [sn.excerpt]
+    }))
+    // Avoid duplicates by title, keeping Strapi items first so admin edits reflect immediately
+    const strapiTitles = new Set(mapped.map(m => m.title.trim()))
+    const remainingStatic = staticNewsList.filter(s => !strapiTitles.has(s.title.trim()))
+    activeNewsList.value = [...mapped, ...remainingStatic]
+  }
+})
 
 // -------------------------------------------------------------
 // หมวดหมู่ข่าวสาร
 // -------------------------------------------------------------
 const activeCategory = ref('ทั้งหมด')
-const categories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'กิจกรรมองค์กร']
+const categories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'กิจกรรมองค์กร', 'ข่าวประชาสัมพันธ์']
 
 const filteredNews = computed(() => {
-  if (activeCategory.value === 'ทั้งหมด') return newsList
-  return newsList.filter(item => item.category === activeCategory.value)
+  if (activeCategory.value === 'ทั้งหมด') return activeNewsList.value
+  return activeNewsList.value.filter(item => item.category === activeCategory.value)
 })
 
 // -------------------------------------------------------------

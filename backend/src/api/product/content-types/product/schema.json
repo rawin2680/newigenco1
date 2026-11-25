@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Products & Solutions",
+    "description": "ผลิตภัณฑ์ ซอฟต์แวร์ และบริการของบริษัท ไอเจนโก้ จำกัด"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "category": {
+      "type": "string",
+      "default": "Enterprise Software",
+      "required": true
+    },
+    "badge": {
+      "type": "string",
+      "default": "ENTERPRISE GRADE"
+    },
+    "shortDesc": {
+      "type": "text",
+      "required": true
+    },
+    "fullDetails": {
+      "type": "richtext"
+    },
+    "features": {
+      "type": "json"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "fallbackImageUrl": {
+      "type": "string"
+    },
+    "detailRoute": {
+      "type": "string"
+    }
+  }
+}

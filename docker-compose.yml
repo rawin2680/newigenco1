@@ -32,9 +32,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile.dev
     container_name: verdant_backend
+    command: ["npm", "run", "start"]
     restart: unless-stopped
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       DATABASE_CLIENT: postgres
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
@@ -70,7 +71,7 @@ services:
     container_name: verdant_frontend
     restart: unless-stopped
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       NUXT_HOST: 0.0.0.0
       NUXT_PORT: 3000
       FRONTEND_PORT: 3001

@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "news_articles",
+  "info": {
+    "singularName": "news-article",
+    "pluralName": "news-articles",
+    "displayName": "News & Activities",
+    "description": "ข่าวสาร กิจกรรมองค์กร และบทความประชาสัมพันธ์"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "category": {
+      "type": "string",
+      "default": "ข่าวประชาสัมพันธ์",
+      "required": true
+    },
+    "dateText": {
+      "type": "string",
+      "required": true
+    },
+    "readTime": {
+      "type": "string",
+      "default": "3 นาทีในการอ่าน"
+    },
+    "excerpt": {
+      "type": "text",
+      "required": true
+    },
+    "content": {
+      "type": "richtext"
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "fallbackImageUrl": {
+      "type": "string"
+    }
+  }
+}
