@@ -33,7 +33,8 @@ import {
   Store,
   HeartHandshake,
   FileCheck2,
-  Video
+  Video,
+  Award
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
@@ -169,7 +170,7 @@ const portfolioClients = [
   { name: 'Perfect Companion Group', code: 'PCG', desc: 'ผู้นำอุตสาหกรรมอาหารสัตว์เลี้ยงระดับสากล' },
   { name: 'โรงพยาบาล ซีจีเอช', code: 'CGH HOSPITAL', desc: 'โรงพยาบาลเอกชนชั้นนำ บริหารคิวผู้รับบริการทางการแพทย์' },
   { name: 'โนบิชา (NOBI CHA)', code: 'NOBI CHA', desc: 'แฟรนไชส์ชาไข่มุกยอดนิยม สาขา บิ๊กซี ติวานนท์' },
-  { name: 'ศูนย์บริการภาครัฐเบ็ดเสร็จ จ.จันทบุรี', code: 'Gov Service Center', desc: 'Chanthaburi Government Service Center บริการประชาชนครบวงจร' }
+  { name: 'ศูนย์บริการร่วม ศาลากลางจันทบุรี', code: 'Gov Service Center', desc: 'ศาลากลางจังหวัดจันทบุรี ได้รับหนังสือรับรองผลงาน (ที่ จบ ๐๐๑๗.๓/๒๑๐) ครอบคลุม 8 หน่วยงาน' }
 ]
 
 const scrollToContact = () => {
@@ -258,6 +259,16 @@ const scrollToContact = () => {
               <span>ติดต่อสอบถาม / นัดหมายสาธิตระบบ</span>
               <ArrowUpRight class="w-4 h-4" />
             </button>
+
+            <!-- Prominent Button to Portfolio Page -->
+            <NuxtLink
+              to="/products/igenq-portfolio"
+              class="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm font-mono transition-all flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 border border-blue-400/40"
+            >
+              <Sparkles class="w-4 h-4 text-amber-300" />
+              <span>ดูหน้าผลงานจริง (iGenQ Portfolio)</span>
+              <ArrowUpRight class="w-4 h-4" />
+            </NuxtLink>
 
             <a
               href="https://drive.google.com/file/d/1gGA7notTLil-SHNMrnYROxBZka0dfM8B/view?usp=sharing"
@@ -648,6 +659,30 @@ const scrollToContact = () => {
             </p>
           </div>
         </div>
+
+        <!-- Prominent Callout Banner linking to iGenQ Portfolio Page -->
+        <div class="mt-6 p-6 sm:p-8 rounded-[2rem] bg-gradient-to-r from-blue-950/40 via-blue-900/30 to-indigo-950/40 border-2 border-blue-500/50 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
+          <div class="space-y-2 text-center md:text-left relative z-10">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+              <Sparkles class="w-3.5 h-3.5 text-amber-300" />
+              <span>CASE STUDIES & REAL INSTALLATIONS // ภาพผลงานการติดตั้งจริง</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-display font-black text-white">
+              สำรวจหน้าผลงานและความสำเร็จของ iGenQ ทั้งหมด
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-200 max-w-xl">
+              ดูภาพการติดตั้งจริง หน้าจอเรียกคิว บัตรคิว e-Ticket และรีวิวความพึงพอใจของลูกค้าในหลากหลายธุรกิจ
+            </p>
+          </div>
+
+          <NuxtLink
+            to="/products/igenq-portfolio"
+            class="px-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm font-mono transition-all flex items-center justify-center gap-2 shadow-xl hover:scale-105 active:scale-95 shrink-0 border border-blue-300/40"
+          >
+            <span>คลิกดูหน้าผลงานทั้งหมด (Portfolio)</span>
+            <ArrowUpRight class="w-4 h-4" />
+          </NuxtLink>
+        </div>
       </section>
 
       <!-- ========================================================
@@ -667,7 +702,7 @@ const scrollToContact = () => {
           </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <!-- Google Drive Copyright Certificate -->
           <a
             href="https://drive.google.com/file/d/1gGA7notTLil-SHNMrnYROxBZka0dfM8B/view?usp=sharing"
@@ -681,15 +716,36 @@ const scrollToContact = () => {
               </div>
               <div>
                 <div class="text-base font-bold group-hover:text-blue-500 transition-colors">
-                  หนังสือรับรองการแจ้งผลงานลิขสิทธิ์
+                  หนังสือรับรองลิขสิทธิ์
                 </div>
                 <div class="text-xs opacity-65 font-mono">
-                  iGenQ Copyright Certificate PDF (Google Drive)
+                  Copyright Certificate PDF
                 </div>
               </div>
             </div>
             <ExternalLink class="w-5 h-5 text-blue-500 shrink-0 group-hover:translate-y-0.5 transition-transform" />
           </a>
+
+          <!-- Chanthaburi Government Performance Certificate -->
+          <div
+            class="p-6 rounded-3xl spatial-glass border border-amber-500/40 hover:border-amber-500 hover:scale-[1.02] transition-all flex items-center justify-between group shadow-sm cursor-pointer"
+            @click="openLightbox('/images/products/igenq-cert-chanthaburi.jpg', 'หนังสือรับรองผลงาน ศาลากลางจังหวัดจันทบุรี', 'บริษัท ไอเจนโก้ จำกัด ได้รับจ้างทำเครื่องกดบัตรคิว Touch Screen และระบบจัดการคิวออนไลน์ สัญญาเลขที่ ๔๘/๒๕๖๕')"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <Award class="w-6 h-6" />
+              </div>
+              <div>
+                <div class="text-base font-bold group-hover:text-amber-500 transition-colors">
+                  หนังสือรับรองผลงานภาครัฐ
+                </div>
+                <div class="text-xs opacity-65 font-mono">
+                  ศาลากลางจันทบุรี (ที่ จบ ๐๐๑๗.๓/๒๑๐)
+                </div>
+              </div>
+            </div>
+            <Maximize2 class="w-5 h-5 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
+          </div>
 
           <!-- Brochure 1 Poster -->
           <div
@@ -702,10 +758,10 @@ const scrollToContact = () => {
               </div>
               <div>
                 <div class="text-base font-bold group-hover:text-[#00C864] transition-colors">
-                  โบรชัวร์ขั้นตอนการใช้งาน Poster 1
+                  โบรชัวร์การใช้งาน 5 สเต็ป
                 </div>
                 <div class="text-xs opacity-65 font-mono">
-                  5-Step Queue Workflow Infographic
+                  5-Step Queue Workflow Poster
                 </div>
               </div>
             </div>
@@ -714,23 +770,23 @@ const scrollToContact = () => {
 
           <!-- Brochure 2 Poster -->
           <div
-            class="p-6 rounded-3xl spatial-glass border border-amber-500/30 hover:border-amber-500 hover:scale-[1.02] transition-all flex items-center justify-between group shadow-sm cursor-pointer"
+            class="p-6 rounded-3xl spatial-glass border border-purple-500/30 hover:border-purple-500 hover:scale-[1.02] transition-all flex items-center justify-between group shadow-sm cursor-pointer"
             @click="openLightbox('/images/products/igenq-poster-2.jpg', 'iGenQ โบรชัวร์เปรียบเทียบปัญหาคิว Poster 2', 'จะดีกว่าไหมถ้าร้านอาหารและศูนย์บริการภาครัฐไม่ต้องให้ลูกค้ายืนรอคิว')"
           >
             <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
                 <FileText class="w-6 h-6" />
               </div>
               <div>
-                <div class="text-base font-bold group-hover:text-amber-500 transition-colors">
-                  โบรชัวร์เปรียบเทียบโซลูชัน Poster 2
+                <div class="text-base font-bold group-hover:text-purple-500 transition-colors">
+                  โบรชัวร์เปรียบเทียบโซลูชัน
                 </div>
                 <div class="text-xs opacity-65 font-mono">
-                  Problem vs Solution Comparison
+                  Problem vs Solution Poster
                 </div>
               </div>
             </div>
-            <Maximize2 class="w-5 h-5 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
+            <Maximize2 class="w-5 h-5 text-purple-500 shrink-0 group-hover:scale-110 transition-transform" />
           </div>
         </div>
       </section>
