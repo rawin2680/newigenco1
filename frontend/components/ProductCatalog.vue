@@ -62,7 +62,8 @@ const products: ProductItem[] = [
     image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
     accentColor: '#00D2FF',
     glowColor: 'rgba(0, 210, 255, 0.22)',
-    icon: 'Zap'
+    icon: 'Zap',
+    link: '/products/smart-edge-iot'
   },
   {
     id: 3,
@@ -310,7 +311,7 @@ const inquireProduct = (title: string) => {
               <NuxtLink
                 v-if="product.link"
                 :to="product.link"
-                class="px-4 py-2 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15 text-purple-600 dark:text-purple-400 font-bold hover:border-purple-500 shadow-sm"
+                class="px-4 py-2 rounded-xl text-xs font-bold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15 hover:border-[var(--brand-accent)] text-[var(--brand-accent)] shadow-sm"
               >
                 <Info class="w-3.5 h-3.5 opacity-90" />
                 <span>ดูรายละเอียด</span>
