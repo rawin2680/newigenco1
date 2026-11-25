@@ -47,23 +47,23 @@ const products: ProductItem[] = [
   },
   {
     id: 2,
-    title: 'Smart Edge IoT Hub 2026',
-    category: 'ฮาร์ดแวร์ & เซ็นเซอร์',
-    desc: 'กล่องรับส่งสัญญาณ IoT ความเร็วสูง รองรับการทำงานในสภาพแวดล้อมโรงงานและคลังสินค้า',
-    detailedDesc: 'อุปกรณ์ฮาร์ดแวร์อุตสาหกรรมสำหรับรวบรวมและประมวลผลข้อมูลเซ็นเซอร์ ณ จุดกำเนิด ออกแบบด้วยเคสเกรดอากาศยาน ทนทานต่อความร้อน ฝุ่น และแรงสั่นสะเทือน พร้อมโมดูล 4G/5G และ WiFi 7 ในตัว',
-    price: 'เริ่มต้น 12,500 บาท',
-    tags: ['Industrial Grade', '4G/5G Ready', 'Low Power'],
+    title: 'HR.ai (ระบบบริหารทรัพยากรมนุษย์อัจฉริยะ)',
+    category: 'ซอฟต์แวร์อัจฉริยะ',
+    desc: 'ระบบบริหารทรัพยากรมนุษย์อัจฉริยะ ตอบโจทย์ทุกงานบริหารคน ครอบคลุมการทำงานสำหรับ HRM, HRD และ OD รางวัล The Winner OIIO 2019',
+    detailedDesc: 'HR.ai (Human Resource Artificial Intelligence) ระบบบริหารงานบุคคลอัจฉริยะครบวงจร ครอบคลุม EIS, HRM, HRD และ OD พัฒนาบน Web-Based Technology และ Hybrid Mobile App รองรับการสั่งการด้วยเสียง (Voice AI) ระบบจดจำใบหน้า (Face ID) และการประมวลผลข้อมูลองค์กรขนาดใหญ่ เชื่อมต่อ RDBMS Oracle และ Active Directory ได้รับรางวัลชนะเลิศ The Winner ในงาน OIIO Thailand Techland 2019',
+    price: 'แพ็กเกจองค์กร Cloud & On-Premises',
+    tags: ['The Winner OIIO', 'HRM / HRD / OD', 'AI Voice & Face ID', 'SSO / Oracle Ready'],
     specs: [
-      { label: 'มาตรฐานตัวถัง', value: 'IP67 Ruggedized Aluminum' },
-      { label: 'การส่งสัญญาณ', value: '5G Sub-6GHz, LoRaWAN, BLE 5.4' },
-      { label: 'อุณหภูมิทำงาน', value: '-20°C ถึง 70°C' },
-      { label: 'ระบบสำรองไฟ', value: 'Internal Dual Supercapacitor' }
+      { label: 'ขอบเขตระบบ', value: '4 ระบบหลัก (EIS, HRM, HRD, OD)' },
+      { label: 'นวัตกรรม AI', value: 'Two-way Voice Command & Face Recognition' },
+      { label: 'ฐานข้อมูล & ความปลอดภัย', value: 'Oracle RDBMS, SSL, Single Sign-on (AD)' },
+      { label: 'การันตีคุณภาพ', value: 'The Winner OIIO 2019 & ISO/IEC 29110' }
     ],
-    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
-    accentColor: '#00D2FF',
-    glowColor: 'rgba(0, 210, 255, 0.22)',
-    icon: 'Zap',
-    link: '/products/smart-edge-iot'
+    image: '/images/products/hr-ai-office-banner.jpg',
+    accentColor: '#00C864',
+    glowColor: 'rgba(0, 200, 100, 0.25)',
+    icon: 'Users',
+    link: '/products/hr-ai'
   },
   {
     id: 3,
