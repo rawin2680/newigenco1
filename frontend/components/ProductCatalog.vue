@@ -67,23 +67,23 @@ const products: ProductItem[] = [
   },
   {
     id: 3,
-    title: 'Bio-Grid Solar Controller',
-    category: 'โซลูชันพลังงานสะอาด',
-    desc: 'อุปกรณ์ควบคุมพลังงานหมุนเวียนอัจฉริยะ ลดการสูญเสียพลังงานในองค์กรได้สูงสุด 35%',
-    detailedDesc: 'ระบบบริหารจัดการพลังงานแสงอาทิตย์และระบบกักเก็บพลังงานแบตเตอรี่อัจฉริยะ ควบคุมการจ่ายกระแสไฟด้วยอัลกอริทึมพยากรณ์สภาพอากาศ ช่วยลดค่าพีคและคำนวณคาร์บอนเครดิตอัตโนมัติ',
-    price: 'ประเมินราคาตามขนาด',
-    tags: ['Green Tech', 'Carbon Credit', 'ISO 50001'],
+    title: 'iGenQ (ระบบบริหารคิวอัจฉริยะ)',
+    category: 'ซอฟต์แวร์อัจฉริยะ',
+    desc: 'ระบบจัดการคิวแบบ New Normal ใช้งานได้ทันทีโดยไม่ต้องติดตั้ง App แจ้งเตือนผ่าน LINE ไม่ต้องยืนรอคิว ซอฟต์แวร์คนไทย 100%',
+    detailedDesc: 'iGenQ ระบบบริหารคิวอัจฉริยะแบบ New Normal สแกน QR Code รับบัตรคิวอิเล็กทรอนิกส์ (e-Ticket) ทันทีบนสมาร์ทโฟน มีระบบแจ้งเตือนผ่าน LINE Notify เมื่อถึงคิว ไม่ต้องยืนรอคิวหน้าร้าน ช่วยลดความเสี่ยงจากการสัมผัสหน้าจอตู้คีออส ลดต้นทุน Hardware ออกเสียงเรียกคิวผ่าน Bluetooth, Smart Phone, Tablet หรือ Android TV ซอฟต์แวร์คนไทย 100% มีหนังสือรับรองการแจ้งผลงานลิขสิทธิ์ถูกต้อง',
+    price: 'แพ็กเกจ Cloud รายเดือน & รายปี',
+    tags: ['New Normal Queue', 'No App Needed', 'LINE Notify', 'ลิขสิทธิ์แท้ 100%'],
     specs: [
-      { label: 'ประสิทธิภาพควบคุม', value: 'MPPT Efficiency 99.4%' },
-      { label: 'การลดการปล่อยคาร์บอน', value: 'คำนวณแบบ Realtime ตาม GHG Protocol' },
-      { label: 'การเชื่อมต่อระบบ', value: 'Modbus TCP / MQTT Over TLS' },
-      { label: 'การรับประกัน', value: '5 ปี พร้อมบริการตรวจเช็กรายไตรมาส' }
+      { label: 'การเข้าใช้งาน', value: 'สแกน QR Code บนมือถือ (ไม่ต้องติดตั้ง App)' },
+      { label: 'ระบบแจ้งเตือน', value: 'LINE Notify Alert อัตโนมัติเมื่อถึงคิว' },
+      { label: 'การออกเสียงเรียก', value: 'รองรับ Android TV, Tablet, ลำโพง Bluetooth' },
+      { label: 'ลิขสิทธิ์และมาตรฐาน', value: 'ซอฟต์แวร์คนไทย 100% มีหนังสือรับรองลิขสิทธิ์' }
     ],
-    image: '/images/products/bio-grid-solar-banner.svg',
-    accentColor: '#F59E0B',
-    glowColor: 'rgba(245, 158, 11, 0.22)',
-    icon: 'Zap',
-    link: '/products/bio-grid-solar'
+    image: '/images/products/igenq-poster-1.jpg',
+    accentColor: '#2563EB',
+    glowColor: 'rgba(37, 99, 235, 0.25)',
+    icon: 'Clock',
+    link: '/products/igenq'
   },
   {
     id: 4,
