@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#021A13"/>
+      <stop offset="50%" stop-color="#032D20"/>
+      <stop offset="100%" stop-color="#0B130E"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#10B981" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panelGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A8A"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+    <linearGradient id="accentAmber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="750" fill="url(#bgGrad)"/>
+  <rect width="1200" height="750" fill="url(#sunGlow)"/>
+
+  <!-- High-Tech Grid Lines -->
+  <g stroke="#10B981" stroke-opacity="0.12" stroke-width="1">
+    <line x1="0" y1="150" x2="1200" y2="150"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="450" x2="1200" y2="450"/>
+    <line x1="0" y1="600" x2="1200" y2="600"/>
+    <line x1="200" y1="0" x2="200" y2="750"/>
+    <line x1="400" y1="0" x2="400" y2="750"/>
+    <line x1="600" y1="0" x2="600" y2="750"/>
+    <line x1="800" y1="0" x2="800" y2="750"/>
+    <line x1="1000" y1="0" x2="1000" y2="750"/>
+  </g>
+
+  <!-- Central Sun / Energy Core -->
+  <circle cx="600" cy="240" r="110" fill="#F59E0B" fill-opacity="0.12"/>
+  <circle cx="600" cy="240" r="80" stroke="#F59E0B" stroke-width="2" stroke-dasharray="6 6" fill="none"/>
+  <circle cx="600" cy="240" r="45" fill="#F59E0B" fill-opacity="0.85"/>
+  <circle cx="600" cy="240" r="25" fill="#FEF3C7"/>
+
+  <!-- Sun Rays & Energy Waves -->
+  <path d="M600 130 L600 90 M600 350 L600 390 M490 240 L450 240 M710 240 L750 240 M522 162 L494 134 M678 318 L706 346 M522 318 L494 346 M678 162 L706 134" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- 3D Perspective Solar Array (Front) -->
+  <g transform="translate(600, 520)">
+    <!-- Main Center Panel -->
+    <polygon points="-240,60 -80,-60 80,-60 240,60" fill="url(#panelGrad1)" stroke="#38BDF8" stroke-width="2.5"/>
+    <line x1="-160" y1="0" x2="0" y2="-60" stroke="#38BDF8" stroke-width="1.5" stroke-opacity="0.7"/>
+    <line x1="160" y1="0" x2="0" y2="-60" stroke="#38BDF8" stroke-width="1.5" stroke-opacity="0.7"/>
+    <line x1="0" y1="-60" x2="0" y2="60" stroke="#38BDF8" stroke-width="2"/>
+    <line x1="-120" y1="60" x2="-40" y2="-60" stroke="#38BDF8" stroke-width="1.5"/>
+    <line x1="120" y1="60" x2="40" y2="-60" stroke="#38BDF8" stroke-width="1.5"/>
+
+    <!-- Left Flanking Panel -->
+    <polygon points="-520,70 -380,-40 -260,-40 -380,70" fill="url(#panelGrad1)" stroke="#0284C7" stroke-width="2"/>
+    <line x1="-390" y1="15" x2="-320" y2="-40" stroke="#38BDF8" stroke-width="1.2" stroke-opacity="0.6"/>
+
+    <!-- Right Flanking Panel -->
+    <polygon points="380,70 260,-40 380,-40 520,70" fill="url(#panelGrad1)" stroke="#0284C7" stroke-width="2"/>
+    <line x1="390" y1="15" x2="320" y2="-40" stroke="#38BDF8" stroke-width="1.2" stroke-opacity="0.6"/>
+  </g>
+
+  <!-- High-Tech Energy Nodes & Circuit Connections -->
+  <g stroke="#10B981" stroke-width="2" stroke-linecap="round">
+    <path d="M200 620 L350 620 L450 560" stroke-dasharray="5 5"/>
+    <path d="M1000 620 L850 620 L750 560" stroke-dasharray="5 5"/>
+    <circle cx="200" cy="620" r="6" fill="#10B981"/>
+    <circle cx="1000" cy="620" r="6" fill="#10B981"/>
+    <circle cx="600" cy="400" r="7" fill="#F59E0B"/>
+  </g>
+
+  <!-- Typography & Badges in Illustration -->
+  <g font-family="system-ui, -apple-system, sans-serif" text-anchor="middle">
+    <text x="600" y="675" font-size="28" font-weight="900" fill="#FFFFFF" letter-spacing="3">
+      BIO-GRID SOLAR CONTROLLER
+    </text>
+    <text x="600" y="708" font-size="14" font-weight="700" fill="#F59E0B" letter-spacing="4">
+      CLEAN ENERGY &amp; SMART STORAGE // MPPT 99.4%
+    </text>
+  </g>
+</svg>

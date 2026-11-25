@@ -79,10 +79,11 @@ const products: ProductItem[] = [
       { label: 'การเชื่อมต่อระบบ', value: 'Modbus TCP / MQTT Over TLS' },
       { label: 'การรับประกัน', value: '5 ปี พร้อมบริการตรวจเช็กรายไตรมาส' }
     ],
-    image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+    image: '/images/products/bio-grid-solar-banner.svg',
     accentColor: '#F59E0B',
     glowColor: 'rgba(245, 158, 11, 0.22)',
-    icon: 'Zap'
+    icon: 'Zap',
+    link: '/products/bio-grid-solar'
   },
   {
     id: 4,
