@@ -39,7 +39,7 @@ const products: ProductItem[] = [
       { label: 'ระบบบริหารคิว', value: 'i-Queue หลายช่องบริการ & Restaurant Flow' },
       { label: 'มาตรฐานความปลอดภัย', value: 'PDPA Compliant / QR Code E-Ticket' }
     ],
-    image: '/images/products/regist-ai-workflow.jpg',
+    image: '/images/products/regist-ai-banner.png',
     accentColor: '#9333EA',
     glowColor: 'rgba(147, 51, 234, 0.25)',
     icon: 'Box',
@@ -241,7 +241,12 @@ const inquireProduct = (title: string) => {
           <img
             :src="product.image"
             :alt="product.title"
-            class="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+            :class="[
+              'w-full h-full transition-transform duration-700 ease-out',
+              product.id === 1
+                ? 'object-contain p-4 group-hover:scale-105 bg-gradient-to-br from-purple-950/70 via-purple-900/30 to-black/70'
+                : 'object-cover group-hover:scale-108'
+            ]"
             loading="lazy"
             @error="handleImageError"
           >

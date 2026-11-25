@@ -798,7 +798,7 @@ export const useNews = () => {
         partnerships: 'กลุ่มเป้าหมายและองค์กรที่เหมาะสม',
         partnershipsSubtitle: 'SUITABLE FOR // โปรแกรมนี้เหมาะสำหรับองค์กรประเภทใด'
       },
-      image: '/images/products/regist-ai-workflow.jpg',
+      image: '/images/products/regist-ai-banner.png',
       gallery: [
         {
           url: '/images/products/regist-ai-workflow.jpg',
