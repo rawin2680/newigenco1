@@ -270,6 +270,17 @@ const scrollToContact = () => {
               <ArrowUpRight class="w-4 h-4" />
             </NuxtLink>
 
+            <!-- Button to Chanthaburi Government Performance Certificate Lightbox -->
+            <button
+              type="button"
+              class="px-5 py-3.5 rounded-2xl spatial-glass border border-amber-500/40 hover:border-amber-500 font-bold text-xs sm:text-sm font-mono transition-all flex items-center gap-2 shadow-sm hover:scale-105 active:scale-95 cursor-pointer text-amber-700 dark:text-amber-300"
+              @click="openLightbox('/images/products/igenq-cert-chanthaburi.jpg', 'หนังสือรับรองผลงาน ศาลากลางจังหวัดจันทบุรี', 'บริษัท ไอเจนโก้ จำกัด ได้รับจ้างทำเครื่องกดบัตรคิว Touch Screen และระบบจัดการคิวออนไลน์ สัญญาเลขที่ ๔๘/๒๕๖๕')"
+            >
+              <Award class="w-4 h-4 text-amber-500" />
+              <span>ดูหนังสือรับรองผลงาน (ศาลากลางจันทบุรี)</span>
+              <ZoomIn class="w-3.5 h-3.5 opacity-60" />
+            </button>
+
             <a
               href="https://drive.google.com/file/d/1gGA7notTLil-SHNMrnYROxBZka0dfM8B/view?usp=sharing"
               target="_blank"
@@ -682,6 +693,157 @@ const scrollToContact = () => {
             <span>คลิกดูหน้าผลงานทั้งหมด (Portfolio)</span>
             <ArrowUpRight class="w-4 h-4" />
           </NuxtLink>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           OFFICIAL GOVERNMENT ENDORSEMENT SPOTLIGHT (CHANTHABURI)
+      ========================================================= -->
+      <section class="p-6 sm:p-10 lg:p-12 rounded-[2.5rem] bg-gradient-to-br from-blue-900/10 via-slate-900/5 to-amber-900/10 dark:from-blue-950/40 dark:via-slate-900/50 dark:to-amber-950/20 border-2 border-amber-500/30 shadow-2xl space-y-8 relative overflow-hidden">
+        
+        <!-- Header Ribbon -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-current/10 pb-6">
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
+                <Award class="w-3.5 h-3.5" />
+                <span>OFFICIAL PERFORMANCE CERTIFICATE // หนังสือรับรองผลงานทางการ</span>
+              </span>
+              <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00C864]/20 text-[#00A854] dark:text-[#00FF88] border border-[#00C864]/30">
+                เอกสารราชการรับรอง 100%
+              </span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-black font-display text-[#022C22] dark:text-white">
+              หนังสือรับรองผลงานจาก ศาลากลางจังหวัดจันทบุรี
+            </h2>
+            <p class="text-xs sm:text-sm opacity-80 max-w-2xl text-slate-700 dark:text-slate-300">
+              เอกสารรับรองอย่างเป็นทางการ ยืนยันการส่งมอบและปฏิบัติงานติดตั้งระบบคิว iGenQ และเครื่องกดบัตรคิว Touch Screen สำหรับให้บริการประชาชน ณ ศูนย์บริการร่วมภาครัฐ ศาลากลางจังหวัดจันทบุรี
+            </p>
+          </div>
+
+          <div class="font-mono text-xs opacity-75 md:text-right space-y-1">
+            <div class="text-blue-600 dark:text-blue-400 font-bold">เลขที่หนังสือ: ที่ จบ ๐๐๑๗.๓/๒๑๐</div>
+            <div>ให้ไว้ ณ วันที่ ๒๖ กันยายน ๒๕๖๖</div>
+          </div>
+        </div>
+
+        <!-- 2-Column Split: Certificate High-Res Viewer + Details -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Column 1 (Left 5 cols): Certificate Scan Preview with Zoom -->
+          <div class="lg:col-span-5 flex flex-col items-center">
+            <div
+              class="relative rounded-2xl overflow-hidden border-2 border-amber-500/30 shadow-2xl bg-white p-2 group cursor-pointer max-w-md w-full transition-all duration-300 hover:scale-[1.02] hover:border-amber-500 hover:shadow-amber-500/20"
+              @click="openLightbox('/images/products/igenq-cert-chanthaburi.jpg', 'หนังสือรับรองผลงาน ศาลากลางจังหวัดจันทบุรี (ที่ จบ ๐๐๑๗.๓/๒๑๐)', 'บริษัท ไอเจนโก้ จำกัด ได้รับจ้างทำเครื่องกดบัตรคิว Touch Screen และระบบจัดการคิวออนไลน์ สัญญาเลขที่ ๔๘/๒๕๖๕')"
+            >
+              <img
+                src="/images/products/igenq-cert-chanthaburi.jpg"
+                alt="หนังสือรับรองผลงาน ศาลากลางจังหวัดจันทบุรี บริษัท ไอเจนโก้ จำกัด"
+                class="w-full h-auto rounded-xl object-contain shadow-inner"
+              >
+              <div class="absolute inset-0 bg-blue-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 text-white p-4 text-center">
+                <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/40">
+                  <ZoomIn class="w-6 h-6 text-white" />
+                </div>
+                <span class="text-xs font-mono font-bold px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-sm border border-white/20">
+                  คลิกเพื่อดูหนังสือรับรองต้นฉบับขนาดเต็ม
+                </span>
+              </div>
+            </div>
+            <div class="mt-3 text-center text-xs font-mono opacity-60">
+              * คลิกที่ภาพเพื่อขยายและอ่านข้อความฉบับเต็ม (Interactive Lightbox)
+            </div>
+          </div>
+
+          <!-- Column 2 (Right 7 cols): Government Project Specification & 8 Agencies -->
+          <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Authority Badge Card -->
+            <div class="p-5 rounded-2xl spatial-glass border border-blue-500/25 space-y-2">
+              <div class="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                <Building2 class="w-4 h-4" />
+                <span>หน่วยงานผู้ออกหนังสือรับรอง:</span>
+              </div>
+              <div class="text-lg font-bold text-[#022C22] dark:text-white">
+                สำนักงานจังหวัดจันทบุรี (ศาลากลางจังหวัดจันทบุรี)
+              </div>
+              <div class="text-xs opacity-80 leading-relaxed text-slate-700 dark:text-slate-300">
+                ถนนเลียบเนิน ตำบลวัดใหม่ อำเภอเมืองจันทบุรี จังหวัดจันทบุรี ๒๒๐๐๐
+                <br>
+                <strong class="text-blue-600 dark:text-blue-400">ลงนามรับรองโดย:</strong> นางกชพร ไกยสุทธิ (หัวหน้าสำนักงานจังหวัดจันทบุรี ปฏิบัติราชการแทน ผู้ว่าราชการจังหวัดจันทบุรี)
+              </div>
+            </div>
+
+            <!-- Contract & Scope Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+              <div class="p-4 rounded-xl spatial-glass border border-current/10 space-y-1">
+                <div class="opacity-60 text-[11px]">สัญญาซื้อขายเลขที่</div>
+                <div class="font-bold text-sm text-blue-600 dark:text-blue-400">๔๘/๒๕๖๕ (18 ก.ค. 2565)</div>
+                <div class="opacity-60 text-[10px]">วงเงิน ๒๑๙,๙๙๘ บาท</div>
+              </div>
+
+              <div class="p-4 rounded-xl spatial-glass border border-current/10 space-y-1">
+                <div class="opacity-60 text-[11px]">ระบบที่จัดทำและส่งมอบ</div>
+                <div class="font-bold text-sm text-[#00A854] dark:text-[#00FF88]">ตู้กดบัตรคิว Touch Screen</div>
+                <div class="opacity-60 text-[10px]">พร้อมระบบโปรแกรมจัดการคิวออนไลน์</div>
+              </div>
+            </div>
+
+            <!-- 8 Government Agencies Served -->
+            <div class="space-y-3 pt-2">
+              <div class="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 uppercase flex items-center gap-2">
+                <CheckCircle2 class="w-4 h-4 text-[#00C864]" />
+                <span>รองรับการให้บริการ 8 หน่วยงานร่วม ณ ศูนย์บริการร่วมจังหวัดจันทบุรี:</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">1</span>
+                  <span class="font-medium">เคาน์เตอร์บริการอำเภอ...ยิ้ม</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">2</span>
+                  <span class="font-medium">การไฟฟ้าส่วนภูมิภาคจังหวัดจันทบุรี</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">3</span>
+                  <span class="font-medium">การประปาส่วนภูมิภาคสาขาจันทบุรี</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">4</span>
+                  <span class="font-medium">ไปรษณีย์จังหวัดจันทบุรี</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">5</span>
+                  <span class="font-medium">สำนักงานขนส่งจังหวัดจันทบุรี</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">6</span>
+                  <span class="font-medium">บมจ. โทรคมนาคมแห่งชาติ (NT)</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">7</span>
+                  <span class="font-medium">ศูนย์บริการร่วมกระทรวงแรงงาน</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-current/5 border border-current/10 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">8</span>
+                  <span class="font-medium font-bold text-amber-600 dark:text-amber-400">ศูนย์ดำรงธรรมจังหวัดจันทบุรี</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Official Statement Quote -->
+            <div class="p-4 rounded-2xl bg-[#00C864]/10 border border-[#00C864]/30 text-xs sm:text-sm text-[#022C22] dark:text-slate-200 italic space-y-1">
+              <div class="font-bold text-[#00A854] dark:text-[#00FF88] not-italic font-mono text-[11px] flex items-center gap-1.5">
+                <ShieldCheck class="w-4 h-4" />
+                <span>ข้อความรับรองในหนังสือสำคัญ:</span>
+              </div>
+              <p>
+                "ทั้งนี้ บริษัท ไอเจนโก้ จำกัด ได้ปฏิบัติงานตามรายละเอียดและเงื่อนไขในสัญญาเป็นที่เรียบร้อยแล้ว ระบบฯ สามารถใช้งานได้อย่างมีประสิทธิภาพมาจนถึงปัจจุบัน จึงออกหนังสือรับรองให้ไว้เป็นสำคัญ"
+              </p>
+            </div>
+
+          </div>
         </div>
       </section>
 
