@@ -21,7 +21,7 @@ const filteredNews = computed(() => {
 // -------------------------------------------------------------
 // ระบบแบ่งหน้า (แสดงครั้งละ 3 ข่าว ถ้าเกินให้มีปุ่ม < > กดเปลี่ยนหน้า)
 // -------------------------------------------------------------
-const itemsPerPage = 3
+const itemsPerPage = 6
 const currentPage = ref(1)
 
 const totalPages = computed(() => {
@@ -122,64 +122,6 @@ const toggleAiSummary = (id: number) => {
         <p class="text-sm opacity-75 mt-2 max-w-xl">
           ติดตามความเคลื่อนไหว ผลงานความสำเร็จ และสาระความรู้ด้านนวัตกรรมและเทคโนโลยีองค์กร
         </p>
-      </div>
-
-      <!-- Categories Filter Tabs & Quick Controls -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 reveal-init reveal-right">
-        <!-- Categories (Liquid Glass Capsule Tray) -->
-        <div class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-full spatial-glass border border-current/10">
-          <button
-            v-for="cat in categories"
-            :key="cat"
-            type="button"
-            :class="[
-              'px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 select-none cursor-pointer',
-              activeCategory === cat
-                ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md font-bold scale-105'
-                : 'opacity-70 hover:opacity-100 hover:bg-current/5'
-            ]"
-            @click="activeCategory = cat"
-          >
-            {{ cat }}
-          </button>
-        </div>
-
-        <!-- Desktop Pagination Buttons (< >) in Header -->
-        <div v-if="totalPages > 1" class="hidden sm:flex items-center gap-2 pl-2">
-          <button
-            type="button"
-            aria-label="Previous Page"
-            :disabled="currentPage === 1"
-            :class="[
-              'w-10 h-10 rounded-xl flex items-center justify-center transition-all border',
-              currentPage === 1
-                ? 'opacity-30 cursor-not-allowed border-current/10'
-                : 'hover:bg-[#00C864] hover:text-[#022C22] dark:hover:bg-[#00FF88] dark:hover:text-[#020806] border-current/20 hover:scale-105 active:scale-95 shadow-sm'
-            ]"
-            @click="prevPage"
-          >
-            <ChevronLeft class="w-5 h-5" />
-          </button>
-
-          <span class="text-xs font-mono font-bold px-2 opacity-70">
-            {{ currentPage }} / {{ totalPages }}
-          </span>
-
-          <button
-            type="button"
-            aria-label="Next Page"
-            :disabled="currentPage === totalPages"
-            :class="[
-              'w-10 h-10 rounded-xl flex items-center justify-center transition-all border',
-              currentPage === totalPages
-                ? 'opacity-30 cursor-not-allowed border-current/10'
-                : 'hover:bg-[#00C864] hover:text-[#022C22] dark:hover:bg-[#00FF88] dark:hover:text-[#020806] border-current/20 hover:scale-105 active:scale-95 shadow-sm'
-            ]"
-            @click="nextPage"
-          >
-            <ChevronRight class="w-5 h-5" />
-          </button>
-        </div>
       </div>
     </div>
 
