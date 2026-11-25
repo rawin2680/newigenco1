@@ -94,11 +94,23 @@ const navLinks: NavItem[] = [
   { name: 'ติดต่อเรา', href: '/#contact', sectionId: 'contact', icon: Mail }
 ]
 
+// All sections on homepage in actual vertical order from top to bottom
+const homeSections = [
+  { id: 'top', tabIndex: 0 },
+  { id: 'clients', tabIndex: 4 },
+  { id: 'products', tabIndex: 3 },
+  { id: 'news', tabIndex: 1 },
+  { id: 'about', tabIndex: 2 },
+  { id: 'contact', tabIndex: 5 }
+]
+
 // Navigation tab and dropdown state
 const activeIndex = ref(0)
 const activeDropdown = ref<number | null>(null)
 const activeSubmenu = ref<string | null>(null)
 let dropdownTimeout: any = null
+let isClickScrolling = false
+let clickScrollTimeout: any = null
 
 // Deterministically compute the active tab index based on route path & hash
 const resolveActiveIndex = (): number => {
@@ -113,9 +125,9 @@ const resolveActiveIndex = (): number => {
   if (path === '/') {
     if (hash === '#contact') return 5
     if (hash === '#clients') return 4
-    if (hash === '#products') return 3
     if (hash === '#about') return 2
     if (hash === '#news') return 1
+    if (hash === '#products') return 3
     if (hash === '#top') return 0
     return activeIndex.value ?? 0
   }
@@ -171,6 +183,12 @@ const onTabClick = (idx: number, sectionId: string) => {
   activeSubmenu.value = null
 
   if (import.meta.client && route.path === '/') {
+    isClickScrolling = true
+    clearTimeout(clickScrollTimeout)
+    clickScrollTimeout = setTimeout(() => {
+      isClickScrolling = false
+    }, 1000)
+
     const section = document.getElementById(sectionId)
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' })
@@ -182,28 +200,29 @@ const onTabClick = (idx: number, sectionId: string) => {
 let scrollRafId: number | null = null
 
 const updateActiveSectionOnScroll = () => {
-  if (!import.meta.client || route.path !== '/') return
+  if (!import.meta.client || route.path !== '/' || isClickScrolling) return
 
   const scrollY = window.scrollY
-  if (scrollY < 120) {
+  if (scrollY < 200) {
     activeIndex.value = 0
     return
   }
 
-  const sectionIds = ['top', 'news', 'about', 'products', 'clients', 'contact']
-  const headerOffset = 180
-  const scrollPosition = scrollY + headerOffset
+  // Header offset: 240px below top of viewport
+  const scrollPosition = scrollY + 240
 
-  for (let i = sectionIds.length - 1; i >= 0; i--) {
-    const el = document.getElementById(sectionIds[i])
+  for (let i = homeSections.length - 1; i >= 0; i--) {
+    const sec = homeSections[i]
+    const el = document.getElementById(sec.id)
     if (el) {
-      const top = el.offsetTop
-      if (scrollPosition >= top) {
-        activeIndex.value = i
+      if (scrollPosition >= el.offsetTop) {
+        activeIndex.value = sec.tabIndex
         return
       }
     }
   }
+
+  activeIndex.value = 0
 }
 
 const onScroll = () => {
