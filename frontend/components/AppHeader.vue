@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
 import { Contrast, Menu, X, ArrowUpRight, Home, Box, Newspaper, Mail, Building2, Users, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
+const route = useRoute()
 const { toggleTheme } = useTheme()
 const isMobileMenuOpen = ref(false)
 const mobileOpenDropdown = ref<string | null>(null)
@@ -92,72 +94,83 @@ const navLinks: NavItem[] = [
   { name: 'ติดต่อเรา', href: '/#contact', sectionId: 'contact', icon: Mail }
 ]
 
-// Glassy Navigation Tabs State
-const navContainerRef = ref<HTMLElement | null>(null)
-const tabRefs = ref<HTMLElement[]>([])
+// Navigation tab and dropdown state
 const activeIndex = ref(0)
-const hoveredIndex = ref<number | null>(null)
 const activeDropdown = ref<number | null>(null)
 const activeSubmenu = ref<string | null>(null)
 let dropdownTimeout: any = null
 
-const pillStyle = reactive({
-  left: 0,
-  width: 0,
-  opacity: 0,
-  isReady: false
-})
+// Deterministically compute the active tab index based on route path & hash
+const resolveActiveIndex = (): number => {
+  if (!route) return 0
+  const path = route.path || '/'
+  const hash = route.hash || ''
 
-const updatePill = () => {
-  if (!import.meta.client || !navContainerRef.value) return
-  const targetIdx = hoveredIndex.value !== null ? hoveredIndex.value : activeIndex.value
-  const targetTab = tabRefs.value[targetIdx]
+  if (path.startsWith('/products')) return 3
+  if (path.startsWith('/about') || path === '/careers' || path === '/privacy-policy' || path === '/cookie-policy') return 2
+  if (path.startsWith('/news')) return 1
 
-  if (targetTab && navContainerRef.value) {
-    const containerRect = navContainerRef.value.getBoundingClientRect()
-    const tabRect = targetTab.getBoundingClientRect()
-
-    pillStyle.left = tabRect.left - containerRect.left
-    pillStyle.width = tabRect.width
-    pillStyle.opacity = 1
-    pillStyle.isReady = true
+  if (path === '/') {
+    if (hash === '#contact') return 5
+    if (hash === '#clients') return 4
+    if (hash === '#products') return 3
+    if (hash === '#about') return 2
+    if (hash === '#news') return 1
+    if (hash === '#top') return 0
+    return activeIndex.value ?? 0
   }
+
+  return 0
+}
+
+watch(
+  () => [route.path, route.hash],
+  () => {
+    activeIndex.value = resolveActiveIndex()
+  },
+  { immediate: true }
+)
+
+const isTabActive = (idx: number) => {
+  if (activeDropdown.value !== null) {
+    return activeDropdown.value === idx
+  }
+  return activeIndex.value === idx
 }
 
 const onTabEnter = (idx: number) => {
   clearTimeout(dropdownTimeout)
-  hoveredIndex.value = idx
   if (navLinks[idx]?.hasDropdown) {
     activeDropdown.value = idx
   } else {
     activeDropdown.value = null
   }
-  updatePill()
 }
 
 const onTabLeave = () => {
   dropdownTimeout = setTimeout(() => {
-    hoveredIndex.value = null
     activeDropdown.value = null
     activeSubmenu.value = null
-    updatePill()
-  }, 200)
+  }, 180)
+}
+
+const keepDropdownOpen = () => {
+  clearTimeout(dropdownTimeout)
 }
 
 const closeAllDropdowns = () => {
+  clearTimeout(dropdownTimeout)
   activeDropdown.value = null
   activeSubmenu.value = null
-  hoveredIndex.value = null
   isMobileMenuOpen.value = false
-  updatePill()
 }
 
 const onTabClick = (idx: number, sectionId: string) => {
   activeIndex.value = idx
-  hoveredIndex.value = null
-  updatePill()
+  activeDropdown.value = null
+  activeSubmenu.value = null
 
-  if (import.meta.client) {
+  if (import.meta.client && route.path === '/') {
     const section = document.getElementById(sectionId)
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' })
@@ -165,59 +178,55 @@ const onTabClick = (idx: number, sectionId: string) => {
   }
 }
 
-// Scroll tracking for header shadow & active tab sync
-let sectionObserver: IntersectionObserver | null = null
+// Scroll tracking for header shadow & homepage scrollspy
+let scrollRafId: number | null = null
+
+const updateActiveSectionOnScroll = () => {
+  if (!import.meta.client || route.path !== '/') return
+
+  const scrollY = window.scrollY
+  if (scrollY < 120) {
+    activeIndex.value = 0
+    return
+  }
+
+  const sectionIds = ['top', 'news', 'about', 'products', 'clients', 'contact']
+  const headerOffset = 180
+  const scrollPosition = scrollY + headerOffset
+
+  for (let i = sectionIds.length - 1; i >= 0; i--) {
+    const el = document.getElementById(sectionIds[i])
+    if (el) {
+      const top = el.offsetTop
+      if (scrollPosition >= top) {
+        activeIndex.value = i
+        return
+      }
+    }
+  }
+}
 
 const onScroll = () => {
   if (typeof window !== 'undefined') {
     isScrolled.value = window.scrollY > 25
+    if (route.path === '/') {
+      if (scrollRafId) cancelAnimationFrame(scrollRafId)
+      scrollRafId = requestAnimationFrame(updateActiveSectionOnScroll)
+    }
   }
 }
 
 onMounted(() => {
   if (import.meta.client) {
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', updatePill, { passive: true })
     onScroll()
-
-    nextTick(() => {
-      setTimeout(updatePill, 100)
-    })
-
-    // Sync active tab with user scroll position
-    const sectionIds = ['top', 'news', 'about', 'products', 'clients', 'contact']
-    sectionObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.id
-            const idx = sectionIds.indexOf(id)
-            if (idx !== -1 && hoveredIndex.value === null) {
-              activeIndex.value = idx
-              updatePill()
-            }
-          }
-        })
-      },
-      {
-        root: null,
-        rootMargin: '-20% 0px -55% 0px',
-        threshold: 0
-      }
-    )
-
-    sectionIds.forEach((id) => {
-      const el = document.getElementById(id)
-      if (el) sectionObserver?.observe(el)
-    })
   }
 })
 
 onBeforeUnmount(() => {
   if (import.meta.client) {
     window.removeEventListener('scroll', onScroll)
-    window.removeEventListener('resize', updatePill)
-    sectionObserver?.disconnect()
+    if (scrollRafId) cancelAnimationFrame(scrollRafId)
     clearTimeout(dropdownTimeout)
   }
 })
@@ -249,26 +258,13 @@ onBeforeUnmount(() => {
 
       <!-- Desktop Glassy Navigation Tabs (Apple VisionOS Liquid Glass Style) -->
       <nav
-        ref="navContainerRef"
-        class="hidden lg:flex relative items-center p-1 rounded-full liquid-glass-tray transition-all duration-300"
+        class="hidden lg:flex relative items-center p-1 rounded-full liquid-glass-tray transition-all duration-300 gap-1"
         @mouseleave="onTabLeave"
       >
-        <!-- Liquid Glass Active / Hover Highlight Pill (Shared Layout Animation with Spring Damping) -->
-        <div
-          class="liquid-glass-pill absolute top-1 bottom-1 pointer-events-none rounded-full"
-          :style="{
-            transform: `translateX(${pillStyle.left}px)`,
-            width: `${pillStyle.width}px`,
-            opacity: pillStyle.opacity,
-            transition: pillStyle.isReady ? 'transform 0.38s cubic-bezier(0.25, 1, 0.5, 1), width 0.38s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease' : 'none'
-          }"
-        />
-
         <!-- Tab Items -->
         <div
           v-for="(link, idx) in navLinks"
           :key="link.name"
-          :ref="(el) => { if (el) tabRefs[idx] = (el as any).$el || el }"
           class="relative"
           @mouseenter="onTabEnter(idx)"
           @mouseleave="onTabLeave"
@@ -276,10 +272,10 @@ onBeforeUnmount(() => {
           <NuxtLink
             :to="link.href"
             :class="[
-              'relative z-10 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-colors duration-250 select-none cursor-pointer',
-              (hoveredIndex !== null ? hoveredIndex === idx : activeIndex === idx)
-                ? 'text-[#022C22] dark:text-[#00FF88] font-bold'
-                : 'text-[#022C22]/75 dark:text-[#F4FBF7]/75 hover:text-[#022C22] dark:hover:text-white'
+              'relative z-10 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs tracking-wide select-none cursor-pointer transition-all duration-200 border-[1.5px]',
+              isTabActive(idx)
+                ? 'nav-tab-active font-bold text-[#022C22] dark:text-[#00FF88]'
+                : 'border-transparent text-[#022C22]/75 dark:text-[#F4FBF7]/75 hover:text-[#00C864] dark:hover:text-[#00FF88] hover:bg-black/5 dark:hover:bg-white/5 font-semibold'
             ]"
             @click="onTabClick(idx, link.sectionId)"
           >
@@ -287,10 +283,10 @@ onBeforeUnmount(() => {
             <component
               :is="link.icon"
               :class="[
-                'w-3.5 h-3.5 transition-transform duration-250 shrink-0',
-                (hoveredIndex !== null ? hoveredIndex === idx : activeIndex === idx)
+                'w-3.5 h-3.5 transition-transform duration-200 shrink-0',
+                isTabActive(idx)
                   ? 'scale-110 text-[#00C864] dark:text-[#00FF88]'
-                  : 'opacity-70'
+                  : 'opacity-70 group-hover:opacity-100'
               ]"
             />
             <span>{{ link.name }}</span>
@@ -298,7 +294,7 @@ onBeforeUnmount(() => {
               v-if="link.hasDropdown"
               :class="[
                 'w-3 h-3 transition-transform duration-200 shrink-0 opacity-60',
-                activeDropdown === idx ? 'rotate-180 text-[#00C864] dark:text-[#00FF88]' : ''
+                activeDropdown === idx ? 'rotate-180 text-[#00C864] dark:text-[#00FF88]' : (isTabActive(idx) ? 'text-[#00C864] dark:text-[#00FF88]' : '')
               ]"
             />
           </NuxtLink>
@@ -307,7 +303,7 @@ onBeforeUnmount(() => {
           <div
             v-if="link.hasDropdown && activeDropdown === idx"
             class="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 z-50 min-w-[260px] pointer-events-auto"
-            @mouseenter="onTabEnter(idx)"
+            @mouseenter="keepDropdownOpen"
             @mouseleave="onTabLeave"
           >
             <div class="p-2 rounded-2xl bg-white/95 dark:bg-[#03150e]/95 border border-[#00C864]/30 shadow-2xl backdrop-blur-xl space-y-1">
@@ -514,26 +510,22 @@ onBeforeUnmount(() => {
     inset 0 -1px 2px 0 rgba(0, 0, 0, 0.4);
 }
 
-/* 2. Specular Border & Inner Shadow (Liquid Glass Droplet Pill) */
-.liquid-glass-pill {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 253, 244, 0.9) 100%);
-  border: 1px solid rgba(0, 200, 100, 0.32);
+/* 2. Liquid Glass Active Tab Selection Frame (Rock-solid, jitter-free) */
+.nav-tab-active {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 244, 0.92) 100%);
+  border-color: rgba(0, 200, 100, 0.45) !important;
   box-shadow: 
-    0 6px 20px -3px rgba(0, 200, 100, 0.28),
+    0 4px 16px -2px rgba(0, 200, 100, 0.22),
     inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
-    inset 0 -1.5px 2px 0 rgba(0, 44, 34, 0.12),
-    inset 1px 0 1.5px 0 rgba(255, 255, 255, 0.8),
-    inset -1px 0 1.5px 0 rgba(255, 255, 255, 0.8);
+    inset 0 -1px 2px 0 rgba(0, 44, 34, 0.08);
 }
 
-:global(.dark) .liquid-glass-pill {
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.18) 0%, rgba(2, 44, 34, 0.6) 100%);
-  border: 1px solid rgba(0, 255, 136, 0.45);
+:global(.dark) .nav-tab-active {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.16) 0%, rgba(2, 44, 34, 0.65) 100%);
+  border-color: rgba(0, 255, 136, 0.5) !important;
   box-shadow: 
-    0 6px 22px -3px rgba(0, 255, 136, 0.3),
-    inset 0 1.5px 2px 0 rgba(255, 255, 136, 0.35),
-    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.5),
-    inset 1px 0 1.5px 0 rgba(0, 255, 136, 0.2),
-    inset -1px 0 1.5px 0 rgba(0, 255, 136, 0.2);
+    0 4px 18px -2px rgba(0, 255, 136, 0.35),
+    inset 0 1.5px 2px 0 rgba(0, 255, 136, 0.25),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.45);
 }
 </style>
