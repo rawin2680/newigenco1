@@ -58,17 +58,20 @@ const navLinks: NavItem[] = [
     ]
   },
   {
-    name: 'ผลิตภัณฑ์',
+    name: 'ผลิตภัณฑ์และบริการ',
     href: '/#products',
     sectionId: 'products',
     icon: Box,
     hasDropdown: true,
     children: [
-      { name: 'Regist.ai (ระบบลงทะเบียน & i-Queue)', href: '/products/regist-ai', desc: 'ระบบลงทะเบียนสัมมนา & i-Queue คิวโรงพยาบาลและร้านอาหาร' },
-      { name: 'i-SMARTSOFT (e-Office ครบวงจร)', href: '/news/5', desc: '10 โมดูลบริหารงานสำนักงานอิเล็กทรอนิกส์' },
-      { name: 'I-SERFF (ระบบยื่นแบบ คปภ.)', href: '/news/3', desc: 'ระบบยื่นขอความเห็นชอบอัตราเบี้ยและกรมธรรม์' },
-      { name: 'EFMS (ระบบจัดเก็บข้อมูลการเงิน สคฝ.)', href: '/news/4', desc: 'ระบบเชื่อมโยงและนำส่งรายงานสถาบันการเงิน' },
-      { name: 'แคตตาล็อกสินค้าและบริการทั้งหมด', href: '/#products', desc: 'เลือกชมโซลูชันซอฟต์แวร์และฮาร์ดแวร์ IoT' }
+      { name: 'Regist.ai (ระบบลงทะเบียนอัจฉริยะ)', href: '/products/regist-ai', desc: 'ระบบลงทะเบียนสัมมนา & i-Queue คิวโรงพยาบาลและร้านอาหาร' },
+      { name: 'HR.ai (ระบบบริหารงานบุคคล AI)', href: '/products/hr-ai', desc: 'ครอบคลุม HRM, HRD, OD รางวัล The Winner OIIO 2019' },
+      { name: 'iGenQ (ระบบบริหารคิวอัจฉริยะ)', href: '/products/igenq', desc: 'ระบบคิว New Normal แจ้งเตือน LINE มีหนังสือรับรองผลงานภาครัฐ' },
+      { name: 'Software OnDemand (พัฒนาซอฟต์แวร์ตามสั่ง)', href: '/#products', desc: 'บริการออกแบบและพัฒนาซอฟต์แวร์ตามความต้องการเฉพาะองค์กร' },
+      { name: 'OutSource Service (บริการจัดหาทีมไอที)', href: '/#products', desc: 'จัดส่งทีมโปรแกรมเมอร์และผู้เชี่ยวชาญด้าน IT On-Site & Remote' },
+      { name: 'iMme Application (Mobile Commerce)', href: '/#products', desc: 'แอปพลิเคชันระบบสั่งซื้อสินค้าและบริการ e-Payment ครบวงจร' },
+      { name: 'i-RealEstate (ระบบบริหารอสังหาริมทรัพย์)', href: '/#products', desc: 'ระบบบริหารการขาย โครงการ จองออนไลน์ และ CRM อสังหาฯ' },
+      { name: 'iPOS (ระบบบริหารจุดขายหน้าร้าน)', href: '/#products', desc: 'ระบบ POS คิดเงิน ตัดสต็อกอัตโนมัติ และสรุปยอดขายเรียลไทม์' }
     ]
   },
   { name: 'กลุ่มผู้ใช้ผลิตภัณฑ์', href: '/#clients', sectionId: 'clients', icon: Users },

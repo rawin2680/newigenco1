@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="bgGradPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#140A28" />
+      <stop offset="50%" stop-color="#28144D" />
+      <stop offset="100%" stop-color="#0E051C" />
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+    <pattern id="gridPurple" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#8B5CF6" stroke-width="0.8" stroke-opacity="0.12" />
+    </pattern>
+    <filter id="glowPurple" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bgGradPurple)" />
+  <rect width="800" height="500" fill="url(#gridPurple)" />
+
+  <circle cx="680" cy="110" r="150" fill="#8B5CF6" fill-opacity="0.12" filter="url(#glowPurple)" />
+  <circle cx="120" cy="380" r="130" fill="#C084FC" fill-opacity="0.08" filter="url(#glowPurple)" />
+
+  <!-- Isometric Architectural Building / Property Blueprint -->
+  <g transform="translate(400, 180)">
+    <!-- Base Isometric Grid -->
+    <path d="M 0 90 L 160 0 L 0 -90 L -160 0 Z" fill="#1C0E38" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="3 3" stroke-opacity="0.5" />
+    
+    <!-- Building 1 (High-Rise Tower Left) -->
+    <g transform="translate(-50, -40)">
+      <!-- Left face -->
+      <path d="M -40 20 L 0 42 L 0 -80 L -40 -102 Z" fill="#3B1D7A" stroke="#A855F7" stroke-width="1" />
+      <!-- Right face -->
+      <path d="M 0 42 L 40 20 L 40 -102 L 0 -80 Z" fill="#4C239E" stroke="#A855F7" stroke-width="1" />
+      <!-- Roof face -->
+      <path d="M 0 -80 L 40 -102 L 0 -124 L -40 -102 Z" fill="#8B5CF6" stroke="#C084FC" stroke-width="1" />
+      
+      <!-- Tower Windows -->
+      <line x1="-30" y1="-70" x2="-10" y2="-60" stroke="#E9D5FF" stroke-width="2" stroke-opacity="0.7" />
+      <line x1="-30" y1="-40" x2="-10" y2="-30" stroke="#E9D5FF" stroke-width="2" stroke-opacity="0.7" />
+      <line x1="-30" y1="-10" x2="-10" y2="0" stroke="#E9D5FF" stroke-width="2" stroke-opacity="0.7" />
+      <line x1="10" y1="-60" x2="30" y2="-70" stroke="#E9D5FF" stroke-width="2" stroke-opacity="0.7" />
+      <line x1="10" y1="-30" x2="30" y2="-40" stroke="#E9D5FF" stroke-width="2" stroke-opacity="0.7" />
+      <line x1="10" y1="0" x2="30" y2="-10" stroke="#E9D5FF" stroke-width="2" stroke-opacity="0.7" />
+    </g>
+
+    <!-- Building 2 (Mid-Rise Tower Right) -->
+    <g transform="translate(60, 0)">
+      <!-- Left face -->
+      <path d="M -30 15 L 0 32 L 0 -45 L -30 -62 Z" fill="#4C239E" stroke="#C084FC" stroke-width="1" />
+      <!-- Right face -->
+      <path d="M 0 32 L 30 15 L 30 -62 L 0 -45 Z" fill="#5B29B8" stroke="#C084FC" stroke-width="1" />
+      <!-- Roof face -->
+      <path d="M 0 -45 L 30 -62 L 0 -79 L -30 -62 Z" fill="#A855F7" stroke="#E9D5FF" stroke-width="1" />
+    </g>
+
+    <!-- Floating Pin Badge: Available Unit / Booking -->
+    <g transform="translate(100, -70)">
+      <rect x="-45" y="-14" width="90" height="28" rx="14" fill="#00C864" filter="url(#glowPurple)" />
+      <text x="0" y="4" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="bold" fill="#022C22" text-anchor="middle">ONLINE BOOK</text>
+    </g>
+  </g>
+
+  <!-- Typography & Badges -->
+  <g transform="translate(400, 400)" text-anchor="middle">
+    <rect x="-130" y="-30" width="260" height="24" rx="12" fill="#8B5CF6" fill-opacity="0.2" stroke="#C084FC" stroke-width="1" stroke-opacity="0.4" />
+    <text x="0" y="-14" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="bold" fill="#C084FC" letter-spacing="2">E-COMMERCE // IGENCO</text>
+    
+    <text x="0" y="25" font-family="'Inter', sans-serif" font-size="30" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">i-RealEstate</text>
+    <text x="0" y="52" font-family="'Inter', sans-serif" font-size="13" font-weight="600" fill="#E9D5FF" fill-opacity="0.85">ระบบบริหารจัดการธุรกิจอสังหาริมทรัพย์และโครงการ</text>
+  </g>
+</svg>

@@ -1,12 +1,27 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ArrowUpRight, Box, Info, X, CheckCircle2, Cpu, ShieldCheck, Zap, Sparkles } from 'lucide-vue-next'
+import {
+  ArrowUpRight,
+  Box,
+  Info,
+  X,
+  CheckCircle2,
+  Cpu,
+  ShieldCheck,
+  Zap,
+  Sparkles,
+  Clock,
+  Users,
+  Smartphone,
+  Building2,
+  Store
+} from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
 const { showToast } = useTheme()
 
 const activeCategory = ref('ทั้งหมด')
-const categories = ['ทั้งหมด', 'ฮาร์ดแวร์ & เซ็นเซอร์', 'ซอฟต์แวร์อัจฉริยะ', 'โซลูชันพลังงานสะอาด', 'ความปลอดภัย & เครือข่าย']
+const categories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'E-Commerce']
 
 export interface ProductItem {
   id: number
@@ -28,7 +43,7 @@ const products: ProductItem[] = [
   {
     id: 1,
     title: 'Regist.ai (ระบบบริหารการลงทะเบียนอัจฉริยะ)',
-    category: 'ซอฟต์แวร์อัจฉริยะ',
+    category: 'Enterprise Software',
     desc: 'ระบบบริหารการลงทะเบียนและจัดการคิวอัจฉริยะ ตอบโจทย์งานสัมมนา ฝึกอบรม โรงพยาบาล และร้านอาหาร ทั้ง Online / Offline',
     detailedDesc: 'ระบบบริหารการลงทะเบียนอัจฉริยะ Regist.ai "ตอบโจทย์ทุกการลงทะเบียน" ช่วยอำนวยความสะดวกในการจัดงานสัมมนา ฝึกอบรม และเผยแพร่ความรู้ เปิดรับลงทะเบียนทั้ง Online / Offline พร้อมเชื่อมต่อฐานข้อมูลร่วมกับ Joomla และ WordPress ได้อย่างไร้รอยต่อ มาพร้อมระบบ i-Queue สำหรับบริหารจัดการคิวงานบริการแบบ New Normal ทั้งงานฉีดวัคซีนและร้านอาหาร',
     price: 'ติดตั้งพร้อมใช้ใน 1 สัปดาห์',
@@ -48,7 +63,7 @@ const products: ProductItem[] = [
   {
     id: 2,
     title: 'HR.ai (ระบบบริหารทรัพยากรมนุษย์อัจฉริยะ)',
-    category: 'ซอฟต์แวร์อัจฉริยะ',
+    category: 'Enterprise Software',
     desc: 'ระบบบริหารทรัพยากรมนุษย์อัจฉริยะ ตอบโจทย์ทุกงานบริหารคน ครอบคลุมการทำงานสำหรับ HRM, HRD และ OD รางวัล The Winner OIIO 2019',
     detailedDesc: 'HR.ai (Human Resource Artificial Intelligence) ระบบบริหารงานบุคคลอัจฉริยะครบวงจร ครอบคลุม EIS, HRM, HRD และ OD พัฒนาบน Web-Based Technology และ Hybrid Mobile App รองรับการสั่งการด้วยเสียง (Voice AI) ระบบจดจำใบหน้า (Face ID) และการประมวลผลข้อมูลองค์กรขนาดใหญ่ เชื่อมต่อ RDBMS Oracle และ Active Directory ได้รับรางวัลชนะเลิศ The Winner ในงาน OIIO Thailand Techland 2019',
     price: 'แพ็กเกจองค์กร Cloud & On-Premises',
@@ -68,7 +83,7 @@ const products: ProductItem[] = [
   {
     id: 3,
     title: 'iGenQ (ระบบบริหารคิวอัจฉริยะ)',
-    category: 'ซอฟต์แวร์อัจฉริยะ',
+    category: 'Enterprise Software',
     desc: 'ระบบจัดการคิวแบบ New Normal แจ้งเตือนผ่าน LINE ไม่ต้องยืนรอ มีหนังสือรับรองผลงานจากศาลากลางจันทบุรี ซอฟต์แวร์คนไทย 100%',
     detailedDesc: 'iGenQ ระบบบริหารคิวอัจฉริยะแบบ New Normal สแกน QR Code รับบัตรคิวอิเล็กทรอนิกส์ (e-Ticket) ทันทีบนสมาร์ทโฟน มีระบบแจ้งเตือนผ่าน LINE Notify เมื่อถึงคิว ไม่ต้องยืนรอคิวหน้าร้าน ช่วยลดความเสี่ยงจากการสัมผัสหน้าจอตู้คีออส ลดต้นทุน Hardware ออกเสียงเรียกคิวผ่าน Bluetooth, Smart Phone, Tablet หรือ Android TV มีหนังสือรับรองผลงานจากศาลากลางจังหวัดจันทบุรี และหนังสือรับรองผลงานลิขสิทธิ์ ซอฟต์แวร์คนไทย 100%',
     price: 'แพ็กเกจ Cloud รายเดือน & รายปี',
@@ -87,60 +102,98 @@ const products: ProductItem[] = [
   },
   {
     id: 4,
-    title: 'Spatial 3D Digital Twin Suite',
-    category: 'ซอฟต์แวร์อัจฉริยะ',
-    desc: 'แพลตฟอร์มจำลองอาคารและคลังสินค้าแบบ 3 มิติ เพื่อการมอนิเตอร์และบริหารจัดการจากระยะไกล',
-    detailedDesc: 'เปลี่ยนข้อมูลเซ็นเซอร์และแปลนอาคาร BIM ให้อยู่ในรูปแบบ Digital Twin เสมือนจริงระดับ 60fps ผู้บริหารสามารถตรวจสอบสถานะเครื่องจักร อุณหภูมิ และความปลอดภัยผ่านหน้าจอเว็บเบราว์เซอร์ได้ทันที',
-    price: 'แพ็กเกจรายปี',
-    tags: ['WebGL', 'Realtime Telemetry', 'BIM Ready'],
+    title: 'Software OnDemand (บริการพัฒนาซอฟต์แวร์ตามสั่ง)',
+    category: 'Service Development',
+    desc: 'บริการออกแบบและพัฒนาซอฟต์แวร์ตามความต้องการเฉพาะขององค์กร พัฒนาระบบให้ตอบโจทย์กระบวนการทำงานจริง รองรับ Web, Mobile และ Cloud',
+    detailedDesc: 'บริการพัฒนาซอฟต์แวร์แบบครบวงจร (Turnkey Custom Software Development) โดยทีมวิศวกรซอฟต์แวร์มืออาชีพของ บริษัท ไอเจนโก้ จำกัด ที่มีประสบการณ์กว่า 12 ปี วิเคราะห์กระบวนการทำงาน ออกแบบสถาปัตยกรรมระบบที่ปลอดภัยและขยายตัวได้ง่ายตามมาตรฐาน ISO/IEC 29110 พร้อมส่งมอบระบบที่ตรงตามโจทย์ธุรกิจ',
+    price: 'ปรึกษาและประเมินโครงการ',
+    tags: ['Custom Software', 'Web & Mobile', 'Cloud Architecture', 'ISO/IEC 29110'],
     specs: [
-      { label: 'เอนจินแสดงผล', value: 'WebGL 2.0 / WebGPU Architecture' },
-      { label: 'ความหน่วงการจำลอง', value: 'Synchronous Refresh < 50ms' },
-      { label: 'ไฟล์ที่รองรับ', value: 'IFC, Revit, OBJ, GLTF 2.0' },
-      { label: 'การเข้าถึง', value: 'Cross-Platform Web Responsive' }
+      { label: 'รูปแบบการพัฒนา', value: 'Tailor-Made ตามความต้องการและ Workflow องค์กร' },
+      { label: 'สถาปัตยกรรมระบบ', value: 'Cloud-Native, Microservices หรือ Monolith Secure' },
+      { label: 'แพลตฟอร์มที่รองรับ', value: 'Web Application, Mobile App (iOS/Android), API Gateway' },
+      { label: 'มาตรฐานคุณภาพ', value: 'ควบคุมคุณภาพตามมาตรฐานสากล ISO/IEC 29110' }
     ],
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80',
-    accentColor: '#8B5CF6',
-    glowColor: 'rgba(139, 92, 246, 0.22)',
-    icon: 'Box'
+    image: '/images/products/software-ondemand.svg',
+    accentColor: '#00C864',
+    glowColor: 'rgba(0, 200, 100, 0.25)',
+    icon: 'Cpu'
   },
   {
     id: 5,
-    title: 'CyberShield Zero-Trust Gateway',
-    category: 'ความปลอดภัย & เครือข่าย',
-    desc: 'ระบบไฟร์วอลล์และเกตเวย์ความปลอดภัยระดับองค์กร ปกป้องเครือข่ายจากภัยคุกคามทางไซเบอร์',
-    detailedDesc: 'เกตเวย์ความปลอดภัยยุคใหม่ที่ออกแบบตามหลักสถาปัตยกรรม Zero-Trust ตรวจสอบและยืนยันตัวตนทุกคำขอเข้าถึงเครือข่าย ป้องกันการโจมตีแบบ Ransomware และตรวจจับพฤติกรรมผิดปกติด้วย AI ตลอด 24 ชม.',
-    price: 'เริ่มต้น 18,900 บาท/เดือน',
-    tags: ['Zero-Trust', 'AI Firewall', 'DDoS Protection'],
+    title: 'OutSource Service (บริการจัดหาทีมงานไอที)',
+    category: 'Service Development',
+    desc: 'บริการจัดส่งโปรแกรมเมอร์และทีมผู้เชี่ยวชาญด้าน IT เข้าปฏิบัติงานร่วมกับองค์กร ทั้งแบบ On-Site และ Remote Dedicated Team',
+    detailedDesc: 'เพิ่มศักยภาพและเร่งสปีดโครงการเทคโนโลยีขององค์กรอย่างไร้รอยต่อ IGENCO มีบริการจัดหาบุคลากรไอทีคุณภาพสูง อาทิ Frontend/Backend Developers, Mobile Engineers, System Analysts, QA Testers และ Project Managers เข้าเสริมทัพทีมงานของท่านได้ทันที พร้อม Technical Lead คอยกำกับดูแลคุณภาพงานอย่างต่อเนื่อง',
+    price: 'รายเดือนตามขนาดทีม (Dedicated Service)',
+    tags: ['IT Outsourcing', 'Dedicated Team', 'On-Site & Remote', 'Senior Engineers'],
     specs: [
-      { label: 'ความสามารถประมวลผล', value: 'Throughput สูงสุด 40 Gbps' },
-      { label: 'ระบบยืนยันตัวตน', value: 'MFA, FIDO2, SAML 2.0 Integration' },
-      { label: 'การเข้ารหัสข้อมูล', value: 'Post-Quantum Ready TLS 1.3' },
-      { label: 'การมอนิเตอร์', value: 'Automated SOC Incident Response' }
+      { label: 'บุคลากรที่ให้บริการ', value: 'Full-Stack Developers, Mobile, QA, SA, Data, PM' },
+      { label: 'รูปแบบการปฏิบัติงาน', value: 'On-Site ประจำองค์กรลูกค้า หรือ Remote Dedicated' },
+      { label: 'การการันตีบุคลากร', value: 'คัดกรองทักษะเข้มข้น และสลับเปลี่ยนคนได้ตามเงื่อนไข' },
+      { label: 'ความยืดหยุ่นสัญญา', value: 'สัญญารายเดือน/รายปี ปรับขยายทีมได้ตามเฟสของโครงการ' }
     ],
-    image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
+    image: '/images/products/outsource-service.svg',
     accentColor: '#3B82F6',
-    glowColor: 'rgba(59, 130, 246, 0.22)',
-    icon: 'ShieldCheck'
+    glowColor: 'rgba(59, 130, 246, 0.25)',
+    icon: 'Users'
   },
   {
     id: 6,
-    title: 'OmniFlow Enterprise BI & ERP',
-    category: 'ซอฟต์แวร์อัจฉริยะ',
-    desc: 'ระบบบริหารจัดการทรัพยากรองค์กรและแดชบอร์ดอัจฉริยะ รวมทุกข้อมูลการตัดสินใจไว้ในที่เดียว',
-    detailedDesc: 'โซลูชันศูนย์รวมข้อมูลองค์กรยุคใหม่ที่เชื่อมโยงคลังสินค้า บัญชี การขาย และฝ่ายผลิตเข้าด้วยกัน พร้อมระบบ AI Predictive Analytics ที่ช่วยพยากรณ์ยอดขายและแนวโน้มต้นทุนล่วงหน้าอย่างแม่นยำ',
-    price: 'โซลูชันตามสเกลองค์กร',
-    tags: ['Enterprise BI', 'Predictive AI', 'Full Modular'],
+    title: 'iMme Application (แอปพลิเคชันระบบสั่งซื้อสินค้า)',
+    category: 'E-Commerce',
+    desc: 'แพลตฟอร์มแอปพลิเคชันสั่งซื้อสินค้าและบริการบนสมาร์ทโฟน เชื่อมต่อระบบชำระเงิน e-Payment และระบบสมาชิก Loyalty Program ครบวงจร',
+    detailedDesc: 'iMme Application โซลูชัน Mobile Commerce อัจฉริยะที่ช่วยให้แบรนด์และร้านค้าเชื่อมต่อกับลูกค้าได้โดยตรง รองรับการเลือกชมสินค้า สั่งซื้อ ชำระเงินผ่าน PromptPay QR และบัตรเครดิต พร้อมระบบสะสมคะแนน คูปองส่วนลด และการแจ้งเตือนสถานะการจัดส่งแบบเรียลไทม์',
+    price: 'พร้อมใช้งานและปรับแต่งตามแบรนด์',
+    tags: ['Mobile Commerce', 'e-Payment Ready', 'Loyalty System', 'iOS & Android'],
     specs: [
-      { label: 'โมดูลระบบ', value: 'Finance, Inventory, HR, CRM, Supply Chain' },
-      { label: 'การออกรายงาน', value: 'Automated Executive Briefing & Export' },
-      { label: 'ความสามารถขยายระบบ', value: 'Multi-Tenant / High-Availability' },
-      { label: 'การติดตั้ง', value: 'On-Premises หรือ Hybrid Private Cloud' }
+      { label: 'แพลตฟอร์ม', value: 'iOS, Android และ Progressive Web App (PWA)' },
+      { label: 'ระบบชำระเงิน', value: 'PromptPay QR, Payment Gateway, Credit/Debit' },
+      { label: 'ระบบ CRM ลูกค้า', value: 'Loyalty Points, Member Tier, Discount Coupons' },
+      { label: 'การบริหารจัดการ', value: 'Admin Web Dashboard จัดการออเดอร์และสินค้า' }
     ],
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+    image: '/images/products/imme-application.svg',
+    accentColor: '#F59E0B',
+    glowColor: 'rgba(245, 158, 11, 0.25)',
+    icon: 'Smartphone'
+  },
+  {
+    id: 7,
+    title: 'i-RealEstate (ระบบบริหารธุรกิจอสังหาริมทรัพย์)',
+    category: 'E-Commerce',
+    desc: 'ระบบบริหารจัดการงานขาย การจอง และข้อมูลโครงการอสังหาริมทรัพย์ ทั้งคอนโดมิเนียม โครงการบ้านจัดสรร และอาคารพาณิชย์',
+    detailedDesc: 'i-RealEstate ซอฟต์แวร์บริหารจัดการธุรกิจอสังหาริมทรัพย์แบบครบวงจร ครอบคลุมการแสดงผังโครงการแบบ Interactive แปลง/ยูนิตว่าง การจองออนไลน์ การทำสัญญา การติดตามงวดผ่อนดาวน์ และระบบ CRM ติดตามลูกค้าผู้สนใจ ช่วยให้ทีมขายปิดการขายได้รวดเร็วและผู้บริหารเห็นภาพรวมยอดขายทันที',
+    price: 'แพ็กเกจโครงการ / Subscription',
+    tags: ['Real Estate CRM', 'Unit Layout Masterplan', 'Online Booking', 'Down Payment'],
+    specs: [
+      { label: 'ฟังก์ชันหลัก', value: 'ผังโครงการ Interactive, จองออนไลน์, สัญญาจะซื้อจะขาย' },
+      { label: 'ระบบการเงิน', value: 'ตารางผ่อนดาวน์, ใบแจ้งหนี้, ใบเสร็จรับเงินดิจิทัล' },
+      { label: 'ระบบบริหารลูกค้า', value: 'Sales CRM, Lead Funnel, บันทึกประวัติการติดต่อ' },
+      { label: 'แดชบอร์ดรายงาน', value: 'สรุปยอดขาย Realtime, อัตราการโอน, วิเคราะห์สต็อกยูนิต' }
+    ],
+    image: '/images/products/i-realestate.svg',
+    accentColor: '#8B5CF6',
+    glowColor: 'rgba(139, 92, 246, 0.25)',
+    icon: 'Building2'
+  },
+  {
+    id: 8,
+    title: 'iPOS (ระบบบริหารจุดขายและการจัดการร้านค้า)',
+    category: 'E-Commerce',
+    desc: 'ระบบ Point of Sale อัจฉริยะสำหรับร้านค้าและธุรกิจค้าปลีก รองรับการขายหน้าร้าน ตัดสต็อกอัตโนมัติ และดูยอดขายได้ทุกที่ทุกเวลา',
+    detailedDesc: 'iPOS ระบบคิดเงินหน้าร้านและบริหารสต็อกสินค้าที่พัฒนาขึ้นเพื่อตอบโจทย์ผู้ประกอบการยุคดิจิทัล รองรับการใช้งานบนคอมพิวเตอร์ แท็บเล็ต และอุปกรณ์ POS Touch Screen เชื่อมต่อลิ้นชักเก็บเงิน เครื่องพิมพ์ใบเสร็จ และบาร์โค้ดสแกนเนอร์ ตัดสต็อกอัตโนมัติทันที และมีแดชบอร์ดสรุปยอดขายรายวันและรายสาขา',
+    price: 'พร้อมใช้งานเริ่มต้น / รายเดือน-รายปี',
+    tags: ['Smart POS', 'Auto Stock', 'Barcode Ready', 'Multi-Store Report'],
+    specs: [
+      { label: 'อุปกรณ์ที่รองรับ', value: 'PC Windows, iPad/Tablet, Android POS, Touch Screen' },
+      { label: 'ฮาร์ดแวร์ต่อพ่วง', value: 'เครื่องพิมพ์ใบเสร็จ Thermal, ลิ้นชักเก็บเงิน, สแกนเนอร์' },
+      { label: 'การตัดสต็อก', value: 'ตัดสต็อกสินค้าทันที, แจ้งเตือนสินค้าใกล้หมด' },
+      { label: 'รายงานยอดขาย', value: 'สรุปยอดขายเรียลไทม์, สินค้าขายดี, กำไรเบื้องต้น' }
+    ],
+    image: '/images/products/ipos.svg',
     accentColor: '#EC4899',
-    glowColor: 'rgba(236, 72, 153, 0.22)',
-    icon: 'Sparkles'
+    glowColor: 'rgba(236, 72, 153, 0.25)',
+    icon: 'Store'
   }
 ]
 
