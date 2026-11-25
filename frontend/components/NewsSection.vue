@@ -19,9 +19,9 @@ const filteredNews = computed(() => {
 })
 
 // -------------------------------------------------------------
-// ระบบแบ่งหน้า (แสดงครั้งละ 3 ข่าว ถ้าเกินให้มีปุ่ม < > กดเปลี่ยนหน้า)
+// ระบบแบ่งหน้า (แสดงครั้งละ 3 ข่าว ถ้าเกินให้มีปุ่ม < > กดเปลี่ยนหน้าอยู่ล่างขวา)
 // -------------------------------------------------------------
-const itemsPerPage = 6
+const itemsPerPage = 3
 const currentPage = ref(1)
 
 const totalPages = computed(() => {
@@ -269,63 +269,52 @@ const toggleAiSummary = (id: number) => {
     </div>
 
     <!-- =========================================================
-         BOTTOM PAGINATION BAR (< 1 2 >)
-         แสดงอย่างเด่นชัดเมื่อมีข่าวมากกว่า 3 รายการ
+         BOTTOM PAGINATION BAR (< >)
+         แสดงปุ่ม < > ย้อนกลับและถัดไปอยู่มุมล่างขวา
     ========================================================== -->
     <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-current/10">
       <div class="text-xs font-mono opacity-65">
         แสดงข่าว {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredNews.length) }} จากทั้งหมด {{ filteredNews.length }} รายการ
       </div>
 
-      <!-- Controls: < Buttons + Numbers + > Button -->
-      <div class="flex items-center gap-2">
-        <!-- Previous Button -->
+      <!-- Controls: < > at bottom right -->
+      <div class="flex items-center gap-2 p-1.5 px-3 rounded-2xl spatial-glass border border-current/10 shadow-sm sm:ml-auto">
+        <!-- Previous Button (<) -->
         <button
           type="button"
           :disabled="currentPage === 1"
+          aria-label="ย้อนกลับ"
+          title="ย้อนกลับ"
           :class="[
-            'px-4 py-2.5 rounded-xl text-xs font-bold font-mono flex items-center gap-1.5 transition-all border',
+            'w-8 h-8 rounded-xl flex items-center justify-center transition-all',
             currentPage === 1
-              ? 'opacity-30 cursor-not-allowed border-current/10'
-              : 'hover:bg-[#00C864] hover:text-[#022C22] dark:hover:bg-[#00FF88] dark:hover:text-[#020806] border-current/20 active:scale-95 shadow-sm'
+              ? 'opacity-30 cursor-not-allowed'
+              : 'hover:bg-[#00C864] hover:text-[#022C22] dark:hover:bg-[#00FF88] dark:hover:text-[#020806] active:scale-90'
           ]"
           @click="prevPage"
         >
           <ChevronLeft class="w-4 h-4" />
-          <span>ก่อนหน้า</span>
         </button>
 
-        <!-- Page Numbers -->
-        <div class="flex items-center gap-1.5 px-2">
-          <button
-            v-for="pageNum in totalPages"
-            :key="pageNum"
-            type="button"
-            :class="[
-              'w-9 h-9 rounded-xl text-xs font-mono font-bold transition-all',
-              currentPage === pageNum
-                ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md scale-105'
-                : 'hover:bg-current/10 opacity-70 hover:opacity-100'
-            ]"
-            @click="goToPage(pageNum)"
-          >
-            {{ pageNum }}
-          </button>
-        </div>
+        <!-- Page Indicator (e.g. 1 / 2) -->
+        <span class="text-xs font-mono font-bold px-2 opacity-80 select-none">
+          {{ currentPage }} / {{ totalPages }}
+        </span>
 
-        <!-- Next Button -->
+        <!-- Next Button (>) -->
         <button
           type="button"
           :disabled="currentPage === totalPages"
+          aria-label="ถัดไป"
+          title="ถัดไป"
           :class="[
-            'px-4 py-2.5 rounded-xl text-xs font-bold font-mono flex items-center gap-1.5 transition-all border',
+            'w-8 h-8 rounded-xl flex items-center justify-center transition-all',
             currentPage === totalPages
-              ? 'opacity-30 cursor-not-allowed border-current/10'
-              : 'hover:bg-[#00C864] hover:text-[#022C22] dark:hover:bg-[#00FF88] dark:hover:text-[#020806] border-current/20 active:scale-95 shadow-sm'
+              ? 'opacity-30 cursor-not-allowed'
+              : 'hover:bg-[#00C864] hover:text-[#022C22] dark:hover:bg-[#00FF88] dark:hover:text-[#020806] active:scale-90'
           ]"
           @click="nextPage"
         >
-          <span>ถัดไป</span>
           <ChevronRight class="w-4 h-4" />
         </button>
       </div>
