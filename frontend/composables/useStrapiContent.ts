@@ -176,7 +176,7 @@ export const useStrapiContent = () => {
     if (url) {
       return url.startsWith('http') ? url : `${strapiUrl}${url}`
     }
-    return fallback || '/images/news/iso-29110.jpg'
+    return fallback || '/images/news/igenco-iso29110-ceremony.jpg'
   }
 
   // Fetch News Articles from Strapi (with graceful fallback if backend is offline)

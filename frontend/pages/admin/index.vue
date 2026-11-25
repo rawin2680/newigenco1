@@ -136,7 +136,7 @@ const resolveImage = (media: any, fallback?: string) => {
   if (media?.url) {
     return media.url.startsWith('http') ? media.url : `${strapiUrl}${media.url}`
   }
-  return fallback || '/images/news/iso-29110.jpg'
+  return fallback || '/images/news/igenco-iso29110-ceremony.jpg'
 }
 
 // =========================================================================
@@ -306,7 +306,7 @@ const openNewsModal = (item?: any) => {
       content: '',
       coverImageId: null,
       previewUrl: '',
-      fallbackImageUrl: '/images/news/iso-29110.jpg'
+      fallbackImageUrl: '/images/news/igenco-iso29110-ceremony.jpg'
     }
   }
   newsModalOpen.value = true
@@ -335,7 +335,7 @@ const saveNews = async (publish: boolean) => {
       readTime: newsForm.value.readTime || '3 นาทีในการอ่าน',
       excerpt: newsForm.value.excerpt,
       content: newsForm.value.content || newsForm.value.excerpt,
-      fallbackImageUrl: newsForm.value.fallbackImageUrl || '/images/news/iso-29110.jpg',
+      fallbackImageUrl: newsForm.value.fallbackImageUrl || '/images/news/igenco-iso29110-ceremony.jpg',
       _publish: publish
     }
     if (newsForm.value.coverImageId) {
