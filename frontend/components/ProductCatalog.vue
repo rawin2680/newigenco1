@@ -298,61 +298,43 @@ const inquireProduct = (title: string) => {
               {{ product.title }}
             </h3>
 
-            <p class="text-xs sm:text-sm opacity-75 line-clamp-2 leading-relaxed">
+            <p class="text-xs sm:text-sm opacity-75 line-clamp-3 leading-relaxed">
               {{ product.desc }}
             </p>
           </div>
 
-          <!-- Tags & Action Bar -->
-          <div class="space-y-4 pt-4 border-t border-current/10">
-            <!-- Feature Tags -->
-            <div class="flex flex-wrap gap-1.5">
-              <span
-                v-for="tag in product.tags"
-                :key="tag"
-                class="px-2.5 py-1 rounded-md text-[10px] font-mono bg-current/5 border border-current/10"
+          <!-- Clean Action Bar: Left-aligned Dual Buttons (ดูรายละเอียด & สอบถามสินค้านี้) -->
+          <div class="pt-4 border-t border-current/10">
+            <div class="flex flex-wrap items-center justify-start gap-2.5">
+              <!-- 1. ปุ่มดูรายละเอียด (View Details) -> ถ้ามี link ให้เข้าหน้าแยกทันที -->
+              <NuxtLink
+                v-if="product.link"
+                :to="product.link"
+                class="px-4 py-2 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15 text-purple-600 dark:text-purple-400 font-bold hover:border-purple-500 shadow-sm"
               >
-                {{ tag }}
-              </span>
-            </div>
+                <Info class="w-3.5 h-3.5 opacity-90" />
+                <span>ดูรายละเอียด</span>
+                <ArrowUpRight class="w-3 h-3 ml-0.5" />
+              </NuxtLink>
+              <button
+                v-else
+                type="button"
+                class="px-4 py-2 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15 hover:border-current/30 shadow-sm cursor-pointer"
+                @click="openProductDetail(product)"
+              >
+                <Info class="w-3.5 h-3.5 opacity-75" />
+                <span>ดูรายละเอียด</span>
+              </button>
 
-            <!-- Price & Dual Action Buttons (ดูรายละเอียด + สอบถามสินค้านี้) -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
-              <div class="text-xs font-mono font-bold text-[#00C864] dark:text-[#00FF88] self-center sm:self-auto">
-                {{ product.price }}
-              </div>
-
-              <div class="flex items-center gap-2">
-                <!-- 1. ปุ่มดูรายละเอียด (View Details) -> ถ้ามี link ให้เข้าหน้าแยกทันที -->
-                <NuxtLink
-                  v-if="product.link"
-                  :to="product.link"
-                  class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15 text-purple-600 dark:text-purple-400 font-bold hover:border-purple-500"
-                >
-                  <Info class="w-3.5 h-3.5 opacity-90" />
-                  <span>ดูรายละเอียด</span>
-                  <ArrowUpRight class="w-3 h-3 ml-0.5" />
-                </NuxtLink>
-                <button
-                  v-else
-                  type="button"
-                  class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15"
-                  @click="openProductDetail(product)"
-                >
-                  <Info class="w-3.5 h-3.5 opacity-75" />
-                  <span>ดูรายละเอียด</span>
-                </button>
-
-                <!-- 2. ปุ่มสอบถามสินค้านี้ (Inquire Product) -->
-                <button
-                  type="button"
-                  class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1 shadow-md hover:shadow-lg hover:scale-105"
-                  @click="inquireProduct(product.title)"
-                >
-                  <span>สอบถามสินค้านี้</span>
-                  <ArrowUpRight class="w-3.5 h-3.5" />
-                </button>
-              </div>
+              <!-- 2. ปุ่มสอบถามสินค้านี้ (Inquire Product) -->
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg hover:scale-105 cursor-pointer"
+                @click="inquireProduct(product.title)"
+              >
+                <span>สอบถามสินค้านี้</span>
+                <ArrowUpRight class="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         </div>
