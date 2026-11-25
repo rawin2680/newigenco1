@@ -91,7 +91,17 @@ const navLinks: NavItem[] = [
     ]
   },
   { name: 'กลุ่มผู้ใช้ผลิตภัณฑ์', href: '/#clients', sectionId: 'clients', icon: Users },
-  { name: 'ติดต่อเรา', href: '/#contact', sectionId: 'contact', icon: Mail }
+  {
+    name: 'ติดต่อเรา',
+    href: '/contact',
+    sectionId: 'contact',
+    icon: Mail,
+    hasDropdown: true,
+    children: [
+      { name: 'ติดต่อสอบถามหรือ ขอคำปรึกษา', href: '/contact' },
+      { name: 'ตำแหน่งที่ตั้ง', href: '/contact/location' }
+    ]
+  }
 ]
 
 // All sections on homepage in actual vertical order from top to bottom
@@ -118,6 +128,7 @@ const resolveActiveIndex = (): number => {
   const path = route.path || '/'
   const hash = route.hash || ''
 
+  if (path.startsWith('/contact')) return 5
   if (path.startsWith('/products')) return 3
   if (path.startsWith('/about') || path === '/careers' || path === '/privacy-policy' || path === '/cookie-policy') return 2
   if (path.startsWith('/news')) return 1
@@ -321,7 +332,10 @@ onBeforeUnmount(() => {
           <!-- Glassy Dropdown Menu -->
           <div
             v-if="link.hasDropdown && activeDropdown === idx"
-            class="absolute top-full left-1/2 -translate-x-1/2 pt-2.5 z-50 min-w-[260px] pointer-events-auto"
+            :class="[
+              'absolute top-full pt-2.5 z-50 min-w-[260px] pointer-events-auto',
+              idx === navLinks.length - 1 ? 'right-0' : 'left-1/2 -translate-x-1/2'
+            ]"
             @mouseenter="keepDropdownOpen"
             @mouseleave="onTabLeave"
           >

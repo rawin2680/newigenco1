@@ -13,7 +13,8 @@ import {
   ChevronDown,
   Clock,
   Building2,
-  FileText
+  FileText,
+  Compass
 } from 'lucide-vue-next'
 import { useStrapiContent } from '~/composables/useStrapiContent'
 import { useTheme } from '~/composables/useTheme'
@@ -316,9 +317,15 @@ const scrollToTop = () => {
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/#contact" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                <NuxtLink to="/contact" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
                   <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
-                  <span>ติดต่อเรา</span>
+                  <span>ติดต่อสอบถาม / ขอคำปรึกษา</span>
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/contact/location" class="hover:text-[#00FF88] transition-colors flex items-center gap-1.5">
+                  <ChevronRight class="w-3.5 h-3.5 text-[#00FF88]/60" />
+                  <span>ตำแหน่งที่ตั้งสำนักงาน</span>
                 </NuxtLink>
               </li>
             </ul>
@@ -375,6 +382,18 @@ const scrollToTop = () => {
               <span>
                 89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร 10210
               </span>
+            </div>
+
+            <!-- Dedicated Location Page Link -->
+            <div class="pt-1">
+              <NuxtLink
+                to="/contact/location"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] text-slate-200 hover:text-[#020806] text-xs font-semibold transition-all group"
+              >
+                <Compass class="w-3.5 h-3.5 text-[#00FF88] group-hover:text-[#020806]" />
+                <span>ดูตำแหน่งที่ตั้งและแผนที่สำนักงาน</span>
+                <ArrowUpRight class="w-3.5 h-3.5" />
+              </NuxtLink>
             </div>
 
             <!-- Phone Numbers with One-Click Copy -->
