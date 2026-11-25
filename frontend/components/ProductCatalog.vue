@@ -410,24 +410,26 @@ const inquireProduct = (title: string) => {
       >
         <div
           v-if="selectedProduct"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-md cursor-pointer"
           role="dialog"
           aria-modal="true"
-          @click.self="closeProductDetail"
+          @click="closeProductDetail"
         >
           <div
-            class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto spatial-glass rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl custom-modal-scrollbar"
+            class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto spatial-glass rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl custom-modal-scrollbar cursor-default"
             :style="{
               boxShadow: `0 24px 60px ${selectedProduct.glowColor}`
             }"
+            @click.stop
           >
             <!-- Close Button -->
             <button
               type="button"
-              class="absolute top-5 right-5 w-9 h-9 rounded-full bg-current/10 hover:bg-current/20 flex items-center justify-center transition-all"
-              @click="closeProductDetail"
+              class="absolute top-5 right-5 w-9 h-9 rounded-full bg-current/10 hover:bg-current/20 flex items-center justify-center transition-all cursor-pointer z-10"
+              aria-label="Close modal"
+              @click.stop="closeProductDetail"
             >
-              <X class="w-5 h-5" />
+              <X class="w-5 h-5 pointer-events-none" />
             </button>
 
             <!-- Modal Header -->
@@ -507,17 +509,17 @@ const inquireProduct = (title: string) => {
               </div>
               <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                 <NuxtLink
-                  v-if="selectedProduct.id === 1"
-                  to="/news/6"
-                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all flex items-center justify-center gap-1.5 shadow-md hover:scale-105 active:scale-95"
+                  v-if="selectedProduct.link"
+                  :to="selectedProduct.link"
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold bg-[#00C864] hover:bg-[#00a854] text-[#022C22] dark:text-[#020806] transition-all flex items-center justify-center gap-1.5 shadow-md hover:scale-105 active:scale-95"
                 >
-                  <span>ดูหน้าแนะนำระบบฉบับเต็ม</span>
+                  <span>ดูหน้าระบบฉบับเต็ม</span>
                   <ArrowUpRight class="w-3.5 h-3.5" />
                 </NuxtLink>
                 <button
                   type="button"
-                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 transition-all"
-                  @click="closeProductDetail"
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 transition-all cursor-pointer"
+                  @click.stop="closeProductDetail"
                 >
                   ปิดหน้าต่าง
                 </button>
