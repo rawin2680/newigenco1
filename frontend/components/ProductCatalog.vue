@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   ArrowUpRight,
   Box,
@@ -18,10 +19,23 @@ import {
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
+const route = useRoute()
 const { showToast } = useTheme()
 
 const activeCategory = ref('ทั้งหมด')
 const categories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'E-Commerce']
+
+onMounted(() => {
+  if (route.query.cat && categories.includes(route.query.cat as string)) {
+    activeCategory.value = route.query.cat as string
+  }
+})
+
+watch(() => route.query.cat, (newCat) => {
+  if (newCat && categories.includes(newCat as string)) {
+    activeCategory.value = newCat as string
+  }
+})
 
 export interface ProductItem {
   id: number
