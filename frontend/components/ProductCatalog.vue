@@ -15,7 +15,9 @@ import {
   Users,
   Smartphone,
   Building2,
-  Store
+  Store,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 
@@ -216,6 +218,55 @@ const filteredProducts = computed(() => {
   return products.filter(p => p.category === activeCategory.value)
 })
 
+// -------------------------------------------------------------
+// ระบบแบ่งหน้า (แสดงครั้งละ 6 รายการ ถ้าเกินจะมีปุ่ม < > ล่างขวา)
+// -------------------------------------------------------------
+const itemsPerPage = 6
+const currentPage = ref(1)
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage))
+})
+
+// รีเซ็ตหน้ากลับเป็นหน้า 1 เมื่อเปลี่ยนหมวดหมู่
+watch(activeCategory, () => {
+  currentPage.value = 1
+})
+
+const displayedProducts = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage
+  return filteredProducts.value.slice(startIndex, startIndex + itemsPerPage)
+})
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    scrollToProductsTop()
+  }
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    scrollToProductsTop()
+  }
+}
+
+const scrollToProductsTop = () => {
+  if (import.meta.client) {
+    const el = document.getElementById('products')
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      if (rect.top < -50) {
+        window.scrollTo({
+          top: window.scrollY + rect.top - 80,
+          behavior: 'smooth'
+        })
+      }
+    }
+  }
+}
+
 // Selected Product for Detail Modal
 const selectedProduct = ref<ProductItem | null>(null)
 
@@ -289,11 +340,11 @@ const inquireProduct = (title: string) => {
     <div class="relative min-h-[500px]">
       <Transition name="catalog-page" mode="out-in">
         <div
-          :key="activeCategory"
+          :key="activeCategory + '-' + currentPage"
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
           <div
-            v-for="(product, idx) in filteredProducts"
+            v-for="(product, idx) in displayedProducts"
             :key="product.id"
             class="product-card spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2.5 transition-all duration-300 border border-current/10 relative"
             :style="{
@@ -410,6 +461,61 @@ const inquireProduct = (title: string) => {
           </div>
         </div>
       </Transition>
+    </div>
+
+    <!-- =========================================================
+         BOTTOM PAGINATION BAR (< >)
+         แสดงปุ่ม < > ย้อนกลับและถัดไปอยู่มุมล่างขวา เมื่อสินค้าเกิน 6 ชิ้น
+    ========================================================== -->
+    <div
+      v-if="totalPages > 1"
+      class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 sm:mt-12 pt-6 border-t border-current/10"
+    >
+      <div class="text-xs font-mono opacity-65">
+        แสดงผลิตภัณฑ์ {{ ((currentPage - 1) * itemsPerPage) + 1 }} - {{ Math.min(currentPage * itemsPerPage, filteredProducts.length) }} จากทั้งหมด {{ filteredProducts.length }} รายการ
+      </div>
+
+      <!-- Controls: < > at bottom right -->
+      <div class="flex items-center gap-2 p-1.5 px-3 rounded-2xl spatial-glass border border-current/10 shadow-sm sm:ml-auto">
+        <!-- Previous Button (<) -->
+        <button
+          type="button"
+          :disabled="currentPage === 1"
+          aria-label="ย้อนกลับ"
+          title="ย้อนกลับ"
+          :class="[
+            'w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer',
+            currentPage === 1
+              ? 'opacity-30 cursor-not-allowed'
+              : 'hover:bg-[#00C864] hover:text-[#022C22] dark:hover:bg-[#00FF88] dark:hover:text-[#020806] active:scale-90'
+          ]"
+          @click="prevPage"
+        >
+          <ChevronLeft class="w-4 h-4" />
+        </button>
+
+        <!-- Page Indicator (e.g. 1 / 2) -->
+        <span class="text-xs font-mono font-bold px-2 opacity-80 select-none">
+          {{ currentPage }} / {{ totalPages }}
+        </span>
+
+        <!-- Next Button (>) -->
+        <button
+          type="button"
+          :disabled="currentPage === totalPages"
+          aria-label="ถัดไป"
+          title="ถัดไป"
+          :class="[
+            'w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer',
+            currentPage === totalPages
+              ? 'opacity-30 cursor-not-allowed'
+              : 'hover:bg-[#00C864] hover:text-[#022C22] dark:hover:bg-[#00FF88] dark:hover:text-[#020806] active:scale-90'
+          ]"
+          @click="nextPage"
+        >
+          <ChevronRight class="w-4 h-4" />
+        </button>
+      </div>
     </div>
 
     <!-- Product Detail Modal Drawer -->
