@@ -79,8 +79,9 @@ onUnmounted(() => {
         />
       </div>
 
-      <!-- Single-Row 5-Logo Showcase (Larger, Borderless, Simultaneous Blur-to-Focus) -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 items-center justify-items-center gap-6 sm:gap-10 py-4">
+      <!-- Single-Row 5-Logo Showcase in Clean White Frame -->
+      <div class="content-card p-6 sm:p-10">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 items-center justify-items-center gap-6 sm:gap-10">
         <div
           v-for="(item, idx) in slots"
           :key="idx"
@@ -96,6 +97,7 @@ onUnmounted(() => {
               loading="lazy"
             />
           </Transition>
+        </div>
         </div>
       </div>
     </div>

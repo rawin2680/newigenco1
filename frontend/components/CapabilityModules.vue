@@ -27,7 +27,7 @@ const getIconComponent = (name: string) => {
 <template>
   <section id="capabilities" class="py-28 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto relative z-10">
     <!-- Asymmetric Section Header -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
+    <div class="content-card p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
       <div class="lg:col-span-7">
         <SectionHeading
           eyebrow="01 // ARCHITECTURAL MODULES"

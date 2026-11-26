@@ -70,14 +70,12 @@ h1, h2, h3, h4, h5, h6, .font-display, .font-sans, .font-mono {
   border-color: var(--glass-highlight);
 }
 
-/* Modern Content Card — solid frosted surface for text sections */
+/* Modern Content Card — crisp white frame for text & related content */
 .content-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(2, 44, 34, 0.08);
-  border-radius: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.04);
+  background: #ffffff;
+  border: 1px solid rgba(2, 44, 34, 0.09);
+  border-radius: 24px;
+  box-shadow: 0 2px 12px rgba(2, 44, 34, 0.04), 0 10px 30px rgba(2, 44, 34, 0.03);
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
