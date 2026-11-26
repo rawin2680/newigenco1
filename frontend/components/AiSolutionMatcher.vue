@@ -92,15 +92,13 @@ const applySolutionToContact = () => {
       
       <!-- Section Header -->
       <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-10 border-b border-current/15">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00C864]/15 dark:bg-[#00FF88]/15 text-[#00A854] dark:text-[#00FF88] text-xs font-mono font-bold mb-3">
-            <Sparkles class="w-3.5 h-3.5" />
-            <span>AI GENERATIVE ENGINE // ระบบปรับเปลี่ยนอัจฉริยะ</span>
-          </div>
-          <h2 class="font-display font-extrabold text-3xl sm:text-5xl uppercase">
-            ค้นหาแพ็กเกจโซลูชันที่เหมาะกับคุณ
-          </h2>
-        </div>
+        <SectionHeading
+          eyebrow="AI GENERATIVE ENGINE // ระบบปรับเปลี่ยนอัจฉริยะ"
+          title-prefix="ค้นหาแพ็กเกจโซลูชันที่"
+          title-highlight="เหมาะกับคุณ"
+          size="lg"
+          :icon="Sparkles"
+        />
         <p class="text-sm sm:text-base opacity-80 max-w-md">
           เลือกความต้องการทางธุรกิจของคุณ ระบบ AI จะสร้างชุดสินค้าและสถาปัตยกรรมที่คุ้มค่าที่สุดให้แบบเรียลไทม์
         </p>

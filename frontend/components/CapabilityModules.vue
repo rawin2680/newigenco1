@@ -29,12 +29,12 @@ const getIconComponent = (name: string) => {
     <!-- Asymmetric Section Header -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
       <div class="lg:col-span-7">
-        <div class="text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-3">
-          01 // ARCHITECTURAL MODULES
-        </div>
-        <h2 class="font-display font-extrabold text-4xl sm:text-6xl leading-[1.05] uppercase">
-          ฉีกกฎการสร้าง<br>แพลตฟอร์มธุรกิจยุคใหม่
-        </h2>
+        <SectionHeading
+          eyebrow="01 // ARCHITECTURAL MODULES"
+          title-prefix="ฉีกกฎการสร้าง"
+          title-highlight="แพลตฟอร์มธุรกิจยุคใหม่"
+          size="xl"
+        />
       </div>
       <div class="lg:col-span-5 flex items-end">
         <p class="text-base sm:text-lg opacity-80 leading-relaxed">

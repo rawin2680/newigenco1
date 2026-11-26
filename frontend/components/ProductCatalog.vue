@@ -333,15 +333,13 @@ const inquireProduct = (title: string) => {
     
     <!-- Section Title & Filter Tabs -->
     <div class="sticky top-16 sm:top-20 z-20 py-4 bg-[#F6F9F7]/95 dark:bg-[#020806]/95 backdrop-blur-md flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 border-b border-current/10 -mx-5 px-5 sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 transition-all">
-      <div class="reveal-init reveal-left">
-        <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-2 font-bold">
-          <Box class="w-3.5 h-3.5" />
-          <span>CATALOG // ผลิตภัณฑ์และบริการ</span>
-        </div>
-        <h2 class="font-display font-extrabold text-3xl sm:text-5xl uppercase tracking-tight">
-          ผลิตภัณฑ์และโซลูชันของเรา
-        </h2>
-      </div>
+      <SectionHeading
+        eyebrow="CATALOG // ผลิตภัณฑ์และบริการ"
+        title-prefix="ผลิตภัณฑ์และ"
+        title-highlight="โซลูชันของเรา"
+        size="lg"
+        :icon="Box"
+      />
 
       <!-- Categories Filter Tabs (Liquid Glass Capsule Tray) -->
       <div class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-full spatial-glass border border-current/10 reveal-init reveal-right">

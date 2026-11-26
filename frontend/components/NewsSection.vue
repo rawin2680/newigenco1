@@ -142,20 +142,16 @@ const toggleAiSummary = (id: number) => {
 <template>
   <section id="news" class="py-24 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto relative z-10">
     
-    <!-- Section Header with Category Tabs and Pagination Buttons -->
+    <!-- Section Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-      <div class="reveal-init reveal-left">
-        <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-2 font-bold">
-          <BookOpen class="w-3.5 h-3.5" />
-          <span>NEWS & ACTIVITIES // ข่าวสารและกิจกรรม IGENCO</span>
-        </div>
-        <h2 class="font-display font-extrabold text-3xl sm:text-5xl uppercase tracking-tight text-[#022C22] dark:text-[#F4FBF7]">
-          ข่าวสารล่าสุด
-        </h2>
-        <p class="text-sm opacity-75 mt-2 max-w-xl">
-          ติดตามความเคลื่อนไหว ผลงานความสำเร็จ และสาระความรู้ด้านนวัตกรรมและเทคโนโลยีองค์กร
-        </p>
-      </div>
+      <SectionHeading
+        eyebrow="NEWS & ACTIVITIES // ข่าวสารและกิจกรรม IGENCO"
+        title-prefix="ข่าวสารและกิจกรรม"
+        title-highlight="ล่าสุด"
+        subtitle="ติดตามความเคลื่อนไหว ผลงานความสำเร็จ และสาระความรู้ด้านนวัตกรรมและเทคโนโลยีองค์กร"
+        size="lg"
+        :icon="BookOpen"
+      />
     </div>
 
     <!-- =========================================================

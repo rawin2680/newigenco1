@@ -25,14 +25,12 @@ const scrollTrack = (direction: 'left' | 'right') => {
 <template>
   <section id="showcase" class="py-24 relative z-10 overflow-hidden">
     <div class="max-w-[1440px] mx-auto px-5 sm:px-10 lg:px-16 mb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-      <div>
-        <div class="text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-3">
-          03 // DEPLOYED FLAGSHIPS
-        </div>
-        <h2 class="font-display font-extrabold text-4xl sm:text-6xl uppercase">
-          ผลงานระดับองค์กร
-        </h2>
-      </div>
+      <SectionHeading
+        eyebrow="03 // DEPLOYED FLAGSHIPS"
+        title-prefix="ผลงานระดับ"
+        title-highlight="องค์กร"
+        size="xl"
+      />
 
       <!-- Navigation Scroll Buttons -->
       <div class="flex items-center gap-3">

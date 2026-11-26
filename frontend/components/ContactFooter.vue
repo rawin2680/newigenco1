@@ -110,14 +110,13 @@ const scrollToTop = () => {
           
           <!-- Left Column: Title & Key Highlights -->
           <div class="lg:col-span-5 space-y-6 reveal-init reveal-left">
-            <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] font-bold">
-              <ShieldCheck class="w-4 h-4" />
-              <span>CONSULTATION & INQUIRY // ติดต่อเรา</span>
-            </div>
-            
-            <h2 class="font-display font-extrabold text-3xl sm:text-5xl leading-tight uppercase">
-              ติดต่อสอบถาม<br>หรือ <span class="text-[#00C864] dark:text-[#00FF88]">ขอคำปรึกษา</span>
-            </h2>
+            <SectionHeading
+              eyebrow="CONSULTATION & INQUIRY // ติดต่อเรา"
+              title-prefix="ติดต่อสอบถาม หรือ"
+              title-highlight="ขอคำปรึกษา"
+              size="lg"
+              :icon="ShieldCheck"
+            />
             
             <p class="text-sm sm:text-base opacity-85 leading-relaxed">
               สนใจระบบซอฟต์แวร์ตัวไหน หรือต้องการปรึกษาเพื่อนำโซลูชันไปปรับใช้กับองค์กรของคุณ สามารถกรอกฟอร์มได้ทันทีโดยไม่ต้องลงทะเบียนล่วงหน้า ทีมผู้เชี่ยวชาญ IGENCO จะติดต่อกลับอย่างรวดเร็ว

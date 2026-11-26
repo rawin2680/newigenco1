@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Sparkles } from 'lucide-vue-next'
+import SectionHeading from '~/components/SectionHeading.vue'
 
 type LogoItem = {
   id: string
@@ -66,14 +67,16 @@ onUnmounted(() => {
 <template>
   <section id="clients" class="py-16 sm:py-20 overflow-hidden relative z-20 reveal-init scroll-mt-24">
     <div class="max-w-[1440px] mx-auto px-5 sm:px-10">
-      <div class="mb-10 text-center">
-        <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-2 font-bold">
-          <Sparkles class="w-3.5 h-3.5" />
-          <span>CLIENTS & PARTNER ECOSYSTEM // กลุ่มผู้ใช้ผลิตภัณฑ์และพันธมิตร</span>
-        </div>
-        <h3 class="text-xl sm:text-2xl font-bold tracking-tight">
-          กลุ่มผู้ใช้ผลิตภัณฑ์และพันธมิตรที่ให้ความไว้วางใจ IGENCO
-        </h3>
+      <div class="mb-12">
+        <SectionHeading
+          eyebrow="CLIENTS & PARTNER ECOSYSTEM // กลุ่มผู้ใช้ผลิตภัณฑ์และพันธมิตร"
+          title-prefix="กลุ่มผู้ใช้ผลิตภัณฑ์และพันธมิตรที่"
+          title-highlight="ให้ความไว้วางใจ IGENCO"
+          align="center"
+          size="md"
+          :show-radial-grid="true"
+          :icon="Sparkles"
+        />
       </div>
 
       <!-- Single-Row 5-Logo Showcase (Larger, Borderless, Simultaneous Blur-to-Focus) -->
