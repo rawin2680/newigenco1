@@ -119,13 +119,12 @@ onBeforeUnmount(() => {
         transition: isHovering ? 'transform 0.12s ease-out' : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
       }"
     >
-      <h1 class="font-display font-black tracking-tight leading-[1.04] text-[clamp(2.3rem,5.6vw,5.2rem)] uppercase text-[#022C22] dark:text-[#F4FBF7]">
-        <!-- Line 1: Masked Line Reveal (Staggered Animation) -->
-        <span class="block overflow-hidden pb-1">
+      <h1 class="font-display font-black tracking-tight leading-[1.24] text-[clamp(2.3rem,5.6vw,5.2rem)] uppercase text-[#022C22] dark:text-[#F4FBF7]">
+        <span class="block">
           <span
             :class="[
               'block transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-              isEntered ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+              isEntered ? 'translate-y-0 opacity-100' : 'translate-y-[0.3em] opacity-0'
             ]"
           >
             ขับเคลื่อนองค์กรสู่อนาคต
@@ -133,11 +132,11 @@ onBeforeUnmount(() => {
         </span>
 
         <!-- Line 2: CSS -webkit-text-stroke + Scroll-Linked Fill + Radial Spotlight Mask -->
-        <span class="block overflow-hidden pt-1 pb-2">
+        <span class="block">
           <span
             :class="[
               'relative inline-block transition-all duration-1000 delay-150 ease-[cubic-bezier(0.16,1,0.3,1)]',
-              isEntered ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+              isEntered ? 'translate-y-0 opacity-100' : 'translate-y-[0.3em] opacity-0'
             ]"
           >
             <!-- 1. Outlined Base Stroke Text (-webkit-text-stroke) -->
@@ -147,9 +146,10 @@ onBeforeUnmount(() => {
 
             <!-- 2. Scroll-Linked Text Fill (Fills gradient as user scrolls) -->
             <span
+              aria-hidden="true"
               class="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#00C864] via-[#00FF88] to-[#022C22] dark:to-white bg-clip-text text-transparent transition-all duration-150"
               :style="{
-                clipPath: `inset(0 ${100 - scrollFillPercent}% 0 0)`
+                clipPath: `inset(-0.15em ${100 - scrollFillPercent}% -0.15em 0)`
               }"
             >
               ด้วยเทคโนโลยีอัจฉริยะ
@@ -158,6 +158,7 @@ onBeforeUnmount(() => {
             <!-- 3. Interactive Radial Spotlight Mask (mask-image follows mouse) -->
             <span
               v-if="isHovering"
+              aria-hidden="true"
               class="absolute inset-0 pointer-events-none bg-gradient-to-r from-emerald-300 via-[#00FF88] to-emerald-100 bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(0,255,136,0.65)]"
               :style="{
                 maskImage: `radial-gradient(circle 200px at ${mouseX}px ${mouseY}px, black 30%, transparent 100%)`,

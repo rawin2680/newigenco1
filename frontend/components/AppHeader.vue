@@ -66,26 +66,36 @@ const navLinks: NavItem[] = [
     icon: Box,
     hasDropdown: true,
     children: [
-      { name: 'Regist.ai (ระบบลงทะเบียนอัจฉริยะ)', href: '/products/regist-ai' },
-      { name: 'HR.ai (ระบบบริหารงานบุคคล AI)', href: '/products/hr-ai' },
-      { name: 'iGenQ (ระบบบริหารคิวอัจฉริยะ)', href: '/products/igenq' },
       {
-        name: 'Service Development',
-        href: '/#products?cat=Service Development',
+        name: 'Enterprise Software',
+        href: '/?cat=Enterprise%20Software#products',
         hasSubmenu: true,
         children: [
-          { name: 'Software OnDemand', href: '/#products?cat=Service Development' },
-          { name: 'OutSource Service', href: '/#products?cat=Service Development' }
+          { name: 'i-SMARTSOFT', href: '/products/i-smartsoft' },
+          { name: 'i-SMARTFLOW', href: '/products/i-smartflow' },
+          { name: 'Regist.ai', href: '/products/regist-ai' },
+          { name: 'HR.ai', href: '/products/hr-ai' },
+          { name: 'i-FINSOFT – ERP', href: '/products/i-finsoft' },
+          { name: 'iGenQ', href: '/products/igenq' }
+        ]
+      },
+      {
+        name: 'Service Development',
+        href: '/?cat=Service%20Development#products',
+        hasSubmenu: true,
+        children: [
+          { name: 'Software OnDemand', href: '/products/software-ondemand' },
+          { name: 'OutSource Service', href: '/products/outsource-service' }
         ]
       },
       {
         name: 'E-Commerce',
-        href: '/#products?cat=E-Commerce',
+        href: '/?cat=E-Commerce#products',
         hasSubmenu: true,
         children: [
-          { name: 'iMme Application', href: '/#products?cat=E-Commerce' },
-          { name: 'i-RealEstate', href: '/#products?cat=E-Commerce' },
-          { name: 'iPOS', href: '/#products?cat=E-Commerce' }
+          { name: 'iMme Application', href: '/products/imme-application' },
+          { name: 'i-RealEstate', href: '/products/i-realestate' },
+          { name: 'iPOS', href: '/products/ipos' }
         ]
       }
     ]
@@ -163,6 +173,9 @@ const isTabActive = (idx: number) => {
 
 const onTabEnter = (idx: number) => {
   clearTimeout(dropdownTimeout)
+  if (activeDropdown.value !== idx) {
+    activeSubmenu.value = navLinks[idx]?.sectionId === 'products' ? 'Enterprise Software' : null
+  }
   if (navLinks[idx]?.hasDropdown) {
     activeDropdown.value = idx
   } else {
@@ -290,6 +303,7 @@ onBeforeUnmount(() => {
       <nav
         class="hidden lg:flex relative items-center p-1 rounded-full liquid-glass-tray transition-all duration-300 gap-1"
         @mouseleave="onTabLeave"
+        @keydown.esc="closeAllDropdowns"
       >
         <!-- Tab Items -->
         <div
@@ -297,6 +311,7 @@ onBeforeUnmount(() => {
           :key="link.name"
           class="relative"
           @mouseenter="onTabEnter(idx)"
+          @focusout="event => { if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) onTabLeave() }"
           @mouseleave="onTabLeave"
         >
           <NuxtLink
@@ -308,6 +323,7 @@ onBeforeUnmount(() => {
                 : 'border-transparent text-[#022C22]/75 dark:text-[#F4FBF7]/75 hover:text-[#00C864] dark:hover:text-[#00FF88] hover:bg-black/5 dark:hover:bg-white/5 font-semibold'
             ]"
             @click="onTabClick(idx, link.sectionId)"
+            @focus="onTabEnter(idx)"
           >
             <!-- Vector Icon (Lucide Icon) -->
             <component
@@ -347,22 +363,26 @@ onBeforeUnmount(() => {
                   class="relative"
                   @mouseenter="activeSubmenu = sub.name"
                 >
-                  <div
+                  <button
+                    type="button"
+                    :aria-expanded="activeSubmenu === sub.name"
                     :class="[
-                      'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer select-none',
+                      'flex w-full items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs font-semibold transition-all cursor-pointer select-none',
                       activeSubmenu === sub.name
-                        ? 'bg-[#00C864] text-white shadow-md'
+                        ? 'bg-[#00C864] text-[#022C22] shadow-md'
                         : 'text-[#022C22] dark:text-white hover:bg-[#00C864]/10 dark:hover:bg-[#00FF88]/15 hover:text-[#00C864] dark:hover:text-[#00FF88]'
                     ]"
+                    @click="activeSubmenu = sub.name"
+                    @focus="activeSubmenu = sub.name"
                   >
                     <span>{{ sub.name }}</span>
                     <ChevronRight :class="['w-3.5 h-3.5 transition-transform', activeSubmenu === sub.name ? 'text-white' : 'opacity-60']" />
-                  </div>
+                  </button>
 
                   <!-- Flyout Submenu to the right -->
                   <div
                     v-if="activeSubmenu === sub.name"
-                    class="absolute left-full top-0 ml-1.5 z-50 min-w-[200px] p-2 rounded-2xl bg-white/95 dark:bg-[#03150e]/95 border border-[#00C864]/30 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in duration-150"
+                    class="absolute left-full top-0 z-50 min-w-[200px] p-2 rounded-2xl bg-white/95 dark:bg-[#03150e]/95 border border-[#00C864]/30 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in duration-150"
                   >
                     <NuxtLink
                       v-for="child in sub.children"
@@ -372,6 +392,14 @@ onBeforeUnmount(() => {
                       @click="closeAllDropdowns"
                     >
                       {{ child.name }}
+                    </NuxtLink>
+                    <NuxtLink
+                      v-if="link.sectionId === 'products'"
+                      :to="sub.href"
+                      class="block rounded-xl border-t border-current/10 px-3.5 py-2.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-500/10 dark:text-emerald-300"
+                      @click="closeAllDropdowns"
+                    >
+                      ดูทั้งหมดในหมวด
                     </NuxtLink>
                   </div>
                 </div>
@@ -461,6 +489,8 @@ onBeforeUnmount(() => {
           <button
             v-if="link.hasDropdown"
             type="button"
+            :aria-label="`เมนูย่อย ${link.name}`"
+            :aria-expanded="mobileOpenDropdown === link.name"
             class="p-2 opacity-60 hover:opacity-100"
             @click="mobileOpenDropdown === link.name ? mobileOpenDropdown = null : mobileOpenDropdown = link.name"
           >
@@ -486,13 +516,15 @@ onBeforeUnmount(() => {
 
             <!-- Nested Sublink (การคุ้มครองข้อมูลส่วนบุคคล) -->
             <div v-else class="pt-1">
-              <div
-                class="flex items-center justify-between text-xs font-semibold text-[#00C864] dark:text-[#00FF88] py-1 cursor-pointer"
+              <button
+                type="button"
+                :aria-expanded="mobileSubDropdown === sub.name"
+                class="flex min-h-10 w-full items-center justify-between text-left text-sm font-semibold text-emerald-800 dark:text-emerald-300"
                 @click="mobileSubDropdown === sub.name ? mobileSubDropdown = null : mobileSubDropdown = sub.name"
               >
                 <span>• {{ sub.name }}</span>
                 <ChevronDown :class="['w-3.5 h-3.5 transition-transform', mobileSubDropdown === sub.name ? 'rotate-180' : '']" />
-              </div>
+              </button>
               <div v-if="mobileSubDropdown === sub.name" class="pl-4 pt-1 space-y-1">
                 <NuxtLink
                   v-for="child in sub.children"
@@ -502,6 +534,9 @@ onBeforeUnmount(() => {
                   @click="isMobileMenuOpen = false"
                 >
                   ▸ {{ child.name }}
+                </NuxtLink>
+                <NuxtLink v-if="link.sectionId === 'products'" :to="sub.href" class="block py-1 text-xs font-semibold" @click="closeAllDropdowns">
+                  ดูทั้งหมดในหมวด
                 </NuxtLink>
               </div>
             </div>

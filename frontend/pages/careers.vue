@@ -1,228 +1,231 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ArrowLeft, ArrowUpRight, ChevronDown, Mail, MapPin, Phone } from 'lucide-vue-next'
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
-import { Briefcase, ArrowLeft, ArrowUpRight, CheckCircle2, Mail, Phone, MapPin, Sparkles } from 'lucide-vue-next'
-import { useTheme } from '~/composables/useTheme'
 
-const { showToast } = useTheme()
-
-useHead({
-  title: 'ร่วมงานกับเรา (Careers) - บริษัท ไอเจนโก้ จำกัด (IGENCO)',
-  meta: [
-    {
-      name: 'description',
-      content: 'เปิดรับสมัครบุคลากรคนรุ่นใหม่ร่วมงานกับ IGENCO: Full-Stack Developer, System Analyst, DevOps Engineer และ Business Development'
-    }
-  ]
-})
+const email = 'siraprapa@igenco.co.th'
 
 const jobs = [
   {
-    title: 'Full-Stack Web Developer (Vue.js / Nuxt / Node.js)',
-    dept: 'Software Engineering Division',
-    type: 'Full-Time (ประจำสำนักงานบางเขน)',
-    exp: 'ประสบการณ์ 1-5 ปี (ยินดีรับนักศึกษาจบใหม่ที่มี Portfolio)',
-    skills: ['Vue.js / Nuxt 3', 'TypeScript', 'Node.js / Express', 'PostgreSQL / MongoDB', 'Git / CI-CD'],
-    desc: 'ร่วมออกแบบและพัฒนา Web Application ระดับ Enterprise ระบบบริหารจัดการข้อมูลขนาดใหญ่ และระบบงานภาครัฐ-เอกชน'
+    "title": "Project Manager",
+    "label": "ผู้จัดการโครงการ",
+    "duties": [
+      "รับผิดชอบต่อนโยบายของบริษัท ในการดำเนินการ Project management และ financial management",
+      "รับผิดชอบต่องานที่สัญญาไว้กับลูกค้า ซึ่งเกี่ยวข้องกับ คุณภาพงานตาม scope และ เวลาที่กำหนดการส่งมอบ",
+      "รับผิดชอบต่อการออกแบบ และ บริหารจัดการทีมงานในโครงการ ให้เกิดศักยภาพสูงสุด",
+      "บริการจัดการโครงการโดยการใช้ข้อมูลต่างๆ มาประกอบการทำ Strategic Plan, Action Planและ Implementation Plan",
+      "บริหารและกำหนดงบประมาณ อัตรากำลัง ให้สอดคล้องกันตามแผนการดำเนินงานของโครงการภายใต้งบประมาณและคุณภาพงานตาม Scope",
+      "ควบคุม ตรวจสอบ และติดตามการดำเนินงาน อย่างใกล้ชิดตามแผนการดำเนินงานของโครงการ",
+      "บริหารจัดการความเปลี่ยนแปลงด้านความต้องการ และสภาพแวดล้อมในการดำเนินงาน",
+      "ควบคุม ตรวจสอบ การดำเนินงานทุกขั้นตอนให้ได้สินค้าหรือบริการที่มีคุณภาพงานตาม scope และ เวลาที่กำหนดการส่งมอบ และลูกค้าได้รับความพึงพอใจ",
+      "แก้ไขปัญหา รวมทั้งข้อขัดแย้งต่าง ๆ ของทีมงานและลูกค้า",
+      "วิเคราะห์ความเสี่ยง พยากรณ์ความสำเร็จของงานด้วยการวิเคราะห์ข้อมูลที่เกิดขึ้นจริงเทียบกับแผน",
+      "นำเสนอ ประเมินผล และสรุปผลการดำเนินงานโครงการ พร้อมทั้งแนวทางในการปรับปรุงงานให้ดีขึ้น ฯลฯ"
+    ],
+    "requirements": [
+      "จบการศึกษาระดับปริญญาตรีขึ้นไป สาขาวิทยาศาสตร์คอมพิวเตอร์, วิทยาการคอมพิวเตอร์, วิศวกรรมคอมพิวเตอร์ หรือสาขาที่เกี่ยวข้อง",
+      "ประสบการณ์ในสายงานที่เกี่ยวข้อง ไม่น้อยกว่า 5 ปี",
+      "ประสบการณ์ในการบริหารโครงการขนาดกลางขึ้นไป ไม่น้อยกว่า 2 ปี",
+      "ความสามารถในการสร้างสัมพันธ์ที่ดีต่อผู้อื่นและทีมงาน",
+      "มีความสามารถในการเป็นผู้นำ เพื่อนำและกำหนดทิศทางให้กับทีมงาน",
+      "มีความสามารถในการวิเคราะห์สถานการณ์ต่างๆ",
+      "มีความสามารถในการตัดสินใจเพื่อแก้ไขปัญหาให้ดีที่สุด",
+      "มีความสามารถในการนำเสนอทางเลือกที่เหมาะสม ให้กับลูกค้า",
+      "มีความรอบคอบ และชัดเจน ในการปฏิบัติหน้าที่",
+      "มีความสามารถในการพัฒนาตนเองและผู้อื่น",
+      "มีทักษะในการติดต่อสื่อสาร และประสานงานกับหน่วยงานทั้งภายในและภายนอก",
+      "พูด อ่าน เขียน สื่อสารภาษาอังกฤษ ได้"
+    ]
   },
   {
-    title: 'System Analyst (SA) / นักวิเคราะห์ระบบงาน',
-    dept: 'Solutions & Architecture Division',
-    type: 'Full-Time (ประจำสำนักงานบางเขน)',
-    exp: 'ประสบการณ์ 2 ปีขึ้นไปในสายงานวิเคราะห์ระบบซอฟต์แวร์',
-    skills: ['System Flow / UML', 'Business Requirement Analysis', 'Database Schema Design', 'API Specification'],
-    desc: 'วิเคราะห์ความต้องการทางธุรกิจของลูกค้าภาครัฐและเอกชน ออกแบบ Flow การทำงาน และประสานงานกับทีมพัฒนา'
+    "title": "System Analyst (SA)",
+    "label": "นักวิเคราะห์ระบบ",
+    "duties": [
+      "รวบรวม และค้นหา ข้อมูลและความต้องการของลูกค้า เพื่อใช้ในการออกแบบระบบ",
+      "ตกลงกับลูกค้า เพื่อหา Scope of work / Scope of Business Requirement",
+      "ออกแบบ และ สร้างแบบจำลอง การทำงานของระบบในรูปแบบ Prototype เพื่อนำมาออกแบบระบบการทำงาน และฐานข้อมูลของระบบ",
+      "จัดแสดง การทำงานของ Prototype ให้กับลูกค้าและทีมงาน",
+      "แสดงผล หรือ ถ่ายทอดการออกแบบ ลงในรูปแบบเอกสารเพื่อส่งให้กับทีมงาน",
+      "อบรมและถ่ายทอดการออกแบบให้ทีมพัฒนา เพื่อให้เกิดความเข้าใจในการทำงาน",
+      "เสนอแผนการพัฒนาระบบ (Project Plan) ที่เหมาะสม เพื่อใช้ปฏิบัติงานภายในทีมงานที่เกี่ยวข้อง",
+      "ควบคุม ดูแลการทำงานของทีมพัฒนา ให้ผลิตผลงานที่ถูกต้อง ตรงตามการออกแบบ และตรงตามเวลาที่กำหนด",
+      "จัดการ ทดสอบการทำงานของระบบในรูปแบบ System test และ Integration test",
+      "ดูแล การทดสอบระบบจากลูกค้าแบบ Quality Assurance",
+      "ดูแล อบรม และถ่ายทอดการทำงานให้ลูกค้า เพื่อการทดสอบแบบ User Acceptance Test",
+      "ดูแล การอบรมการใช้งานระบบให้กับลูกค้า (User and System Training)",
+      "ดูแล การบำรุงรักษาระบบในช่วงของ Maintenance Period ตลอดจนการแก้ไขข้อผิดพลาดที่พบ",
+      "จัดทำเอกสารที่เกี่ยวข้องกับการออกแบบระบบต่างๆ เช่น Requirement Specification, Data Dictionary, ER-Diagram, UML, Program Specification เป็นต้น",
+      "ควบคุม ดูแล การติดตั้งระบบ (Deployment) พร้อมทั้งร่วมทดสอบระบบบน Production กับลูกค้า",
+      "ดูแล และจัดการ Resource ที่มี ให้ทำงานที่เหมาะสม และ ทำงานร่วมกันได้อย่างราบรื่น รวมทั้งลดความขัดแย้งที่เกิดขึ้นภายในทีมงาน",
+      "เป็นที่ปรึกษาการทำงานให้กับทีมงาน ดูแล และอบรม ความรู้ที่เกี่ยวข้องให้กับทีมงานได้",
+      "หากชำนาญภาษา ASP.NET (C#) เขียนได้ทั้ง Windows / Web Application จะพิจารณา เป็นพิเศษ"
+    ],
+    "requirements": [
+      "เพศชาย/หญิง อายุไม่ต่ำกว่า 28 ปี",
+      "จบการศึกษาระดับปริญญาตรีขึ้นไป สาขาวิทยาศาสตร์คอมพิวเตอร์, วิทยาการคอมพิวเตอร์, วิศวกรรมคอมพิวเตอร์ หรือสาขาที่เกี่ยวข้อง",
+      "มีประสบการณ์ด้านการออกแบบและวิเคราะห์ระบบงาน ไม่ต่ำกว่า 3 ปี",
+      "มีความเชี่ยวชาญการออกแบบระบบธุรกิจในระดับทั่วไป General Business",
+      "มีความชำนาญในการรวบรวม และค้นหา ข้อมูลและความต้องการของลูกค้า เพื่อใช้ในการออกแบบระบบ",
+      "มีความรู้การใช้งานฐานข้อมูล RDBMS เช่น MS SQL, Oracle",
+      "มีความอดทนและความรับผิดชอบในการทำงานภายใต้ภาวะกดดันสูงได้",
+      "มีความกระตือรือร้นในการเรียนรู้เทคนิคและเทคโนโลยีใหม่ ๆ ตลอดเวลา"
+    ]
   },
   {
-    title: 'DevOps & Cloud Infrastructure Engineer',
-    dept: 'IT Infrastructure Division',
-    type: 'Full-Time (ประจำสำนักงานบางเขน)',
-    exp: 'ประสบการณ์ 1-3 ปี',
-    skills: ['Docker / Kubernetes', 'Linux Administration', 'Cloud Platform (AWS / Azure / Private)', 'Nginx / Network Security'],
-    desc: 'ดูแลโครงสร้างพื้นฐานระบบแม่ข่าย การจัดเก็บข้อมูลความปลอดภัยสูง และระบบ CI/CD สำหรับโครงการต่าง ๆ'
+    "title": "Programmer / Programmer Analyst",
+    "label": "นักพัฒนาซอฟต์แวร์",
+    "duties": [
+      "พัฒนาระบบ (Develop and Program) ในเชิงสถาปัตยกรรม N-Tiers (PT - MT - DT)",
+      "พัฒนา Software ด้วยหลักการ Algorithm, Validation, และ Debugging Concept",
+      "ทำความเข้าใจระบบที่ Designer (SA, ASA, SI etc) ได้ออกแบบไว้",
+      "ทดสอบระบบที่พัฒนาขึ้นด้วย Unit Testing",
+      "ทำเอกสารที่เกี่ยวข้องได้ เช่น Test Case, Technical Specification, Technical Flow",
+      "ประสานงาน/ แสดงผลงาน/ รายงานสถานะความคืบหน้าของงาน ต่อหัวหน้าทีมที่รับผิดชอบ"
+    ],
+    "requirements": [
+      "เพศชาย/หญิง อายุไม่เกิน 30 ปี",
+      "จบการศึกษาระดับปริญญาตรีขึ้นไป สาขาวิทยาศาสตร์คอมพิวเตอร์ , วิทยาการคอมพิวเตอร์, วิศวกรรมคอมพิวเตอร์ หรือสาขาที่เกี่ยวข้อง",
+      "Programmer มีประสบการณ์ 0-2 ปีขึ้นไปในการพัฒนา Software",
+      "Programmer Analyst มีประสบการณ์ 2 ปีขึ้นไปในการพัฒนา Software",
+      "มีความรู้การใช้งานฐานข้อมูล RDBMS เช่น MS SQL, Oracle",
+      "มีความอดทนและความรับผิดชอบในการทำงานภายใต้ภาวะกดดันสูงได้",
+      "มีความกระตือรือร้นในการเรียนรู้เทคนิคและเทคโนโลยีใหม่ ๆ ตลอดเวลา",
+      "หากชำนาญภาษา PHP, ASP.NET (C#) เขียนได้ทั้ง Windows / Web Application จะพิจารณา เป็นพิเศษ"
+    ]
   },
   {
-    title: 'Business Development / IT Consultant',
-    dept: 'Sales & Client Success Division',
-    type: 'Full-Time (ประจำสำนักงานบางเขน)',
-    exp: 'ประสบการณ์ 1-3 ปีในสายงานขายหรือที่ปรึกษา IT',
-    skills: ['Enterprise Solution Sales', 'Project Presentation', 'Client Relationship', 'Gov & Enterprise Procurement'],
-    desc: 'นำเสนอโซลูชันระบบงานซอฟต์แวร์ i-SMARTSOFT, I-SERFF, EFMS และดูแลลูกค้าหน่วยงานภาครัฐและเอกชน'
+    "title": "IT Support",
+    "label": "เจ้าหน้าที่สนับสนุนด้านไอที",
+    "duties": [],
+    "requirements": [
+      "วุฒิการศึกษา ปวส.-ปริญญาตรี",
+      "ประสบการณ์ 0-2 ปี",
+      "มีความรู้ เกี่ยวกับคอมพิวเตอร์ และสามารถติดตั้ง Windows และแก้ปัญหาเบื้องต้นได้",
+      "สามารถแก้ไขปัญหาเบื้องต้นเกี่ยวกับ Printer fax และอุปกรณ์ IT อื่นๆ",
+      "มีความรู้ สามารถใช้ Microsoft Office, Windows Server, Software ต่างๆ",
+      "มีความรู้พื้นฐาน Network จะพิจารณาเป็นพิเศษ",
+      "มีความกระตือรือร้น คิดสร้างสรรค์ และมนุษยสัมพันธ์ดี ชอบเรียนรู้สิ่งใหม่ๆ"
+    ]
   }
 ]
 
-const form = ref({
-  name: '',
-  email: '',
-  phone: '',
-  position: 'Full-Stack Web Developer (Vue.js / Nuxt / Node.js)',
-  portfolioUrl: '',
-  message: ''
-})
+const benefits = [
+  "การรักษาพยาบาล ประกันสุขภาพ ประกันชีวิต ประกันอุบัติเหตุ",
+  "การตรวจสุขภาพประจำปี ฉีดวัคซีนป้องกันโรคที่อันตรายต่างๆ",
+  "กิจกรรมส่งเสริมคุณภาพชีวิต งานปีใหม่, สัมมนาประจำปีของบริษัทฯ",
+  "การฝึกอบรม/สัมมนา/พัฒนาความรู้",
+  "ทุนการศึกษา (Scholarship)",
+  "เงินช่วยเหลือเฉพาะกิจ (Special Contribution)",
+  "กองทุนสำรองเลี้ยงชีพ",
+  "โบนัส"
+]
 
-const isSubmitted = ref(false)
-
-const submitApplication = () => {
-  isSubmitted.value = true
-  showToast('ส่งข้อมูลการสมัครงานเรียบร้อยแล้ว ทีมงาน HR จะติดต่อกลับครับ')
+const applicationLink = (position?: string) => {
+  const subject = position ? `สมัครงานตำแหน่ง ${position}` : 'สมัครงานกับ IGENCO'
+  return `mailto:${email}?subject=${encodeURIComponent(subject)}`
 }
+
+useSeoMeta({
+  title: 'สมัครงาน | บริษัท ไอเจนโก้ จำกัด (IGENCO)',
+  description: 'ดูตำแหน่งงาน หน้าที่ คุณสมบัติ และสวัสดิการ พร้อมสมัครงานกับบริษัท ไอเจนโก้ จำกัด ผ่านอีเมลฝ่ายบุคคล'
+})
 </script>
 
 <template>
-  <div class="min-h-screen text-section  text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22]">
+  <div class="min-h-screen text-slate-900 dark:text-slate-100">
     <AppHeader />
-
-    <main class="pt-28 pb-24 max-w-[1200px] mx-auto px-5 sm:px-10 lg:px-16">
-      <!-- Breadcrumb -->
-      <div class="flex items-center gap-2 text-xs font-mono mb-10 opacity-70">
-        <NuxtLink to="/" class="hover:text-[#00A852] dark:hover:text-[#00FF88] flex items-center gap-1">
-          <ArrowLeft class="w-3.5 h-3.5" />
-          <span>หน้าแรก</span>
+    <main class="mx-auto max-w-[1200px] space-y-12 px-5 pb-20 pt-28 sm:space-y-16 sm:px-10 lg:px-16">
+      <nav aria-label="เส้นทางนำทาง" class="flex flex-wrap items-center gap-2 border-b border-current/10 pb-4 text-sm">
+        <NuxtLink to="/" class="inline-flex items-center gap-1.5 text-emerald-800 hover:underline dark:text-emerald-300">
+          <ArrowLeft class="size-4" aria-hidden="true" /> หน้าแรก
         </NuxtLink>
-        <span>/</span>
-        <NuxtLink to="/about" class="hover:text-[#00A852] dark:hover:text-[#00FF88]">เกี่ยวกับเรา</NuxtLink>
-        <span>/</span>
-        <span class="text-[#00A852] dark:text-[#00FF88] font-bold">ร่วมงานกับเรา (Careers)</span>
-      </div>
+        <span aria-hidden="true">/</span>
+        <NuxtLink to="/about" class="hover:underline">เกี่ยวกับเรา</NuxtLink>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page" class="font-semibold">สมัครงาน</span>
+      </nav>
 
-      <!-- Header -->
-      <div class="pb-16 border-b border-black/10 dark:border-white/10 space-y-5 max-w-4xl">
-        <div class="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.22em] uppercase text-[#00A852] dark:text-[#00FF88]">
-          <Briefcase class="w-4 h-4" />
-          <span>CAREERS & OPPORTUNITIES // ร่วมงานกับเรา</span>
+      <section aria-labelledby="careers-heading" class="mx-auto grid max-w-4xl justify-items-center gap-6 py-4 text-center sm:gap-8 sm:py-8">
+        <div class="rounded-2xl border border-emerald-500/20 bg-white px-5 py-4 shadow-sm sm:px-7">
+          <img src="/images/careers/igenco-logo.png" width="194" height="65" alt="IGENCO — Infinite Possibility" class="mx-auto block h-auto w-40 max-w-full sm:w-[194px]">
         </div>
-        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC] leading-tight">
-          ร่วมเป็นส่วนหนึ่งของทีมไอเจนโก้ ขับเคลื่อนอนาคตดิจิทัล
-        </h1>
-        <p class="text-lg sm:text-xl text-[#334155] dark:text-[#94A3B8] leading-relaxed font-light">
-          เราสนับสนุนบรรยากาศการทำงานที่เป็นมืออาชีพ เรียนรู้เทคโนโลยีสมัยใหม่ และการทำงานเป็นทีม เพื่อส่งมอบคุณภาพซอฟต์แวร์ที่ดีที่สุดให้แก่ลูกค้า
-        </p>
-      </div>
-
-      <!-- Job List -->
-      <div class="py-16 space-y-8 border-b border-black/10 dark:border-white/10">
-        <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
-          OPEN POSITIONS // ตำแหน่งงานที่เปิดรับสมัคร
-        </div>
-
-        <div class="grid grid-cols-1 gap-6">
-          <div
-            v-for="job in jobs"
-            :key="job.title"
-            class="p-8 rounded-3xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.01] hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all space-y-4"
-          >
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-black/10 dark:border-white/10 pb-4">
-              <div>
-                <h3 class="text-xl sm:text-2xl font-bold text-[#0A1A12] dark:text-white">{{ job.title }}</h3>
-                <div class="text-xs font-mono text-[#00A852] dark:text-[#00FF88] mt-1">{{ job.dept }} • {{ job.type }}</div>
-              </div>
-              <span class="text-xs font-mono opacity-60">{{ job.exp }}</span>
-            </div>
-
-            <p class="text-sm text-[#475569] dark:text-[#94A3B8] leading-relaxed">{{ job.desc }}</p>
-
-            <div class="flex flex-wrap gap-2 pt-2">
-              <span
-                v-for="skill in job.skills"
-                :key="skill"
-                class="px-3 py-1 rounded-full text-xs font-mono bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10"
-              >
-                {{ skill }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Apply Form / Contact HR -->
-      <div class="mt-16 p-8 sm:p-12 rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.01] space-y-8">
-        <div class="max-w-2xl space-y-2">
-          <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-[#0A1A12] dark:text-white">
-            ส่งข้อมูลสมัครงาน / ฝากเรซูเม่
-          </h2>
-          <p class="text-sm text-[#475569] dark:text-[#94A3B8]">
-            ทีมงานฝ่ายบุคคลจะติดต่อกลับเพื่อนัดสัมภาษณ์ หรือสามารถส่งอีเมลตรงพร้อมแนบ Resume มาที่ <strong>hr@igenco.co.th</strong> หรือโทร <strong>0-2523-3559, 063-5254850</strong>
+        <div class="space-y-5">
+          <h1 id="careers-heading" class="text-center font-display text-4xl font-black leading-tight tracking-tight text-[#022C22] dark:text-white sm:text-5xl lg:text-6xl">
+            ร่วมงานกับ<span class="text-emerald-700 dark:text-emerald-300">ไอเจนโก้</span>
+          </h1>
+          <p class="mx-auto max-w-2xl text-base leading-relaxed text-slate-700 dark:text-slate-300">
+            บริษัท ไอเจนโก้ จำกัด ต้องการผู้ร่วมงานที่มีความสามารถ ชอบความท้าทาย และแสวงหาความก้าวหน้า เพื่อร่วมพัฒนาและเติบโตไปพร้อมกับบริษัท ผู้สนใจสามารถสมัครทางอีเมลได้โดยไม่ต้องเดินทางมาที่บริษัท
           </p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <a href="#open-positions" class="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-[#00C864] px-5 py-3 text-sm font-bold text-[#022C22] hover:bg-[#00B65B]">
+              ดูตำแหน่งที่เปิดรับ <ArrowUpRight class="size-4" aria-hidden="true" />
+            </a>
+            <a :href="applicationLink()" class="spatial-glass inline-flex min-h-11 items-center gap-2 rounded-2xl border border-current/15 px-5 py-3 text-sm font-bold hover:border-emerald-600">
+              <Mail class="size-4 shrink-0" aria-hidden="true" /> {{ email }}
+            </a>
+          </div>
         </div>
+      </section>
 
-        <form @submit.prevent="submitApplication" class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
-          <div class="space-y-1.5">
-            <label class="text-xs font-mono uppercase tracking-wider font-semibold">ชื่อ - นามสกุล *</label>
-            <input
-              v-model="form.name"
-              type="text"
-              required
-              placeholder="กรอกชื่อ-นามสกุลของคุณ"
-              class="w-full px-4 py-3 rounded-xl border border-black/15 dark:border-white/15 bg-white dark:bg-black/40 text-sm focus:outline-none focus:border-[#00C864]"
-            >
-          </div>
+      <section id="open-positions" aria-labelledby="positions-heading" class="scroll-mt-28 space-y-5">
+        <h2 id="positions-heading" class="font-display text-2xl font-black sm:text-4xl">ตำแหน่งที่เปิดรับสมัคร</h2>
+        <div class="space-y-4">
+          <details v-for="job in jobs" :key="job.title" class="group spatial-glass rounded-3xl border border-current/10">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 rounded-3xl p-5 focus-visible:outline-emerald-600 sm:p-7 [&::-webkit-details-marker]:hidden">
+              <div class="min-w-0">
+                <h3 class="font-display text-lg font-bold sm:text-xl">{{ job.title }}</h3>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{{ job.label }}</p>
+              </div>
+              <ChevronDown class="size-5 shrink-0 text-emerald-700 transition-transform group-open:rotate-180 dark:text-emerald-300 motion-reduce:transition-none" aria-hidden="true" />
+            </summary>
+            <div class="space-y-6 border-t border-current/10 p-5 sm:p-7">
+              <div class="grid gap-6" :class="{ 'lg:grid-cols-2': job.duties.length }">
+                <div v-if="job.duties.length">
+                  <h4 class="mb-3 font-display font-bold">หน้าที่รับผิดชอบ</h4>
+                  <ol class="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
+                    <li v-for="duty in job.duties" :key="duty">{{ duty }}</li>
+                  </ol>
+                </div>
+                <div>
+                  <h4 class="mb-3 font-display font-bold">คุณสมบัติผู้สมัคร</h4>
+                  <ol class="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
+                    <li v-for="requirement in job.requirements" :key="requirement">{{ requirement }}</li>
+                  </ol>
+                </div>
+              </div>
+              <a :href="applicationLink(job.title)" class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800">
+                <Mail class="size-4" aria-hidden="true" /> สมัครตำแหน่งนี้ทางอีเมล
+              </a>
+            </div>
+          </details>
+        </div>
+      </section>
 
-          <div class="space-y-1.5">
-            <label class="text-xs font-mono uppercase tracking-wider font-semibold">เบอร์โทรศัพท์ติดต่อ *</label>
-            <input
-              v-model="form.phone"
-              type="tel"
-              required
-              placeholder="08X-XXX-XXXX"
-              class="w-full px-4 py-3 rounded-xl border border-black/15 dark:border-white/15 bg-white dark:bg-black/40 text-sm focus:outline-none focus:border-[#00C864]"
-            >
-          </div>
+      <section aria-labelledby="benefits-heading" class="space-y-5">
+        <h2 id="benefits-heading" class="font-display text-2xl font-black sm:text-4xl">สวัสดิการ</h2>
+        <ul class="grid gap-3 sm:grid-cols-2">
+          <li v-for="benefit in benefits" :key="benefit" class="spatial-glass rounded-2xl border border-current/10 px-5 py-4 text-sm leading-relaxed sm:text-base">
+            {{ benefit }}
+          </li>
+        </ul>
+      </section>
 
-          <div class="space-y-1.5">
-            <label class="text-xs font-mono uppercase tracking-wider font-semibold">อีเมลติดต่อ *</label>
-            <input
-              v-model="form.email"
-              type="email"
-              required
-              placeholder="your.email@example.com"
-              class="w-full px-4 py-3 rounded-xl border border-black/15 dark:border-white/15 bg-white dark:bg-black/40 text-sm focus:outline-none focus:border-[#00C864]"
-            >
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-xs font-mono uppercase tracking-wider font-semibold">ตำแหน่งที่สนใจ *</label>
-            <select
-              v-model="form.position"
-              class="w-full px-4 py-3 rounded-xl border border-black/15 dark:border-white/15 bg-white dark:bg-black/40 text-sm focus:outline-none focus:border-[#00C864]"
-            >
-              <option v-for="job in jobs" :key="job.title" :value="job.title">{{ job.title }}</option>
-            </select>
-          </div>
-
-          <div class="sm:col-span-2 space-y-1.5">
-            <label class="text-xs font-mono uppercase tracking-wider font-semibold">ลิงก์ Portfolio / LinkedIn / GitHub</label>
-            <input
-              v-model="form.portfolioUrl"
-              type="url"
-              placeholder="https://..."
-              class="w-full px-4 py-3 rounded-xl border border-black/15 dark:border-white/15 bg-white dark:bg-black/40 text-sm focus:outline-none focus:border-[#00C864]"
-            >
-          </div>
-
-          <div class="sm:col-span-2 space-y-1.5">
-            <label class="text-xs font-mono uppercase tracking-wider font-semibold">ข้อความแนะนำตัว / ประสบการณ์โดยย่อ</label>
-            <textarea
-              v-model="form.message"
-              rows="3"
-              placeholder="ระบุประสบการณ์ ความเชี่ยวชาญ หรือช่วงเวลาที่สะดวกเริ่มงาน"
-              class="w-full px-4 py-3 rounded-xl border border-black/15 dark:border-white/15 bg-white dark:bg-black/40 text-sm focus:outline-none focus:border-[#00C864]"
-            />
-          </div>
-
-          <div class="sm:col-span-2 pt-2">
-            <button
-              type="submit"
-              class="px-8 py-3.5 rounded-xl font-bold text-sm bg-[#00A852] text-white hover:bg-[#008f44] transition-all shadow-md flex items-center gap-2"
-            >
-              <span>ส่งใบสมัครงาน / เรซูเม่</span>
-              <ArrowUpRight class="w-4 h-4" />
-            </button>
-          </div>
-        </form>
-      </div>
+      <section aria-labelledby="hr-heading" class="spatial-glass grid gap-5 rounded-3xl border border-emerald-500/25 p-5 sm:p-8 lg:grid-cols-2">
+        <div class="space-y-3">
+          <h2 id="hr-heading" class="font-display text-2xl font-black">ติดต่อฝ่ายบุคคล</h2>
+          <p class="font-semibold">คุณศิรประภา เพชรทิม</p>
+          <address class="flex gap-2 text-sm not-italic leading-relaxed text-slate-700 dark:text-slate-300">
+            <MapPin class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            บริษัท ไอเจนโก้ จำกัด เลขที่ 89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร 10210
+          </address>
+        </div>
+        <div class="grid content-center gap-3 text-sm">
+          <a :href="applicationLink()" class="inline-flex w-fit max-w-full items-center gap-2 break-all font-bold text-emerald-800 hover:underline dark:text-emerald-300"><Mail class="size-4 shrink-0" aria-hidden="true" />{{ email }}</a>
+          <a href="tel:025233559" class="inline-flex w-fit items-center gap-2 hover:underline"><Phone class="size-4 shrink-0" aria-hidden="true" /> 0-2523-3559</a>
+          <a href="tel:0635254850" class="inline-flex w-fit items-center gap-2 hover:underline"><Phone class="size-4 shrink-0" aria-hidden="true" /> 063-5254850</a>
+        </div>
+      </section>
     </main>
-
     <ContactFooter />
   </div>
 </template>

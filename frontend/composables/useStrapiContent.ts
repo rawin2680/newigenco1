@@ -233,31 +233,41 @@ export const useStrapiContent = () => {
     return null
   }
 
-  // Fetch Products from Strapi
+  const mapProduct = (item: any): StrapiProductItem => ({
+    id: item.id,
+    documentId: item.documentId,
+    name: item.name,
+    slug: item.slug,
+    category: item.category || 'Enterprise Software',
+    badge: item.badge || 'ENTERPRISE GRADE',
+    shortDesc: item.shortDesc || '',
+    fullDetails: item.fullDetails || '',
+    features: Array.isArray(item.features) ? item.features : [],
+    image: resolveMediaUrl(item.image, item.fallbackImageUrl || '/images/products/regist-ai-banner.png'),
+    detailRoute: item.detailRoute || ''
+  })
+
   const getProducts = async (): Promise<StrapiProductItem[] | null> => {
     try {
-      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/products?populate=*&sort=id:asc`, {
-        timeout: 2500
-      })
-      if (res && Array.isArray(res.data) && res.data.length > 0) {
-        return res.data.map(item => ({
-          id: item.id,
-          documentId: item.documentId,
-          name: item.name,
-          slug: item.slug,
-          category: item.category || 'Enterprise Software',
-          badge: item.badge || 'ENTERPRISE GRADE',
-          shortDesc: item.shortDesc || '',
-          fullDetails: item.fullDetails || '',
-          features: Array.isArray(item.features) ? item.features : [],
-          image: resolveMediaUrl(item.image, item.fallbackImageUrl || '/images/products/regist-ai-banner.png'),
-          detailRoute: item.detailRoute || ''
-        }))
-      }
+      const products: StrapiProductItem[] = []
+      let page = 1
+      let pageCount = 1
+      do {
+        const res = await $fetch<{ data: unknown[]; meta: { pagination: { pageCount: number } } }>(
+          `${strapiUrl}/api/products`,
+          {
+            query: { populate: 'image', sort: 'id:asc', status: 'published', 'pagination[page]': page, 'pagination[pageSize]': 100 },
+            timeout: 2500
+          }
+        )
+        products.push(...res.data.map(mapProduct))
+        pageCount = res.meta.pagination.pageCount
+        page++
+      } while (page <= pageCount)
+      return products
     } catch {
-      // Strapi not yet reachable
+      return null
     }
-    return null
   }
 
   // Submit Contact Form to Strapi Inquiries Collection

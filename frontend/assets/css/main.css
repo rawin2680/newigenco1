@@ -272,3 +272,49 @@ body.xray-active .xray-meta {
   transform: translateY(-6px);
 }
 
+
+/* Public website heading hierarchy */
+.public-headings {
+  --heading-accent: #08714e;
+  --heading-accent-end: #075d70;
+  --heading-signal: #10b981;
+}
+
+html.dark .public-headings {
+  --heading-accent: #67f2b8;
+  --heading-accent-end: #67e8f9;
+  --heading-signal: #34d399;
+}
+
+.public-headings :where(h1, h2, h3, h4, h5, h6) {
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+.public-headings :where(h1, h2) {
+  text-wrap: balance;
+}
+
+.public-headings :where(h1, h2):not(:where(#top h1, .sr-only, .flex, .inline-flex, .line-clamp-1, .line-clamp-2, [hidden]))::after {
+  content: '';
+  display: block;
+  width: clamp(2.75rem, 9vw, 5rem);
+  height: 0.1875rem;
+  margin-top: 0.625rem;
+  background: linear-gradient(90deg, var(--heading-signal) 0 65%, transparent 65% 73%, var(--heading-accent-end) 73% 86%, transparent 86% 92%, var(--heading-signal) 92%);
+  border-radius: 2px;
+}
+
+.public-headings :where(.text-center) :where(h1, h2)::after,
+.public-headings :where(h1, h2).text-center::after {
+  margin-inline: auto;
+}
+
+.public-headings :where(.text-left) :where(h1, h2)::after,
+.public-headings :where(h1, h2).text-left::after {
+  margin-inline: 0;
+}
+
+.public-headings :where(h3, h4, h5, h6) {
+  font-weight: 700;
+}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   ArrowUpRight,
@@ -22,18 +22,25 @@ import {
 import { useTheme } from '~/composables/useTheme'
 import { useStrapiContent } from '~/composables/useStrapiContent'
 
-const route = useRoute()
 const { showToast } = useTheme()
 const { getProducts } = useStrapiContent()
 
-const activeCategory = ref('ทั้งหมด')
 const categories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'E-Commerce']
+const inquiryButtonThemes: Record<string, string> = {
+  '/products/regist-ai': 'bg-purple-700 text-white',
+  '/products/hr-ai': 'bg-green-700 text-white',
+  '/products/igenq': 'bg-blue-600 text-white',
+  '/products/i-finsoft': 'bg-red-700 text-white',
+  '/products/i-smartsoft': 'bg-yellow-400 text-[#422006]',
+  '/products/i-smartflow': 'bg-gray-700 text-white',
+  '/products/software-ondemand': 'bg-cyan-700 text-white',
+  '/products/outsource-service': 'bg-indigo-700 text-white',
+  '/products/imme-application': 'bg-orange-700 text-white',
+  '/products/i-realestate': 'bg-teal-700 text-white',
+  '/products/ipos': 'bg-pink-700 text-white'
+}
 
 onMounted(async () => {
-  if (route.query.cat && categories.includes(route.query.cat as string)) {
-    activeCategory.value = route.query.cat as string
-  }
-
   const strapiProducts = await getProducts()
   if (strapiProducts && strapiProducts.length > 0) {
     const mapped = strapiProducts.map((sp, idx) => ({
@@ -51,15 +58,33 @@ onMounted(async () => {
       icon: 'Box',
       link: sp.detailRoute || undefined
     }))
-    const strapiTitles = new Set(mapped.map(m => m.title.trim()))
-    const remainingStatic = products.filter(p => !strapiTitles.has(p.title.trim()))
-    activeProductsList.value = [...mapped, ...remainingStatic]
-  }
-})
-
-watch(() => route.query.cat, (newCat) => {
-  if (newCat && categories.includes(newCat as string)) {
-    activeCategory.value = newCat as string
+    const featuredProducts = products.slice(0, itemsPerPage)
+    const matchesProduct = (first: ProductItem, second: ProductItem) =>
+      first.title.trim() === second.title.trim() || Boolean(first.link && first.link === second.link)
+    const catalogProducts = mapped
+      .filter(product => !featuredProducts.some(featured => matchesProduct(product, featured)))
+      .map(product => {
+        const local = products.find(candidate => matchesProduct(product, candidate))
+        const theme = local?.link && inquiryButtonThemes[local.link] ? local : product
+        return {
+          ...product,
+          link: product.link || local?.link,
+          accentColor: theme.accentColor,
+          glowColor: theme.glowColor
+        }
+      })
+    const remainingStatic = products.slice(itemsPerPage).filter(product => !catalogProducts.some(cmsProduct => matchesProduct(product, cmsProduct)))
+    const orderedProducts = featuredProducts.map(product => {
+      const cmsProduct = mapped.find(candidate => matchesProduct(product, candidate))
+      return cmsProduct ? {
+        ...cmsProduct,
+        link: product.link || cmsProduct.link,
+        image: product === finsoftProduct ? product.image : cmsProduct.image,
+        accentColor: product.accentColor,
+        glowColor: product.glowColor
+      } : product
+    })
+    activeProductsList.value = [...orderedProducts, ...catalogProducts, ...remainingStatic]
   }
 })
 
@@ -77,6 +102,27 @@ export interface ProductItem {
   glowColor: string
   icon: string
   link?: string
+}
+
+const finsoftProduct: ProductItem = {
+  id: 9,
+  title: 'i-FINSOFT – ERP',
+  category: 'Enterprise Software',
+  desc: 'โปรแกรมบริหารทรัพยากรองค์กรสำหรับหน่วยงานราชการและเอกชน ครอบคลุมงบประมาณ บัญชี พัสดุ บุคลากร และเงินเดือน',
+  detailedDesc: 'ระบบงานสามารถทำงานแยกกันหรือเชื่อมโยงข้อมูลเพื่อจัดทำรายงานและสนับสนุนการวางแผนของผู้บริหาร',
+  price: 'นัดสาธิตระบบ',
+  tags: ['ERP', 'งบประมาณ', 'บัญชี', 'พัสดุ'],
+  specs: [
+    { label: 'งบประมาณ', value: 'วางแผนงบประมาณแบบมุ่งเน้นผลงาน' },
+    { label: 'บัญชี', value: 'บัญชีการเงินและบัญชีต้นทุน' },
+    { label: 'พัสดุ', value: 'จัดซื้อจัดจ้างและทะเบียนครุภัณฑ์' },
+    { label: 'บุคลากร', value: 'บริหารงานบุคคลและเงินเดือน' }
+  ],
+  image: '/images/products/i-finsoft-logo.png',
+  accentColor: '#B91C1C',
+  glowColor: 'rgba(185, 28, 28, 0.25)',
+  icon: 'Building2',
+  link: '/products/i-finsoft'
 }
 
 const products: ProductItem[] = [
@@ -115,8 +161,8 @@ const products: ProductItem[] = [
       { label: 'การันตีคุณภาพ', value: 'The Winner OIIO 2019 & ISO/IEC 29110' }
     ],
     image: '/images/products/hr-ai-office-banner.jpg',
-    accentColor: '#00C864',
-    glowColor: 'rgba(0, 200, 100, 0.25)',
+    accentColor: '#15803D',
+    glowColor: 'rgba(21, 128, 61, 0.25)',
     icon: 'Users',
     link: '/products/hr-ai'
   },
@@ -140,6 +186,37 @@ const products: ProductItem[] = [
     icon: 'Clock',
     link: '/products/igenq'
   },
+  finsoftProduct,
+  {
+    id: 10,
+    title: 'i-SmartSoft',
+    category: 'Enterprise Software',
+    desc: 'โปรแกรมระบบบริหารสำนักงานอิเล็กทรอนิกส์ (e-Office)',
+    detailedDesc: 'จัดการเอกสารและงานสำนักงานผ่านเว็บ รองรับการทำงานภาษาไทยและภาษาอังกฤษ',
+    price: 'นัดสาธิตระบบ',
+    tags: ['e-Office', 'จัดการเอกสาร'],
+    specs: [],
+    image: '/images/products/i-smartsoft-mascot.png',
+    accentColor: '#CA8A04',
+    glowColor: 'rgba(202, 138, 4, 0.25)',
+    icon: 'Building2',
+    link: '/products/i-smartsoft'
+  },
+  {
+    id: 11,
+    title: 'i-SmartFlow',
+    category: 'Enterprise Software',
+    desc: 'เครื่องมือสำหรับออกแบบกระบวนการและกำหนดเส้นทางการทำงาน (Workflow)',
+    detailedDesc: 'กำหนดขั้นตอนและเส้นทางการทำงานให้สอดคล้องกับกระบวนการขององค์กร',
+    price: 'นัดสาธิตระบบ',
+    tags: ['Workflow'],
+    specs: [],
+    image: '/images/products/i-smartflow-logo.png',
+    accentColor: '#4B5563',
+    glowColor: 'rgba(75, 85, 99, 0.25)',
+    icon: 'Cpu',
+    link: '/products/i-smartflow'
+  },
   {
     id: 4,
     title: 'Software OnDemand (บริการพัฒนาซอฟต์แวร์ตามสั่ง)',
@@ -155,9 +232,10 @@ const products: ProductItem[] = [
       { label: 'มาตรฐานคุณภาพ', value: 'ควบคุมคุณภาพตามมาตรฐานสากล ISO/IEC 29110' }
     ],
     image: '/images/products/software-ondemand.svg',
-    accentColor: '#00C864',
-    glowColor: 'rgba(0, 200, 100, 0.25)',
-    icon: 'Cpu'
+    accentColor: '#0E7490',
+    glowColor: 'rgba(14, 116, 144, 0.25)',
+    icon: 'Cpu',
+    link: '/products/software-ondemand'
   },
   {
     id: 5,
@@ -174,28 +252,30 @@ const products: ProductItem[] = [
       { label: 'ความยืดหยุ่นสัญญา', value: 'สัญญารายเดือน/รายปี ปรับขยายทีมได้ตามเฟสของโครงการ' }
     ],
     image: '/images/products/outsource-service.svg',
-    accentColor: '#3B82F6',
-    glowColor: 'rgba(59, 130, 246, 0.25)',
-    icon: 'Users'
+    accentColor: '#4338CA',
+    glowColor: 'rgba(67, 56, 202, 0.25)',
+    icon: 'Users',
+    link: '/products/outsource-service'
   },
   {
     id: 6,
-    title: 'iMme Application (แอปพลิเคชันระบบสั่งซื้อสินค้า)',
+    title: 'iMme Application (บันทึกงานแต่ง)',
     category: 'E-Commerce',
-    desc: 'แพลตฟอร์มแอปพลิเคชันสั่งซื้อสินค้าและบริการบนสมาร์ทโฟน เชื่อมต่อระบบชำระเงิน e-Payment และระบบสมาชิก Loyalty Program ครบวงจร',
-    detailedDesc: 'iMme Application โซลูชัน Mobile Commerce อัจฉริยะที่ช่วยให้แบรนด์และร้านค้าเชื่อมต่อกับลูกค้าได้โดยตรง รองรับการเลือกชมสินค้า สั่งซื้อ ชำระเงินผ่าน PromptPay QR และบัตรเครดิต พร้อมระบบสะสมคะแนน คูปองส่วนลด และการแจ้งเตือนสถานะการจัดส่งแบบเรียลไทม์',
-    price: 'พร้อมใช้งานและปรับแต่งตามแบรนด์',
-    tags: ['Mobile Commerce', 'e-Payment Ready', 'Loyalty System', 'iOS & Android'],
+    desc: 'iMme (i Merry, Merry me) แอปช่วยวางแผนงานแต่ง จัดการแขก และเก็บรูปกับคำอวยพรไว้ในที่เดียว',
+    detailedDesc: 'ช่วยคู่บ่าวสาวค้นหาสถานที่ ส่งบัตรเชิญ ติดตามการตอบรับ จัดโต๊ะ และแจ้งเตือนกำหนดการ พร้อมให้แขกร่วมบันทึกภาพและความทรงจำในงาน',
+    price: 'WEDDING PLANNER',
+    tags: ['วางแผนงานแต่ง', 'บัตรเชิญ', 'ความทรงจำ'],
     specs: [
-      { label: 'แพลตฟอร์ม', value: 'iOS, Android และ Progressive Web App (PWA)' },
-      { label: 'ระบบชำระเงิน', value: 'PromptPay QR, Payment Gateway, Credit/Debit' },
-      { label: 'ระบบ CRM ลูกค้า', value: 'Loyalty Points, Member Tier, Discount Coupons' },
-      { label: 'การบริหารจัดการ', value: 'Admin Web Dashboard จัดการออเดอร์และสินค้า' }
+      { label: 'สถานที่', value: 'ค้นหาสถานที่จัดงานจากตำแหน่งและรัศมีที่กำหนด' },
+      { label: 'จัดการแขก', value: 'ส่งบัตรเชิญ รับการตอบรับและจำนวนผู้ติดตาม พร้อมจัดโต๊ะ' },
+      { label: 'แจ้งเตือน', value: 'กำหนดการของคู่บ่าวสาวและแขกผู้ร่วมงาน' },
+      { label: 'ความทรงจำ', value: 'แชร์ภาพและคำอวยพรในงาน พร้อมแสดงภาพบนโปรเจกเตอร์' }
     ],
     image: '/images/products/imme-application.svg',
-    accentColor: '#F59E0B',
-    glowColor: 'rgba(245, 158, 11, 0.25)',
-    icon: 'Smartphone'
+    accentColor: '#C2410C',
+    glowColor: 'rgba(194, 65, 12, 0.25)',
+    icon: 'Smartphone',
+    link: '/products/imme-application'
   },
   {
     id: 7,
@@ -212,9 +292,10 @@ const products: ProductItem[] = [
       { label: 'แดชบอร์ดรายงาน', value: 'สรุปยอดขาย Realtime, อัตราการโอน, วิเคราะห์สต็อกยูนิต' }
     ],
     image: '/images/products/i-realestate.svg',
-    accentColor: '#8B5CF6',
-    glowColor: 'rgba(139, 92, 246, 0.25)',
-    icon: 'Building2'
+    accentColor: '#0F766E',
+    glowColor: 'rgba(15, 118, 110, 0.25)',
+    icon: 'Building2',
+    link: '/products/i-realestate'
   },
   {
     id: 8,
@@ -231,67 +312,26 @@ const products: ProductItem[] = [
       { label: 'รายงานยอดขาย', value: 'สรุปยอดขายเรียลไทม์, สินค้าขายดี, กำไรเบื้องต้น' }
     ],
     image: '/images/products/ipos.svg',
-    accentColor: '#EC4899',
-    glowColor: 'rgba(236, 72, 153, 0.25)',
-    icon: 'Store'
+    accentColor: '#BE185D',
+    glowColor: 'rgba(190, 24, 93, 0.25)',
+    icon: 'Store',
+    link: '/products/ipos'
   }
 ]
 
 const activeProductsList = ref(products)
 
-const filteredProducts = computed(() => {
-  if (activeCategory.value === 'ทั้งหมด') return activeProductsList.value
-  return activeProductsList.value.filter(p => p.category === activeCategory.value)
-})
-
-// -------------------------------------------------------------
-// ระบบแบ่งหน้า (แสดงครั้งละ 6 รายการ ถ้าเกินจะมีปุ่ม < > ล่างขวา)
-// -------------------------------------------------------------
 const itemsPerPage = 6
-const currentPage = ref(1)
-
-const totalPages = computed(() => {
-  return Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage))
-})
-
-// รีเซ็ตหน้ากลับเป็นหน้า 1 เมื่อเปลี่ยนหมวดหมู่
-watch(activeCategory, () => {
-  currentPage.value = 1
-})
-
-const displayedProducts = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage
-  return filteredProducts.value.slice(startIndex, startIndex + itemsPerPage)
-})
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-    scrollToProductsTop()
-  }
-}
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-    scrollToProductsTop()
-  }
-}
-
-const scrollToProductsTop = () => {
-  if (import.meta.client) {
-    const el = document.getElementById('products')
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      if (rect.top < -50) {
-        window.scrollTo({
-          top: window.scrollY + rect.top - 80,
-          behavior: 'smooth'
-        })
-      }
-    }
-  }
-}
+const {
+  activeCategory,
+  filteredItems: filteredProducts,
+  displayedItems: displayedProducts,
+  currentPage,
+  totalPages,
+  selectCategory,
+  prevPage,
+  nextPage
+} = useSectionPagination(activeProductsList, categories, itemsPerPage, 'products', 'cat', 'productsPage')
 
 // Selected Product for Detail Modal
 const selectedProduct = ref<ProductItem | null>(null)
@@ -329,7 +369,7 @@ const inquireProduct = (title: string) => {
 </script>
 
 <template>
-  <section id="products" class="py-24 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto relative z-10">
+  <section id="products" class="scroll-mt-20 py-24 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto relative z-10">
     
     <!-- Section Title & Filter Tabs -->
     <div class="sticky top-16 sm:top-20 z-20 py-4 bg-[#F6F9F7]/95 dark:bg-[#020806]/95 backdrop-blur-md flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 border-b border-current/10 -mx-5 px-5 sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 transition-all">
@@ -353,7 +393,7 @@ const inquireProduct = (title: string) => {
               ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md font-bold scale-105'
               : 'opacity-70 hover:opacity-100 hover:bg-current/5'
           ]"
-          @click="activeCategory = cat"
+          @click="selectCategory(cat)"
         >
           {{ cat }}
         </button>
@@ -369,7 +409,7 @@ const inquireProduct = (title: string) => {
         >
           <div
             v-for="(product, idx) in displayedProducts"
-            :key="product.id"
+            :key="product.link || product.title"
             class="product-card spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2.5 transition-all duration-300 border border-current/10 relative"
             :style="{
               '--brand-accent': product.accentColor,
@@ -383,29 +423,31 @@ const inquireProduct = (title: string) => {
           class="relative aspect-[16/10] w-full overflow-hidden bg-black/15 border-b border-current/10 block"
         >
           <img
+            v-if="product.image"
             :src="product.image"
             :alt="product.title"
             :class="[
               'w-full h-full transition-transform duration-700 ease-out',
-              product.id === 1
-                ? 'object-contain p-4 group-hover:scale-105 bg-gradient-to-br from-purple-950/70 via-purple-900/30 to-black/70'
-                : 'object-cover group-hover:scale-108'
+              { 'object-top origin-top': product.link === '/products/igenq' },
+              product.link === '/products/i-smartsoft'
+                ? 'object-contain p-4 bg-white group-hover:scale-105'
+                : product.link === '/products/i-smartflow' || product.link === '/products/i-finsoft'
+                  ? 'object-contain p-6 bg-white group-hover:scale-105'
+                  : product.link === '/products/regist-ai'
+                    ? 'object-contain object-center px-2 bg-purple-100 dark:bg-purple-950/50'
+                    : 'object-cover group-hover:scale-108'
             ]"
             loading="lazy"
             @error="handleImageError"
           >
+          <div v-else class="grid h-full place-items-center bg-[var(--brand-tint)]">
+            <Cpu class="size-12 text-[var(--brand-ink)]" aria-hidden="true" />
+          </div>
           
           <!-- Category Badge -->
           <div class="absolute top-3.5 left-3.5 z-10">
             <span class="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#022C22]/85 text-white dark:bg-[#051811]/90 backdrop-blur-md border border-white/10 shadow-sm">
               {{ product.category }}
-            </span>
-          </div>
-
-          <!-- Product Number / Tag Badge -->
-          <div class="absolute top-3.5 right-3.5 z-10">
-            <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-black/50 text-white/90 backdrop-blur-md">
-              0{{ product.id }}
             </span>
           </div>
 
@@ -454,7 +496,7 @@ const inquireProduct = (title: string) => {
               <NuxtLink
                 v-if="product.link"
                 :to="product.link"
-                class="px-4 py-2 rounded-xl text-xs font-bold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15 hover:border-[var(--brand-accent)] text-[var(--brand-accent)] shadow-sm"
+                class="product-detail-action px-4 py-2 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center justify-center gap-1.5 border shadow-sm"
               >
                 <Info class="w-3.5 h-3.5 opacity-90" />
                 <span>ดูรายละเอียด</span>
@@ -463,7 +505,7 @@ const inquireProduct = (title: string) => {
               <button
                 v-else
                 type="button"
-                class="px-4 py-2 rounded-xl text-xs font-semibold spatial-glass hover:bg-current/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 border border-current/15 hover:border-current/30 shadow-sm cursor-pointer"
+                class="product-detail-action px-4 py-2 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center justify-center gap-1.5 border shadow-sm cursor-pointer"
                 @click="openProductDetail(product)"
               >
                 <Info class="w-3.5 h-3.5 opacity-75" />
@@ -473,7 +515,8 @@ const inquireProduct = (title: string) => {
               <!-- 2. ปุ่มสอบถามสินค้านี้ (Inquire Product) -->
               <button
                 type="button"
-                class="px-4 py-2 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg hover:scale-105 cursor-pointer"
+                class="px-4 py-2 rounded-xl text-xs font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-lg hover:scale-105 cursor-pointer"
+                :class="inquiryButtonThemes[product.link || ''] || 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806]'"
                 @click="inquireProduct(product.title)"
               >
                 <span>สอบถามสินค้านี้</span>
@@ -594,7 +637,7 @@ const inquireProduct = (title: string) => {
             </h3>
 
             <!-- Product Image Preview -->
-            <div class="relative aspect-[16/9] w-full rounded-2xl overflow-hidden mb-6 bg-black/20 border border-current/10">
+            <div v-if="selectedProduct.image" class="relative aspect-[16/9] w-full rounded-2xl overflow-hidden mb-6 bg-black/20 border border-current/10">
               <img
                 :src="selectedProduct.image"
                 :alt="selectedProduct.title"
@@ -614,7 +657,7 @@ const inquireProduct = (title: string) => {
             </div>
 
             <!-- Specifications Table -->
-            <div class="mb-6 space-y-3">
+            <div v-if="selectedProduct.specs.length" class="mb-6 space-y-3">
               <h4 class="text-xs font-mono uppercase tracking-wider font-bold text-[#00C864] dark:text-[#00FF88]">
                 ข้อมูลจำเพาะทางเทคนิค (SPECIFICATIONS)
               </h4>
@@ -685,6 +728,27 @@ const inquireProduct = (title: string) => {
 </template>
 
 <style scoped>
+.product-card {
+  --brand-tint: color-mix(in srgb, var(--brand-accent) 9%, transparent);
+  --brand-ink: color-mix(in srgb, var(--brand-accent) 68%, #0f172a);
+}
+
+:global(html.dark) .product-card {
+  --brand-tint: color-mix(in srgb, var(--brand-accent) 20%, transparent);
+  --brand-ink: color-mix(in srgb, var(--brand-accent) 42%, white);
+}
+
+.product-detail-action {
+  color: var(--brand-ink);
+  background-color: var(--brand-tint);
+  border-color: var(--brand-glow);
+}
+
+.product-detail-action:hover,
+.product-detail-action:focus-visible {
+  border-color: var(--brand-accent);
+}
+
 .product-card:hover {
   box-shadow: 0 20px 40px var(--brand-glow);
   border-color: var(--brand-accent);

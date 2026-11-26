@@ -1,3 +1,23 @@
+const weddingApp = {
+  name: 'iMme Application (บันทึกงานแต่ง)',
+  slug: 'imme-application',
+  category: 'E-Commerce',
+  badge: 'WEDDING PLANNER',
+  shortDesc: 'iMme (i Merry, Merry me) แอปช่วยวางแผนงานแต่ง จัดการแขก และเก็บรูปกับคำอวยพรไว้ในที่เดียว',
+  fullDetails: 'iMme Application คืออะไร?\n\niMme ช่วยคู่บ่าวสาวเตรียมงานแต่ง ตั้งแต่ค้นหาสถานที่ ส่งบัตรเชิญ ประเมินจำนวนแขกและผู้ติดตาม วางผังที่นั่ง ไปจนถึงแจ้งเตือนกำหนดการ\n\nคู่บ่าวสาวและแขกสามารถร่วมบันทึกเรื่องราว รูปภาพ บรรยากาศ และคำอวยพร ตั้งแต่ช่วงเตรียมงานจนถึงวันแต่งงาน เพื่อกลับมาเปิดดูและระลึกถึงช่วงเวลาสำคัญได้อีกครั้ง',
+  features: [
+    'เก็บความทรงจำของคู่บ่าวสาว โดยให้แขกร่วมบันทึกภาพและคำอวยพร',
+    'ค้นหาสถานที่จัดงานแต่งจากตำแหน่งและรัศมีที่กำหนดเป็นกิโลเมตร',
+    'ส่งบัตรเชิญพร้อมวันที่ สถานที่ และรายละเอียดงาน',
+    'รับการตอบรับและจำนวนผู้ติดตาม เพื่อประเมินจำนวนแขกและจัดโต๊ะที่นั่ง',
+    'แจ้งเตือนกำหนดการของคู่บ่าวสาวและแขกผู้ร่วมงาน',
+    'ให้แขกอัปโหลดภาพ กดถูกใจ และแสดงความคิดเห็น พร้อมนำภาพไปแสดงบนโปรเจกเตอร์ผ่านเว็บไซต์ได้',
+    'นำยอดกดถูกใจมาใช้จัดกิจกรรมในงาน เช่น มอบรางวัลให้ภาพที่ได้รับความนิยม',
+    'แจ้งเตือนความทรงจำให้คู่บ่าวสาวและแขกผู้ร่วมงาน'
+  ],
+  fallbackImageUrl: '/images/products/imme-application.svg'
+}
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -246,15 +266,7 @@ export default {
             features: ['Programmer / Developer มืออาชีพ', 'System Analyst & QA Engineer', 'ยืดหยุ่นตามระยะเวลาโครงการ'],
             fallbackImageUrl: '/images/products/outsource-service.svg'
           },
-          {
-            name: 'iMme Application (แอปพลิเคชันระบบสั่งซื้อสินค้า)',
-            slug: 'imme-application',
-            category: 'E-Commerce',
-            badge: 'MOBILE COMMERCE',
-            shortDesc: 'แพลตฟอร์มแอปพลิเคชันสั่งซื้อสินค้าและบริการบนสมาร์ทโฟน เชื่อมต่อระบบชำระเงิน e-Payment และระบบสมาชิก Loyalty Program ครบวงจร',
-            features: ['รองรับ iOS และ Android', 'เชื่อมต่อระบบชำระเงินออนไลน์', 'ระบบสะสมแต้มและโปรโมชัน'],
-            fallbackImageUrl: '/images/products/imme-application.svg'
-          }
+          weddingApp
         ]
 
         for (const item of defaultProducts) {
@@ -266,6 +278,87 @@ export default {
       }
     } catch (err) {
       console.warn('[IGENCO STRAPI] Product seed skipped:', err)
+    }
+
+    try {
+      const products = strapi.documents('api::product.product')
+      const legacyApp = await products.findFirst({
+        filters: { slug: weddingApp.slug, name: 'iMme Application (แอปพลิเคชันระบบสั่งซื้อสินค้า)' }
+      })
+      if (legacyApp) {
+        const published = await products.findOne({ documentId: legacyApp.documentId, status: 'published' })
+        await products.update({
+          documentId: legacyApp.documentId,
+          data: weddingApp,
+          ...(published ? { status: 'published' } : {})
+        })
+      }
+    } catch (err) {
+      console.warn('[IGENCO STRAPI] iMme update skipped:', err)
+    }
+
+    // Import products that previously existed only in the frontend catalog.
+    try {
+      const catalogImport = strapi.store({ type: 'core', name: 'igenco', key: 'catalog-products-v1' })
+      if (await catalogImport.get()) return
+
+      const products = strapi.documents('api::product.product')
+      const additions = [
+        {
+          name: 'i-FINSOFT – ERP',
+          slug: 'i-finsoft',
+          category: 'Enterprise Software',
+          shortDesc: 'โปรแกรมบริหารทรัพยากรองค์กร ครอบคลุมงบประมาณ บัญชี พัสดุ บุคลากร และเงินเดือน',
+          features: ['งบประมาณแบบมุ่งเน้นผลงาน', 'บัญชีการเงินและบัญชีต้นทุน', 'พัสดุและทะเบียนครุภัณฑ์', 'บุคลากรและเงินเดือน'],
+          fallbackImageUrl: '/images/products/i-finsoft-logo.png',
+          detailRoute: '/products/i-finsoft'
+        },
+        {
+          name: 'i-SmartSoft',
+          slug: 'i-smartsoft',
+          category: 'Enterprise Software',
+          shortDesc: 'โปรแกรมระบบบริหารสำนักงานอิเล็กทรอนิกส์ (e-Office)',
+          features: ['สารบรรณและเอกสารอิเล็กทรอนิกส์', 'ระบบประชุมและจองห้อง', 'ใบลาและงานสำนักงานผ่านเว็บ'],
+          fallbackImageUrl: '/images/products/i-smartsoft-mascot.png',
+          detailRoute: '/products/i-smartsoft'
+        },
+        {
+          name: 'i-SmartFlow',
+          slug: 'i-smartflow',
+          category: 'Enterprise Software',
+          shortDesc: 'เครื่องมือสำหรับออกแบบกระบวนการและกำหนดเส้นทางการทำงาน (Workflow)',
+          features: ['ออกแบบ Workflow แบบ Drag & Drop', 'แม่แบบและ eForm', 'Dashboard และการแจ้งเตือน'],
+          fallbackImageUrl: '/images/products/i-smartflow-logo.png',
+          detailRoute: '/products/i-smartflow'
+        },
+        {
+          name: 'i-RealEstate (ระบบบริหารธุรกิจอสังหาริมทรัพย์)',
+          slug: 'i-realestate',
+          category: 'E-Commerce',
+          shortDesc: 'ระบบบริหารจัดการงานขาย การจอง และข้อมูลโครงการอสังหาริมทรัพย์ ทั้งคอนโดมิเนียม โครงการบ้านจัดสรร และอาคารพาณิชย์',
+          features: ['แสดงผังโครงการและยูนิตว่าง', 'จองออนไลน์และจัดการสัญญา', 'ติดตามงวดผ่อนดาวน์และลูกค้า'],
+          fallbackImageUrl: '/images/products/i-realestate.svg'
+        },
+        {
+          name: 'iPOS (ระบบบริหารจุดขายและการจัดการร้านค้า)',
+          slug: 'ipos',
+          category: 'E-Commerce',
+          shortDesc: 'ระบบสำหรับธุรกิจค้าปลีก รองรับการขายหน้าร้าน ตัดสต็อกอัตโนมัติ และดูยอดขายได้ทุกที่',
+          features: ['ระบบขายหน้าร้าน', 'ตัดสต็อกอัตโนมัติ', 'รายงานยอดขายและสาขา'],
+          fallbackImageUrl: '/images/products/ipos.svg'
+        }
+      ]
+
+      for (const product of additions) {
+        const existing = await products.findFirst({
+          filters: { $or: [{ slug: product.slug }, { name: product.name }] }
+        })
+        if (!existing) await products.create({ data: product, status: 'published' })
+      }
+
+      await catalogImport.set({ value: true })
+    } catch (err) {
+      console.warn('[IGENCO STRAPI] Catalog import skipped:', err)
     }
   }
 }

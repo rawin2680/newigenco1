@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { Calendar, ArrowRight, ArrowUpRight, Sparkles, BookOpen, ChevronLeft, ChevronRight, Clock, X } from 'lucide-vue-next'
 import { useNews, type NewsItem } from '~/composables/useNews'
 import { useStrapiContent } from '~/composables/useStrapiContent'
@@ -43,73 +43,23 @@ onMounted(async () => {
 // -------------------------------------------------------------
 // หมวดหมู่ข่าวสาร
 // -------------------------------------------------------------
-const activeCategory = ref('ทั้งหมด')
 const categories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'กิจกรรมองค์กร', 'ข่าวประชาสัมพันธ์']
 
-const filteredNews = computed(() => {
-  if (activeCategory.value === 'ทั้งหมด') return activeNewsList.value
-  return activeNewsList.value.filter(item => item.category === activeCategory.value)
-})
-
-// -------------------------------------------------------------
-// ระบบแบ่งหน้า (แสดงครั้งละ 3 ข่าว ถ้าเกินให้มีปุ่ม < > กดเปลี่ยนหน้าอยู่ล่างขวา)
-// -------------------------------------------------------------
 const itemsPerPage = 3
-const currentPage = ref(1)
+const {
+  activeCategory,
+  filteredItems: filteredNews,
+  displayedItems: displayedNews,
+  currentPage,
+  totalPages,
+  selectCategory,
+  prevPage,
+  nextPage
+} = useSectionPagination(activeNewsList, categories, itemsPerPage, 'news', 'newsCategory', 'newsPage')
 
-const totalPages = computed(() => {
-  return Math.max(1, Math.ceil(filteredNews.value.length / itemsPerPage))
-})
-
-// รีเซ็ตหน้ากลับเป็นหน้า 1 เมื่อเปลี่ยนหมวดหมู่
-watch(activeCategory, () => {
-  currentPage.value = 1
+watch([activeCategory, currentPage], () => {
   activeAiSummaryId.value = null
 })
-
-const displayedNews = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage
-  return filteredNews.value.slice(startIndex, startIndex + itemsPerPage)
-})
-
-const scrollToNewsTop = () => {
-  if (import.meta.client) {
-    const el = document.getElementById('news')
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      if (rect.top < -50) {
-        window.scrollTo({
-          top: window.scrollY + rect.top - 80,
-          behavior: 'smooth'
-        })
-      }
-    }
-  }
-}
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-    activeAiSummaryId.value = null
-    scrollToNewsTop()
-  }
-}
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-    activeAiSummaryId.value = null
-    scrollToNewsTop()
-  }
-}
-
-const goToPage = (page: number) => {
-  if (currentPage.value !== page) {
-    currentPage.value = page
-    activeAiSummaryId.value = null
-    scrollToNewsTop()
-  }
-}
 
 // -------------------------------------------------------------
 // Mouse-Tracking Dynamic Glow Spotlight
@@ -140,7 +90,7 @@ const toggleAiSummary = (id: number) => {
 </script>
 
 <template>
-  <section id="news" class="py-24 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto relative z-10">
+  <section id="news" class="scroll-mt-20 py-24 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto relative z-10">
     
     <!-- Section Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -291,7 +241,7 @@ const toggleAiSummary = (id: number) => {
       <button
         type="button"
         class="mt-4 px-4 py-2 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806]"
-        @click="activeCategory = 'ทั้งหมด'"
+        @click="selectCategory('ทั้งหมด')"
       >
         ดูข่าวทั้งหมด
       </button>

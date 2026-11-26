@@ -3,6 +3,8 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useTheme } from '~/composables/useTheme'
 
 const { toastMessage, isToastVisible } = useTheme()
+const route = useRoute()
+const isPublicPage = computed(() => !/^\/admin(?:\/|$)/.test(route.path))
 
 // Top Reading / Scroll Progress Bar
 const scrollProgress = ref(0)
@@ -51,7 +53,7 @@ useHead({
 </script>
 
 <template>
-  <div class="architectural-grid relative min-h-screen">
+  <div class="architectural-grid relative min-h-screen" :class="{ 'public-headings': isPublicPage }">
     <!-- Top Global Scroll Progress Bar (วิ่งยาวตามระยะการอ่านบทความ) -->
     <div class="fixed top-0 left-0 right-0 h-[3.5px] bg-transparent z-[100] pointer-events-none">
       <div

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { Sparkles } from 'lucide-vue-next'
+import type { Component } from 'vue'
+import { Cpu } from 'lucide-vue-next'
 
 interface Props {
   eyebrow: string
@@ -11,263 +11,88 @@ interface Props {
   align?: 'left' | 'center'
   size?: 'md' | 'lg' | 'xl'
   showRadialGrid?: boolean
-  icon?: any
+  icon?: Component
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  titleHighlight: '',
-  titleSuffix: '',
-  subtitle: '',
+withDefaults(defineProps<Props>(), {
   align: 'left',
   size: 'lg',
-  showRadialGrid: false,
-  icon: null
+  showRadialGrid: false
 })
 
-const rootRef = ref<HTMLElement | null>(null)
-const isVisible = ref(false)
-const spotX = ref(50)
-const spotY = ref(50)
-const isHovering = ref(false)
-
-let observer: IntersectionObserver | null = null
-
-const handleMouseMove = (e: MouseEvent) => {
-  if (!rootRef.value) return
-  const rect = rootRef.value.getBoundingClientRect()
-  spotX.value = ((e.clientX - rect.left) / rect.width) * 100
-  spotY.value = ((e.clientY - rect.top) / rect.height) * 100
+const titleSizes = {
+  md: 'text-xl sm:text-3xl',
+  lg: 'text-2xl sm:text-4xl lg:text-[2.75rem]',
+  xl: 'text-3xl sm:text-5xl lg:text-6xl'
 }
-
-onMounted(() => {
-  if (!import.meta.client || !rootRef.value) {
-    isVisible.value = true
-    return
-  }
-
-  observer = new IntersectionObserver(
-    (entries) => {
-      if (entries[0]?.isIntersecting) {
-        isVisible.value = true
-        observer?.disconnect()
-      }
-    },
-    { threshold: 0.15 }
-  )
-  observer.observe(rootRef.value)
-})
-
-onBeforeUnmount(() => {
-  observer?.disconnect()
-})
 </script>
 
 <template>
   <div
-    ref="rootRef"
-    class="section-heading-root relative"
+    class="section-heading relative isolate"
     :class="align === 'center' ? 'text-center flex flex-col items-center' : 'text-left'"
-    @mousemove="handleMouseMove"
-    @mouseenter="isHovering = true"
-    @mouseleave="isHovering = false"
   >
-    <!-- Optional Radial Grid Fade behind heading -->
-    <div
-      v-if="showRadialGrid"
-      class="pointer-events-none absolute -inset-x-12 -inset-y-8 -z-10 radial-grid-fade opacity-70 dark:opacity-50"
-    />
+    <div v-if="showRadialGrid" class="heading-grid" aria-hidden="true" />
 
-    <!-- 1. Eyebrow Glassmorphic Pill + Shimmer Border -->
-    <div
-      class="eyebrow-reveal inline-flex items-center gap-2 px-4 py-1.5 rounded-full backdrop-blur-md bg-emerald-50/80 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-500/30 shadow-[0_2px_16px_rgba(0,200,100,0.10)] mb-3.5 relative overflow-hidden"
-      :class="isVisible ? 'is-revealed' : ''"
-    >
-      <!-- Shimmer Sweep -->
-      <span class="eyebrow-shimmer pointer-events-none" />
-
-      <component
-        :is="icon || Sparkles"
-        class="w-3.5 h-3.5 text-[#00A854] dark:text-[#00FF88] shrink-0 sparkle-twinkle relative z-10"
-      />
-      <span class="text-[11px] sm:text-xs font-mono uppercase tracking-[0.2em] text-[#047857] dark:text-[#00FF88] font-bold relative z-10">
-        {{ eyebrow }}
-      </span>
+    <div v-if="eyebrow" class="heading-eyebrow">
+      <component :is="icon || Cpu" class="h-4 w-4 shrink-0" aria-hidden="true" />
+      <span>{{ eyebrow }}</span>
     </div>
 
-    <!-- 2. Main Heading with Blur-to-Focus Reveal, Dual-Tone Gradient, SVG Underline & Cursor Spotlight -->
-    <div
-      class="heading-reveal relative"
-      :class="isVisible ? 'is-revealed' : ''"
-    >
-      <h2
-        class="font-display font-extrabold tracking-tight leading-[1.18] relative"
-        :class="[
-          size === 'xl'
-            ? 'text-3xl sm:text-5xl lg:text-6xl'
-            : size === 'lg'
-              ? 'text-2xl sm:text-4xl lg:text-[2.75rem]'
-              : 'text-xl sm:text-3xl',
-        ]"
-      >
-        <span class="text-[#022C22] dark:text-[#F4FBF7]">{{ titlePrefix }}</span>
-        <span
-          v-if="titleHighlight"
-          class="relative inline-block ml-1.5"
-        >
-          <span class="bg-gradient-to-r from-[#00A854] via-[#00C864] to-[#059669] dark:from-[#00FF88] dark:via-[#34D399] dark:to-[#10B981] bg-clip-text text-transparent">
-            {{ titleHighlight }}
-          </span>
-          <!-- Animated Hand-Drawn / Glowing SVG Underline -->
-          <svg
-            class="absolute -bottom-1.5 left-0 w-full h-3 overflow-visible pointer-events-none"
-            viewBox="0 0 200 12"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M 2 9 Q 60 2 120 7 T 198 5"
-              fill="none"
-              stroke="url(#igenco-underline-grad)"
-              stroke-width="3.2"
-              stroke-linecap="round"
-              class="svg-underline-path"
-              :class="isVisible ? 'is-drawn' : ''"
-            />
-            <defs>
-              <linearGradient id="igenco-underline-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#00C864" stop-opacity="0.3" />
-                <stop offset="50%" stop-color="#00FF88" stop-opacity="0.95" />
-                <stop offset="100%" stop-color="#00C864" stop-opacity="0.4" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </span>
-        <span v-if="titleSuffix" class="text-[#022C22] dark:text-[#F4FBF7] ml-1.5">{{ titleSuffix }}</span>
+    <h2 class="font-display font-extrabold leading-[1.22] text-[#022C22] dark:text-[#F4FBF7]" :class="titleSizes[size]">
+      {{ titlePrefix }}<span v-if="titleHighlight" class="heading-highlight">{{ ' ' + titleHighlight }}</span><template v-if="titleSuffix">{{ ' ' + titleSuffix }}</template>
+    </h2>
 
-        <!-- Radial Cursor Spotlight Overlay on Heading -->
-        <span
-          v-if="isHovering"
-          aria-hidden="true"
-          class="pointer-events-none absolute inset-0 mix-blend-plus-lighter dark:mix-blend-screen opacity-60 transition-opacity duration-200"
-          :style="{
-            background: `radial-gradient(140px circle at ${spotX}% ${spotY}%, rgba(0, 255, 136, 0.22), transparent 70%)`
-          }"
-        />
-      </h2>
-    </div>
-
-    <!-- Optional Subtitle -->
-    <p
-      v-if="subtitle"
-      class="subtitle-reveal text-sm sm:text-base opacity-75 mt-3 max-w-2xl leading-relaxed"
-      :class="isVisible ? 'is-revealed' : ''"
-    >
+    <p v-if="subtitle" class="mt-2 max-w-2xl text-sm leading-relaxed opacity-75 sm:text-base">
       {{ subtitle }}
     </p>
   </div>
 </template>
 
 <style scoped>
-/* Shimmer Sweep across Eyebrow Glass Pill */
-.eyebrow-shimmer {
+.section-heading.text-center h2::after {
+  margin-inline: auto;
+}
+
+.section-heading.text-left h2::after {
+  margin-inline: 0;
+}
+
+.heading-grid {
   position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(
-    110deg,
-    transparent 20%,
-    rgba(255, 255, 255, 0.75) 50%,
-    transparent 80%
-  );
-  animation: eyebrow-shimmer-anim 3.8s infinite ease-in-out;
+  inset: -1rem 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle, color-mix(in srgb, var(--heading-accent) 32%, transparent) 1px, transparent 1.5px) 0 0 / 16px 16px;
+  mask-image: radial-gradient(ellipse, #000, transparent 72%);
 }
 
-:global(html.dark) .eyebrow-shimmer {
-  background: linear-gradient(
-    110deg,
-    transparent 20%,
-    rgba(0, 255, 136, 0.25) 50%,
-    transparent 80%
-  );
+.heading-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.7rem;
+  margin-bottom: 0.7rem;
+  border-inline-start: 2px solid var(--heading-accent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--heading-accent) 10%, transparent), transparent);
+  color: var(--heading-accent);
+  font-family: ui-monospace, Anuphan, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
 }
 
-@keyframes eyebrow-shimmer-anim {
-  0% { transform: translateX(-120%); }
-  45%, 100% { transform: translateX(120%); }
+.heading-highlight {
+  color: var(--heading-accent);
+  background: linear-gradient(100deg, var(--heading-accent), var(--heading-accent-end));
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Twinkle / gentle pulse on Sparkles icon */
-.sparkle-twinkle {
-  animation: sparkle-pulse 2.8s ease-in-out infinite;
-}
-
-@keyframes sparkle-pulse {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
-  50% { transform: scale(1.18) rotate(12deg); opacity: 1; }
-}
-
-/* Staggered Blur-to-Focus Scroll Reveal */
-.eyebrow-reveal {
-  opacity: 0;
-  transform: translateY(14px);
-  transition:
-    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.eyebrow-reveal.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.heading-reveal {
-  opacity: 0;
-  filter: blur(8px);
-  transform: translateY(12px) scale(0.98);
-  transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
-    filter 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
-}
-
-.heading-reveal.is-revealed {
-  opacity: 1;
-  filter: blur(0px);
-  transform: translateY(0) scale(1);
-}
-
-.subtitle-reveal {
-  opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity 0.6s ease 0.22s,
-    transform 0.6s ease 0.22s;
-}
-
-.subtitle-reveal.is-revealed {
-  opacity: 0.75;
-  transform: translateY(0);
-}
-
-/* Animated Glowing SVG Underline */
-.svg-underline-path {
-  stroke-dasharray: 240;
-  stroke-dashoffset: 240;
-  filter: drop-shadow(0 0 6px rgba(0, 200, 100, 0.45));
-  transition: stroke-dashoffset 1s cubic-bezier(0.22, 1, 0.36, 1) 0.35s;
-}
-
-.svg-underline-path.is-drawn {
-  stroke-dashoffset: 0;
-}
-
-/* Radial Grid Fade behind centered headings */
-.radial-grid-fade {
-  background-size: 36px 36px;
-  background-image:
-    linear-gradient(to right, rgba(0, 200, 100, 0.09) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 200, 100, 0.09) 1px, transparent 1px);
-  mask-image: radial-gradient(ellipse at center, black 15%, transparent 72%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 15%, transparent 72%);
+@media (forced-colors: active) {
+  .heading-highlight {
+    -webkit-text-fill-color: currentColor;
+  }
 }
 </style>

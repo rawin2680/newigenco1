@@ -1461,7 +1461,7 @@ onMounted(() => {
             </div>
 
             <div>
-              <label class="block text-xs font-bold mb-1">รายละเอียดเต็ม (แสดงในหน้าต่างดูรายละเอียด)</label>
+              <label class="block text-xs font-bold mb-1">รายละเอียดเต็ม (สำหรับหน้าต่างดูรายละเอียด)</label>
               <textarea v-model="productForm.fullDetails" rows="3" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
             </div>
 
@@ -1469,6 +1469,9 @@ onMounted(() => {
               <label class="block text-xs font-bold mb-1">จุดเด่น / คุณสมบัติ (บรรทัดละ 1 ข้อ)</label>
               <textarea v-model="productForm.featuresText" rows="3" placeholder="รองรับการใช้งานผ่านเว็บเบราว์เซอร์&#10;เชื่อมต่อฐานข้อมูลองค์กรได้" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
             </div>
+            <p v-if="!productForm.documentId" class="text-xs opacity-75">
+              เมื่อกดบันทึกข้อมูล สินค้าจะเผยแพร่ในแคตตาล็อก ปุ่มดูรายละเอียดจะเปิดหน้าต่างข้อมูลสินค้า
+            </p>
           </div>
 
           <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-current/10">

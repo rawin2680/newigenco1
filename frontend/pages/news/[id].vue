@@ -445,6 +445,16 @@ useHead(() => ({
 
             </div>
 
+            <figure v-else-if="article.id === 5" class="smartsoft-mascot mx-auto grid w-fit max-w-full place-items-center px-5 py-3 sm:px-10">
+              <img
+                src="/images/news/ismartsoft-mascot-simple.png"
+                alt="มาสคอต i-SmartSoft"
+                width="142"
+                height="148"
+                class="relative block h-auto w-36 max-w-full sm:w-44"
+              >
+            </figure>
+
             <!-- 1. If article has gallery with > 1 photos: Compact Photo Slider (Prev/Next buttons, not too big) -->
             <div
               v-else-if="article.gallery && article.gallery.length > 1"
@@ -1561,6 +1571,35 @@ useHead(() => ({
 </template>
 
 <style scoped>
+.smartsoft-mascot {
+  position: relative;
+  isolation: isolate;
+}
+
+.smartsoft-mascot::before {
+  position: absolute;
+  z-index: -1;
+  inset: 6% 0;
+  background: radial-gradient(ellipse, rgb(16 185 129 / 16%), transparent 70%);
+  content: '';
+  pointer-events: none;
+}
+
+.smartsoft-mascot img {
+  filter: drop-shadow(0 7px 10px rgb(2 44 34 / 16%));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .smartsoft-mascot img {
+    animation: mascot-appear 450ms ease-out both;
+  }
+}
+
+@keyframes mascot-appear {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .gallery-fade-enter-active,
 .gallery-fade-leave-active {
   transition: opacity 0.25s ease-out, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
