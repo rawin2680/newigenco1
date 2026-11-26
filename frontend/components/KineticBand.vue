@@ -66,7 +66,7 @@ onUnmounted(() => {
 <template>
   <section id="clients" class="py-16 sm:py-20 overflow-hidden relative z-20 reveal-init scroll-mt-24">
     <div class="max-w-[1440px] mx-auto px-5 sm:px-10">
-      <div class="mb-10">
+      <div class="mb-10 text-center">
         <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#00C864] dark:text-[#00FF88] mb-2 font-bold">
           <Sparkles class="w-3.5 h-3.5" />
           <span>CLIENTS & PARTNER ECOSYSTEM // กลุ่มผู้ใช้ผลิตภัณฑ์และพันธมิตร</span>
