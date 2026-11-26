@@ -91,24 +91,23 @@ onBeforeUnmount(() => {
     <div class="max-w-[1360px] mx-auto px-5 sm:px-10 lg:px-16">
 
       <!-- ========================================================
-           1. HERO SECTION: MINIMALIST CORPORATE TYPOGRAPHY
+           1. HERO SECTION: MODERN 2026 CORPORATE CARD
       ========================================================= -->
-      <div class="editorial-reveal pb-20 sm:pb-28 border-b border-black/10 dark:border-white/10">
-        <div class="max-w-4xl space-y-6">
-          <div class="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.25em] uppercase text-[#00A852] dark:text-[#00FF88]">
-            <Building2 class="w-4 h-4" />
-            <span>ABOUT IGENCO // ข้อมูลองค์กรและวิสัยทัศน์</span>
-          </div>
+      <div class="editorial-reveal pb-14 sm:pb-20">
+        <div class="content-card p-8 sm:p-12 lg:p-14 space-y-6">
+          <SectionHeading
+            eyebrow="ABOUT IGENCO // ข้อมูลองค์กรและวิสัยทัศน์"
+            title-prefix="บริษัท"
+            title-highlight="ไอเจนโก้ จำกัด"
+            size="xl"
+            :icon="Building2"
+          />
 
-          <h1 class="text-4xl sm:text-6xl lg:text-7xl font-display font-extrabold tracking-tight text-[#0A1A12] dark:text-[#F8FAFC] leading-[1.08]">
-            บริษัท ไอเจนโก้ จำกัด
-          </h1>
-
-          <p class="text-xl sm:text-2xl lg:text-3xl font-light text-[#334155] dark:text-[#94A3B8] leading-relaxed">
+          <p class="text-xl sm:text-2xl lg:text-3xl font-light text-[#334155] dark:text-[#94A3B8] leading-relaxed max-w-4xl">
             ผู้ให้บริการด้านการพัฒนาระบบงานคอมพิวเตอร์และเทคโนโลยีสารสนเทศครบวงจร ด้วยประสบการณ์กว่า 8 ปี มุ่งสู่ปีที่ 9 อย่างมั่นคง
           </p>
 
-          <p class="text-base sm:text-lg text-[#475569] dark:text-[#94A3B8]/90 leading-relaxed font-normal pt-2 max-w-3xl">
+          <p class="text-base sm:text-lg text-[#475569] dark:text-[#94A3B8]/90 leading-relaxed font-normal max-w-3xl">
             เราผสานความเชี่ยวชาญด้านวิศวกรรมซอฟต์แวร์ตามมาตรฐานสากล 
             <strong class="font-semibold text-[#0A1A12] dark:text-white">ISO/IEC 29110</strong> 
             โดยสถาบัน TÜV NORD พร้อมได้รับการส่งเสริมการลงทุนจาก 
@@ -117,19 +116,19 @@ onBeforeUnmount(() => {
           </p>
         </div>
 
-        <!-- Sleek Editorial Key Statistics (Clean Hairline Row) -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 pt-16 sm:pt-20 border-t border-black/5 dark:border-white/5 mt-16 sm:mt-20">
-          <div class="space-y-1">
-            <div class="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
-              15 <span class="text-base sm:text-lg font-sans font-normal opacity-70">มี.ค. 2553</span>
+        <!-- Key Statistics Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-6 sm:mt-8">
+          <div class="content-card p-6 space-y-1.5">
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
+              15 <span class="text-sm sm:text-base font-sans font-normal opacity-70">มี.ค. 2553</span>
             </div>
             <div class="text-xs font-mono tracking-wider uppercase opacity-60">
               ปีที่เริ่มก่อตั้ง (ESTABLISHED)
             </div>
           </div>
 
-          <div class="space-y-1">
-            <div class="text-3xl sm:text-4xl lg:text-5xl font-mono font-bold tracking-tight text-[#00A852] dark:text-[#00FF88]">
+          <div class="content-card p-6 space-y-1.5">
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold tracking-tight text-[#00A852] dark:text-[#00FF88]">
               100<span class="text-2xl font-light">+</span>
             </div>
             <div class="text-xs font-mono tracking-wider uppercase opacity-60">
@@ -137,8 +136,8 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <div class="space-y-1">
-            <div class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
+          <div class="content-card p-6 space-y-1.5">
+            <div class="text-xl sm:text-2xl lg:text-3xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
               ISO/IEC 29110
             </div>
             <div class="text-xs font-mono tracking-wider uppercase opacity-60">
@@ -146,8 +145,8 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <div class="space-y-1">
-            <div class="text-2xl sm:text-3xl lg:text-4xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
+          <div class="content-card p-6 space-y-1.5">
+            <div class="text-xl sm:text-2xl lg:text-3xl font-mono font-bold tracking-tight text-[#0A1A12] dark:text-white">
               BOI THAI
             </div>
             <div class="text-xs font-mono tracking-wider uppercase opacity-60">
@@ -160,16 +159,16 @@ onBeforeUnmount(() => {
       <!-- ========================================================
            2. EDITORIAL PHILOSOPHY & CORE COMMITMENT
       ========================================================= -->
-      <div class="editorial-reveal py-16 sm:py-20 border-b border-black/10 dark:border-white/10">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-          <div class="lg:col-span-5 space-y-3">
-            <div class="inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
-              <FileText class="w-3.5 h-3.5" />
-              <span>CORE PHILOSOPHY // ปรัชญาการดำเนินงาน</span>
-            </div>
-            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-[#0A1A12] dark:text-[#F8FAFC] leading-snug">
-              "การทำงานอย่างใกล้ชิดกับลูกค้า ใส่ใจในทุกขั้นตอน เพื่อส่งมอบงานที่เหนือความประทับใจ"
-            </h2>
+      <div class="editorial-reveal pb-14 sm:pb-20">
+        <div class="content-card p-8 sm:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+          <div class="lg:col-span-5 space-y-4">
+            <SectionHeading
+              eyebrow="CORE PHILOSOPHY // ปรัชญาการดำเนินงาน"
+              title-prefix="&quot;การทำงานอย่างใกล้ชิดกับลูกค้า ใส่ใจในทุกขั้นตอน เพื่อส่งมอบงานที่"
+              title-highlight="เหนือความประทับใจ&quot;"
+              size="md"
+              :icon="FileText"
+            />
           </div>
           <div class="lg:col-span-7 space-y-5 text-base text-[#475569] dark:text-[#94A3B8] leading-relaxed">
             <p>
@@ -191,17 +190,15 @@ onBeforeUnmount(() => {
       <!-- ========================================================
            3. EXPLORE TOPICS (NAVIGATION HUB TO DEDICATED SECTIONS)
       ========================================================= -->
-      <div class="editorial-reveal py-16 sm:py-20 border-b border-black/10 dark:border-white/10 space-y-10">
+      <div class="editorial-reveal py-10 sm:py-14 space-y-10">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div class="space-y-2 max-w-2xl">
-            <div class="text-xs font-mono font-bold tracking-[0.2em] uppercase text-[#00A852] dark:text-[#00FF88]">
-              EXPLORE IGENCO // สำรวจข้อมูลองค์กร
-            </div>
-            <h3 class="text-2xl sm:text-3xl font-display font-extrabold text-[#0A1A12] dark:text-white">
-              เลือกดูข้อมูลบริษัทในส่วนที่คุณสนใจ
-            </h3>
-          </div>
-          <div class="text-xs font-mono text-[#00A852] dark:text-[#00FF88] bg-[#00A852]/10 dark:bg-[#00FF88]/10 px-3 py-1.5 rounded-full self-start sm:self-auto">
+          <SectionHeading
+            eyebrow="EXPLORE IGENCO // สำรวจข้อมูลองค์กร"
+            title-prefix="เลือกดูข้อมูลบริษัทใน"
+            title-highlight="ส่วนที่คุณสนใจ"
+            size="lg"
+          />
+          <div class="text-xs font-mono text-[#00A852] dark:text-[#00FF88] bg-[#00A852]/10 dark:bg-[#00FF88]/10 px-3.5 py-2 rounded-full self-start sm:self-auto">
             หรือกดเลือกจากเมนู "เกี่ยวกับเรา" ด้านบน
           </div>
         </div>
@@ -211,7 +208,7 @@ onBeforeUnmount(() => {
             v-for="topic in exploreTopics"
             :key="topic.num"
             :to="topic.href"
-            class="group p-8 rounded-3xl border border-black/10 dark:border-white/10 hover:border-[#00C864] dark:hover:border-[#00FF88] transition-all bg-white/40 dark:bg-white/[0.01] hover:bg-white/80 dark:hover:bg-white/[0.03] space-y-4 relative overflow-hidden"
+            class="content-card group p-8 hover:border-[#00C864] dark:hover:border-[#00FF88] hover:-translate-y-1 transition-all space-y-4 relative overflow-hidden"
           >
             <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
               <div class="flex items-center gap-3">
