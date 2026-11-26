@@ -32,9 +32,10 @@ onMounted(async () => {
         content: matchingStatic?.content || (sn.content ? [sn.content] : [sn.excerpt])
       }
     })
-    // Avoid duplicates by title, keeping Strapi items first so admin edits reflect immediately
+    // Avoid duplicates by ID (and title), keeping Strapi items first so admin edits reflect immediately
+    const matchedIds = new Set(mapped.map(m => m.id))
     const strapiTitles = new Set(mapped.map(m => m.title.trim()))
-    const remainingStatic = staticNewsList.filter(s => !strapiTitles.has(s.title.trim()))
+    const remainingStatic = staticNewsList.filter(s => !matchedIds.has(s.id) && !strapiTitles.has(s.title.trim()))
     activeNewsList.value = [...mapped, ...remainingStatic]
   }
 })
