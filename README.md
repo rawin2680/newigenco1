@@ -137,7 +137,7 @@ docker-compose up --build
 | บริการ | หน้าที่ | URL / Port |
 | :--- | :--- | :--- |
 | **Frontend** | Nuxt 3 Web App | [http://localhost:3000](http://localhost:3000) |
-| **Backend** | Strapi Headless CMS | [http://localhost:1337/admin](http://localhost:1337/admin) |
+| **Backend** | Strapi Headless CMS | [c](http://localhost:1337/admin) |
 | **Database** | PostgreSQL | `localhost:5432` |
 
 ---
