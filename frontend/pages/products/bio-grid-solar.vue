@@ -150,7 +150,7 @@ const scrollToContact = () => {
 </script>
 
 <template>
-  <div class="min-h-screen relative selection:bg-[#F59E0B] selection:text-black flex flex-col justify-between bg-[#F8FAF9] dark:bg-[#020806] text-slate-800 dark:text-slate-100">
+  <div class="min-h-screen relative selection:bg-[#F59E0B] selection:text-black flex flex-col justify-between  text-slate-800 dark:text-slate-100">
     <!-- 1. Header Navigation -->
     <AppHeader />
 

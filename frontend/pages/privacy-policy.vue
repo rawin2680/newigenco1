@@ -12,7 +12,7 @@ useHead({
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F6F9F7] dark:bg-[#020806] text-[#022C22] dark:text-[#F4FBF7] transition-colors selection:bg-[#00C864] selection:text-[#022C22]">
+  <div class="min-h-screen  text-[#022C22] dark:text-[#F4FBF7] transition-colors selection:bg-[#00C864] selection:text-[#022C22]">
     <AppHeader />
 
     <main class="pt-28 pb-20 px-5 sm:px-10 lg:px-16 max-w-4xl mx-auto">

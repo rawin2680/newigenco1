@@ -538,7 +538,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F6F9F7] dark:bg-[#020806] text-[#022C22] dark:text-[#F4FBF7] transition-colors selection:bg-[#00C864] selection:text-[#022C22] relative">
+  <div class="min-h-screen  text-[#022C22] dark:text-[#F4FBF7] transition-colors selection:bg-[#00C864] selection:text-[#022C22] relative">
     <!-- Subtle Architectural Grid Background -->
     
 

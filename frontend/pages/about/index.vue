@@ -15,7 +15,7 @@ useHead({
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#FBFDFB] dark:bg-[#030906] text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22]">
+  <div class="min-h-screen  text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22]">
     <!-- Header Navigation -->
     <AppHeader />
 
