@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import {
   LayoutDashboard,
   Mail,
@@ -259,8 +259,47 @@ const uploadImageFile = async (event: Event): Promise<{ id: number; url: string 
 }
 
 // =========================================================================
-// 5. NEWS EDITOR MODAL
+// 5. NEWS EDITOR MODAL & LIST FILTERS
 // =========================================================================
+const newsSearch = ref('')
+const newsCategoryFilter = ref('ทั้งหมด')
+const newsStatusFilter = ref<'all' | 'published' | 'draft'>('all')
+const newsPage = ref(1)
+const newsPageSize = ref(10)
+const newsCategories = ['ทั้งหมด', 'ข่าวประชาสัมพันธ์', 'Enterprise Software', 'Service Development', 'กิจกรรมองค์กร']
+
+const filteredNewsList = computed(() => {
+  return newsList.value.filter((item) => {
+    const matchCategory = newsCategoryFilter.value === 'ทั้งหมด' || item.category === newsCategoryFilter.value
+    const matchStatus =
+      newsStatusFilter.value === 'all' ||
+      (newsStatusFilter.value === 'published' && Boolean(item.publishedAt)) ||
+      (newsStatusFilter.value === 'draft' && !item.publishedAt)
+    const q = newsSearch.value.trim().toLowerCase()
+    if (!q) return matchCategory && matchStatus
+    return (
+      matchCategory &&
+      matchStatus &&
+      ((item.title || '').toLowerCase().includes(q) ||
+        (item.category || '').toLowerCase().includes(q) ||
+        (item.excerpt || '').toLowerCase().includes(q) ||
+        (item.dateText || '').toLowerCase().includes(q))
+    )
+  })
+})
+
+const newsTotalPages = computed(() => Math.max(1, Math.ceil(filteredNewsList.value.length / newsPageSize.value)))
+
+const paginatedNewsList = computed(() => {
+  const safePage = Math.min(newsPage.value, newsTotalPages.value)
+  const start = (safePage - 1) * newsPageSize.value
+  return filteredNewsList.value.slice(start, start + newsPageSize.value)
+})
+
+watch([newsSearch, newsCategoryFilter, newsStatusFilter, newsPageSize], () => {
+  newsPage.value = 1
+})
+
 const newsModalOpen = ref(false)
 const savingNews = ref(false)
 const newsForm = ref<any>({
@@ -923,61 +962,184 @@ onMounted(() => {
         </div>
 
         <!-- =====================================================
-             TAB 3: NEWS MANAGEMENT
+             TAB 3: NEWS MANAGEMENT (Compact List Layout)
         ====================================================== -->
-        <div v-if="activeTab === 'news'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <article
-            v-for="item in newsList"
-            :key="item.id"
-            class="rounded-3xl spatial-glass border border-current/10 overflow-hidden flex flex-col justify-between shadow-lg"
-          >
-            <div>
-              <div class="aspect-video bg-black/10 relative overflow-hidden">
-                <img :src="resolveImage(item.coverImage, item.fallbackImageUrl)" :alt="item.title" class="w-full h-full object-cover">
-                <span
-                  :class="[
-                    'absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-bold backdrop-blur-md border',
-                    item.publishedAt ? 'bg-[#00C864]/90 text-[#022C22] border-white/30' : 'bg-amber-500/90 text-white border-white/30'
+        <div v-if="activeTab === 'news'" class="space-y-5">
+          <!-- Filter Pills & Instant Search Bar -->
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <!-- Status + Category Filters -->
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button
+                  v-for="st in [
+                    { key: 'all', text: 'ทั้งหมด' },
+                    { key: 'published', text: 'เผยแพร่แล้ว' },
+                    { key: 'draft', text: 'ฉบับร่าง' }
                   ]"
+                  :key="st.key"
+                  type="button"
+                  :class="[
+                    'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer',
+                    newsStatusFilter === st.key ? 'bg-[#00C864] text-[#022C22]' : 'spatial-glass border border-current/10 opacity-75 hover:opacity-100'
+                  ]"
+                  @click="newsStatusFilter = st.key as any"
                 >
-                  {{ item.publishedAt ? 'เผยแพร่แล้ว' : 'ฉบับร่าง (Draft)' }}
-                </span>
+                  {{ st.text }}
+                </button>
               </div>
-              <div class="p-5 space-y-2">
-                <div class="text-[11px] font-mono text-[#00A854] dark:text-[#00FF88] font-bold">
-                  {{ item.category }} • {{ item.dateText }}
-                </div>
-                <h3 class="font-bold text-base line-clamp-2">{{ item.title }}</h3>
-                <p class="text-xs opacity-75 line-clamp-2">{{ item.excerpt }}</p>
-              </div>
+
+              <select
+                v-model="newsCategoryFilter"
+                class="px-3 py-1.5 rounded-xl bg-white/80 dark:bg-black/50 border border-current/15 text-xs font-semibold focus:outline-none focus:border-[#00C864] cursor-pointer"
+              >
+                <option v-for="cat in newsCategories" :key="cat" :value="cat">
+                  หมวดหมู่: {{ cat }}
+                </option>
+              </select>
             </div>
 
-            <div class="px-5 py-3.5 border-t border-current/10 flex items-center justify-between gap-2">
-              <button
-                type="button"
-                class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/20 text-xs font-bold cursor-pointer"
-                @click="togglePublish('api::news-article.news-article', item, async () => { newsList = await fetchCollection('api::news-article.news-article') })"
+            <!-- Search Input -->
+            <div class="relative w-full lg:w-72">
+              <Search class="w-4 h-4 text-[#00C864] absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                v-model="newsSearch"
+                type="text"
+                placeholder="ค้นหาชื่อข่าว, หมวดหมู่, วันที่..."
+                class="w-full pl-9 pr-4 py-2 rounded-xl bg-white/80 dark:bg-black/50 border border-current/15 text-xs focus:outline-none focus:border-[#00C864]"
               >
-                {{ item.publishedAt ? 'ซ่อนชั่วคราว' : 'กดเผยแพร่' }}
-              </button>
-              <div class="flex items-center gap-1.5">
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div
+            v-if="paginatedNewsList.length === 0"
+            class="p-10 rounded-2xl spatial-glass border border-current/10 text-center space-y-2"
+          >
+            <p class="text-sm font-bold opacity-75">ไม่พบข่าวสารที่ตรงกับเงื่อนไข</p>
+            <button
+              type="button"
+              class="px-3.5 py-1.5 rounded-xl bg-[#00C864]/15 text-[#00A854] dark:text-[#00FF88] text-xs font-bold cursor-pointer"
+              @click="newsSearch = ''; newsCategoryFilter = 'ทั้งหมด'; newsStatusFilter = 'all'"
+            >
+              ล้างตัวกรองทั้งหมด
+            </button>
+          </div>
+
+          <!-- Compact Horizontal List Rows -->
+          <div v-else class="space-y-2.5">
+            <div
+              v-for="item in paginatedNewsList"
+              :key="item.id"
+              class="p-3.5 sm:p-4 rounded-2xl spatial-glass border border-current/10 hover:border-[#00C864]/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <!-- Left: Compact Thumbnail + Center Details -->
+              <div class="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                <div class="w-20 h-14 sm:w-24 sm:h-16 rounded-xl overflow-hidden bg-black/10 border border-current/10 shrink-0">
+                  <img
+                    :src="resolveImage(item.coverImage, item.fallbackImageUrl)"
+                    :alt="item.title"
+                    class="w-full h-full object-cover"
+                  >
+                </div>
+
+                <div class="min-w-0 flex-1 space-y-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="font-bold text-sm sm:text-base truncate max-w-full sm:max-w-xl">
+                      {{ item.title }}
+                    </h3>
+                    <span
+                      :class="[
+                        'px-2.5 py-0.5 rounded-full text-[11px] font-bold border shrink-0',
+                        item.publishedAt
+                          ? 'bg-[#00C864]/15 text-[#00A854] dark:text-[#00FF88] border-[#00C864]/30'
+                          : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                      ]"
+                    >
+                      {{ item.publishedAt ? 'เผยแพร่แล้ว' : 'ฉบับร่าง (Draft)' }}
+                    </span>
+                  </div>
+
+                  <div class="text-xs opacity-75 flex flex-wrap items-center gap-2.5">
+                    <span class="font-semibold text-[#00A854] dark:text-[#00FF88]">{{ item.category }}</span>
+                    <span>•</span>
+                    <span>{{ item.dateText }}</span>
+                  </div>
+
+                  <p class="text-xs opacity-75 line-clamp-1">
+                    {{ item.excerpt }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Right: Action Buttons -->
+              <div class="flex items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
-                  class="p-2 rounded-lg bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white transition-all cursor-pointer"
+                  class="px-3 py-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/20 text-xs font-bold cursor-pointer transition-colors"
+                  @click="togglePublish('api::news-article.news-article', item, async () => { newsList = await fetchCollection('api::news-article.news-article') })"
+                >
+                  {{ item.publishedAt ? 'ซ่อนชั่วคราว' : 'กดเผยแพร่' }}
+                </button>
+                <button
+                  type="button"
+                  title="แก้ไขข่าว"
+                  class="p-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white transition-all cursor-pointer"
                   @click="openNewsModal(item)"
                 >
                   <Edit3 class="w-4 h-4" />
                 </button>
                 <button
                   type="button"
-                  class="p-2 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer"
+                  title="ลบข่าว"
+                  class="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer"
                   @click="deleteEntry('api::news-article.news-article', item, async () => { newsList = await fetchCollection('api::news-article.news-article') })"
                 >
                   <Trash2 class="w-4 h-4" />
                 </button>
               </div>
             </div>
-          </article>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs">
+            <div class="flex items-center gap-2 opacity-75">
+              <span>แสดง {{ paginatedNewsList.length }} จากทั้งหมด {{ filteredNewsList.length }} รายการ</span>
+              <span>•</span>
+              <label class="flex items-center gap-1.5">
+                <span>แสดงต่อหน้า:</span>
+                <select
+                  v-model.number="newsPageSize"
+                  class="px-2 py-1 rounded-lg bg-white/80 dark:bg-black/50 border border-current/15 font-bold cursor-pointer"
+                >
+                  <option :value="10">10</option>
+                  <option :value="15">15</option>
+                  <option :value="20">20</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="flex items-center gap-1.5 self-end sm:self-auto">
+              <button
+                type="button"
+                :disabled="newsPage <= 1"
+                class="px-3 py-1.5 rounded-xl spatial-glass border border-current/15 font-bold disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                @click="newsPage--"
+              >
+                &lt; ก่อนหน้า
+              </button>
+              <span class="px-3 py-1.5 font-bold">
+                หน้า {{ newsPage }} / {{ newsTotalPages }}
+              </span>
+              <button
+                type="button"
+                :disabled="newsPage >= newsTotalPages"
+                class="px-3 py-1.5 rounded-xl spatial-glass border border-current/15 font-bold disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                @click="newsPage++"
+              >
+                ถัดไป &gt;
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- =====================================================
