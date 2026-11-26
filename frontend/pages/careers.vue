@@ -70,7 +70,7 @@ const submitApplication = () => {
 </script>
 
 <template>
-  <div class="min-h-screen  text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22]">
+  <div class="min-h-screen text-section  text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22]">
     <AppHeader />
 
     <main class="pt-28 pb-24 max-w-[1200px] mx-auto px-5 sm:px-10 lg:px-16">

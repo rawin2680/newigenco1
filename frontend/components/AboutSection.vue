@@ -86,7 +86,7 @@ onBeforeUnmount(() => {
   <section
     id="about"
     ref="sectionRef"
-    class="py-24 sm:py-32 lg:py-40 bg-[#FBFDFB] dark:bg-[#030906] text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22] scroll-mt-24 relative overflow-hidden"
+    class="py-24 sm:py-32 lg:py-40 text-section text-[#0F172A] dark:text-[#F1F5F9] transition-colors selection:bg-[#00C864] selection:text-[#022C22] scroll-mt-24 relative overflow-hidden"
   >
     <div class="max-w-[1360px] mx-auto px-5 sm:px-10 lg:px-16">
 
