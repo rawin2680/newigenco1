@@ -182,7 +182,7 @@ export const useStrapiContent = () => {
   // Fetch News Articles from Strapi (with graceful fallback if backend is offline)
   const getNewsArticles = async (): Promise<StrapiNewsItem[] | null> => {
     try {
-      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/news-articles?populate=*&sort=id:desc`, {
+      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/news-articles?populate=*&sort=id:asc`, {
         timeout: 2500
       })
       if (res && Array.isArray(res.data) && res.data.length > 0) {
