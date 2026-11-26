@@ -253,10 +253,7 @@ const stats = [
   <div class="min-h-screen relative selection:bg-[#00C864] selection:text-[#022C22] flex flex-col justify-between bg-[#F6F9F7] dark:bg-[#020806] text-slate-800 dark:text-slate-100">
     
     <!-- Subtle Architectural Grid Background (Matches Homepage Design System) -->
-    <div
-      class="fixed inset-0 pointer-events-none z-0 opacity-[0.35] dark:opacity-[0.12]"
-      style="background-image: linear-gradient(to right, rgba(0, 200, 100, 0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 200, 100, 0.12) 1px, transparent 1px); background-size: 40px 40px;"
-    />
+    
 
     <!-- 1. Header Navigation -->
     <AppHeader />

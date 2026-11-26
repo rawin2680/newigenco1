@@ -540,10 +540,7 @@ onMounted(() => {
 <template>
   <div class="min-h-screen bg-[#F6F9F7] dark:bg-[#020806] text-[#022C22] dark:text-[#F4FBF7] transition-colors selection:bg-[#00C864] selection:text-[#022C22] relative">
     <!-- Subtle Architectural Grid Background -->
-    <div
-      class="fixed inset-0 pointer-events-none z-0 opacity-[0.35] dark:opacity-[0.12]"
-      style="background-image: linear-gradient(to right, rgba(0, 200, 100, 0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 200, 100, 0.12) 1px, transparent 1px); background-size: 40px 40px;"
-    />
+    
 
     <!-- =========================================================
          LOADING SPLASH
