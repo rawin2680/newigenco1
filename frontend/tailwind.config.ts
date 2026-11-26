@@ -14,32 +14,23 @@ export default {
     extend: {
       fontFamily: {
         display: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"SF Pro Display"',
-          '"SF Pro Text"',
-          '"SF Pro TH"',
-          '"Sukhumvit Set"',
           '"Inter"',
           '"Anuphan"',
+          '-apple-system',
+          'BlinkMacSystemFont',
           'sans-serif'
         ],
         sans: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"SF Pro Text"',
-          '"SF Pro Display"',
-          '"SF Pro TH"',
-          '"Sukhumvit Set"',
           '"Inter"',
           '"Anuphan"',
+          '-apple-system',
+          'BlinkMacSystemFont',
           'sans-serif'
         ],
         mono: [
-          '"SF Mono"',
-          'SFMono-Regular',
+          '"Inter"',
+          '"Anuphan"',
           'ui-monospace',
-          '"Menlo"',
           'monospace'
         ]
       },

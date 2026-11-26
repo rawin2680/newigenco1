@@ -29,11 +29,11 @@ html.dark {
   box-sizing: border-box;
 }
 
-/* Global Apple iPhone Font Stack */
-html, body {
+/* Unified Modern Font Stack (Inter + Anuphan) */
+html, body, button, input, select, textarea {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro TH", "Sukhumvit Set", "Inter", "Anuphan", "Segoe UI", Roboto, sans-serif !important;
+  font-family: "Inter", "Anuphan", -apple-system, BlinkMacSystemFont, sans-serif !important;
   overflow-x: hidden;
   transition: background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), color 0.4s ease;
   -webkit-font-smoothing: antialiased;
@@ -41,9 +41,9 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
-/* Apple iPhone Headline Typography */
-h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro TH", "Sukhumvit Set", "Inter", "Anuphan", sans-serif !important;
+/* Unified Headline & Mono Typography */
+h1, h2, h3, h4, h5, h6, .font-display, .font-sans, .font-mono {
+  font-family: "Inter", "Anuphan", -apple-system, BlinkMacSystemFont, sans-serif !important;
   letter-spacing: -0.015em;
 }
 
