@@ -34,7 +34,8 @@ const logoPool: LogoItem[] = [
   { id: 'ttt', name: 'TT&T Public Company Limited', image: '/images/clients/ttt.png' },
   { id: 'dpa', name: 'สถาบันคุ้มครองเงินฝาก (สคฝ.)', image: '/images/clients/dpa.png' },
   { id: 'prowaste', name: 'PROWASTE', image: '/images/clients/prowaste.png' },
-  { id: 'business-coach', name: 'Business Coach & Consulting', image: '/images/clients/business-coach.png' }
+  { id: 'business-coach', name: 'Business Coach & Consulting', image: '/images/clients/business-coach.png' },
+  { id: 'mcru-hd', name: 'มหาวิทยาลัยราชภัฏหมู่บ้านจอมบึง', image: '/images/clients/mcru-hd.jpg' }
 ]
 
 const SLOT_COUNT = 5
