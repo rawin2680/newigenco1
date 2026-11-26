@@ -39,9 +39,16 @@ export default defineEventHandler(async (event) => {
       user: res.data.user
     }
   } catch (err: any) {
+    const status = err?.statusCode || err?.response?.status
+    if (status === 400 || status === 401) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
+      })
+    }
     throw createError({
-      statusCode: err?.statusCode || err?.response?.status || 401,
-      statusMessage: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือเซิร์ฟเวอร์ Strapi ยังไม่พร้อมใช้งาน'
+      statusCode: 503,
+      statusMessage: `ไม่สามารถเชื่อมต่อหลังบ้าน Strapi (${strapiUrl}) ได้ — หากใช้งานบน Vercel กรุณา Deploy Strapi ขึ้น Cloud และตั้งค่า NUXT_PUBLIC_STRAPI_URL`
     })
   }
 })
