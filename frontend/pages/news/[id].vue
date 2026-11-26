@@ -35,14 +35,37 @@ import {
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
 import { useNews, type NewsItem } from '~/composables/useNews'
+import { useStrapiContent } from '~/composables/useStrapiContent'
 import { useTheme } from '~/composables/useTheme'
 
 const route = useRoute()
 const { getNewsById, newsList } = useNews()
+const { getNewsArticles } = useStrapiContent()
 const { showToast } = useTheme()
 
+const strapiArticle = ref<NewsItem | null>(null)
 const articleId = computed(() => Number(route.params.id))
-const article = computed(() => getNewsById(articleId.value))
+const article = computed(() => getNewsById(articleId.value) || strapiArticle.value)
+
+onMounted(async () => {
+  if (!getNewsById(articleId.value)) {
+    const all = await getNewsArticles()
+    const found = all?.find(a => a.id === articleId.value)
+    if (found) {
+      strapiArticle.value = {
+        id: found.id,
+        title: found.title,
+        category: found.category,
+        date: found.date,
+        readTime: found.readTime,
+        excerpt: found.excerpt,
+        image: found.image,
+        aiSummary: [found.excerpt],
+        content: found.content ? found.content.split('\n').filter(Boolean) : [found.excerpt]
+      }
+    }
+  }
+})
 
 // Navigation: Previous & Next Article
 const currentIndex = computed(() => newsList.findIndex(n => n.id === articleId.value))

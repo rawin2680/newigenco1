@@ -15,17 +15,21 @@ onMounted(async () => {
   const strapiNews = await getNewsArticles()
   if (strapiNews && strapiNews.length > 0) {
     // Merge Strapi articles at the top, or use them if titles differ from static
-    const mapped: NewsItem[] = strapiNews.map((sn, index) => ({
-      id: sn.id || (1000 + index),
-      title: sn.title,
-      category: sn.category,
-      date: sn.date,
-      readTime: sn.readTime,
-      excerpt: sn.excerpt,
-      image: sn.image,
-      aiSummary: [sn.excerpt],
-      content: sn.content ? [sn.content] : [sn.excerpt]
-    }))
+    const mapped: NewsItem[] = strapiNews.map((sn, index) => {
+      const matchingStatic = staticNewsList.find(s => s.title.trim() === sn.title.trim())
+      return {
+        ...(matchingStatic || {}),
+        id: matchingStatic ? matchingStatic.id : (sn.id || (1000 + index)),
+        title: sn.title,
+        category: sn.category,
+        date: sn.date,
+        readTime: sn.readTime,
+        excerpt: sn.excerpt,
+        image: sn.image,
+        aiSummary: matchingStatic?.aiSummary || [sn.excerpt],
+        content: matchingStatic?.content || (sn.content ? [sn.content] : [sn.excerpt])
+      }
+    })
     // Avoid duplicates by title, keeping Strapi items first so admin edits reflect immediately
     const strapiTitles = new Set(mapped.map(m => m.title.trim()))
     const remainingStatic = staticNewsList.filter(s => !strapiTitles.has(s.title.trim()))
