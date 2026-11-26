@@ -49,7 +49,7 @@ onMounted(async () => {
       accentColor: '#00C864',
       glowColor: 'rgba(0, 200, 100, 0.25)',
       icon: 'Box',
-      detailLink: sp.detailRoute || ''
+      link: sp.detailRoute || undefined
     }))
     const strapiTitles = new Set(mapped.map(m => m.title.trim()))
     const remainingStatic = products.filter(p => !strapiTitles.has(p.title.trim()))
