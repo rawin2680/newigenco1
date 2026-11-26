@@ -33,23 +33,24 @@ const logoPool: LogoItem[] = [
 ]
 
 const SLOT_COUNT = 6
+const batchOffset = ref(0)
+const batchCounter = ref(0)
 const slots = ref<LogoItem[]>(logoPool.slice(0, SLOT_COUNT))
-const swapCounters = ref<number[]>([0, 0, 0, 0, 0, 0])
 
-let nextSlotIdx = 0
-let nextPoolIdx = SLOT_COUNT % logoPool.length
 let swapTimer: ReturnType<typeof setInterval> | null = null
 
-const advanceNextSlot = () => {
-  slots.value[nextSlotIdx] = logoPool[nextPoolIdx]
-  swapCounters.value[nextSlotIdx] += 1
-
-  nextSlotIdx = (nextSlotIdx + 1) % SLOT_COUNT
-  nextPoolIdx = (nextPoolIdx + 1) % logoPool.length
+const advanceBatch = () => {
+  batchOffset.value = (batchOffset.value + SLOT_COUNT) % logoPool.length
+  const nextSlots: LogoItem[] = []
+  for (let i = 0; i < SLOT_COUNT; i++) {
+    nextSlots.push(logoPool[(batchOffset.value + i) % logoPool.length])
+  }
+  slots.value = nextSlots
+  batchCounter.value += 1
 }
 
 onMounted(() => {
-  swapTimer = setInterval(advanceNextSlot, 1800)
+  swapTimer = setInterval(advanceBatch, 3500)
 })
 
 onUnmounted(() => {
@@ -79,7 +80,7 @@ onUnmounted(() => {
         >
           <Transition name="blur-focus" mode="out-in">
             <img
-              :key="`${item.id}-${swapCounters[idx]}`"
+              :key="`${item.id}-${batchCounter}`"
               :src="item.image"
               :alt="item.name"
               :title="item.name"
