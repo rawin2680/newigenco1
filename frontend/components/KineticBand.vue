@@ -28,10 +28,16 @@ const logoPool: LogoItem[] = [
   { id: 'ieat', name: 'การนิคมอุตสาหกรรมแห่งประเทศไทย', image: '/images/clients/ieat.png' },
   { id: 'rtarf', name: 'กองทัพไทย', image: '/images/clients/rtarf.png' },
   { id: 'sat', name: 'การกีฬาแห่งประเทศไทย (กกท.)', image: '/images/clients/sat.png' },
-  { id: 'flame', name: 'Partner Logo', image: '/images/clients/flame.png' }
+  { id: 'flame', name: 'Partner Logo', image: '/images/clients/flame.png' },
+  { id: 'mcru', name: 'มหาวิทยาลัยราชภัฏหมู่บ้านจอมบึง', image: '/images/clients/mcru.png' },
+  { id: 'navy', name: 'กองทัพเรือ', image: '/images/clients/navy.png' },
+  { id: 'ttt', name: 'TT&T Public Company Limited', image: '/images/clients/ttt.png' },
+  { id: 'dpa', name: 'สถาบันคุ้มครองเงินฝาก (สคฝ.)', image: '/images/clients/dpa.png' },
+  { id: 'prowaste', name: 'PROWASTE', image: '/images/clients/prowaste.png' },
+  { id: 'business-coach', name: 'Business Coach & Consulting', image: '/images/clients/business-coach.png' }
 ]
 
-const SLOT_COUNT = 6
+const SLOT_COUNT = 5
 const batchOffset = ref(0)
 const batchCounter = ref(0)
 const slots = ref<LogoItem[]>(logoPool.slice(0, SLOT_COUNT))
@@ -70,12 +76,12 @@ onUnmounted(() => {
         </h3>
       </div>
 
-      <!-- Single-Row 6-Logo Showcase (Larger, Borderless, Sequential Blur-to-Focus) -->
-      <div class="grid grid-cols-3 md:grid-cols-6 items-center justify-items-center gap-6 sm:gap-10 py-4">
+      <!-- Single-Row 5-Logo Showcase (Larger, Borderless, Simultaneous Blur-to-Focus) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 items-center justify-items-center gap-6 sm:gap-10 py-4">
         <div
           v-for="(item, idx) in slots"
           :key="idx"
-          class="relative w-full h-28 sm:h-32 lg:h-36 flex items-center justify-center"
+          class="relative w-full h-32 sm:h-36 lg:h-40 flex items-center justify-center"
         >
           <Transition name="blur-focus" mode="out-in">
             <img
@@ -83,7 +89,7 @@ onUnmounted(() => {
               :src="item.image"
               :alt="item.name"
               :title="item.name"
-              class="max-h-24 sm:max-h-28 lg:max-h-32 max-w-full w-auto object-contain select-none transition-transform duration-300 hover:scale-110"
+              class="max-h-28 sm:max-h-32 lg:max-h-36 max-w-full w-auto object-contain select-none transition-transform duration-300 hover:scale-110"
               loading="lazy"
             />
           </Transition>
