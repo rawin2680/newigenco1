@@ -16,7 +16,9 @@ onMounted(async () => {
   if (strapiNews && strapiNews.length > 0) {
     // Merge Strapi articles at the top, or use them if titles differ from static
     const mapped: NewsItem[] = strapiNews.map((sn, index) => {
-      const matchingStatic = staticNewsList.find(s => s.title.trim() === sn.title.trim())
+      const matchingStatic = staticNewsList.find(
+        s => s.title.trim() === sn.title.trim() || (sn.date && s.date.trim() === sn.date.trim())
+      )
       return {
         ...(matchingStatic || {}),
         id: matchingStatic ? matchingStatic.id : (sn.id || (1000 + index)),

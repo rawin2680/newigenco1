@@ -45,27 +45,26 @@ const { showToast } = useTheme()
 
 const strapiArticle = ref<NewsItem | null>(null)
 const articleId = computed(() => Number(route.params.id))
-const article = computed(() => getNewsById(articleId.value) || strapiArticle.value)
 
-onMounted(async () => {
-  if (!getNewsById(articleId.value)) {
-    const all = await getNewsArticles()
-    const found = all?.find(a => a.id === articleId.value)
-    if (found) {
-      strapiArticle.value = {
-        id: found.id,
-        title: found.title,
-        category: found.category,
-        date: found.date,
-        readTime: found.readTime,
-        excerpt: found.excerpt,
-        image: found.image,
-        aiSummary: [found.excerpt],
-        content: found.content ? found.content.split('\n').filter(Boolean) : [found.excerpt]
-      }
-    }
-  }
+const { data: fetchedStrapiArticle } = await useAsyncData(`news-strapi-${route.params.id}`, async () => {
+  if (getNewsById(articleId.value)) return null
+  const all = await getNewsArticles()
+  const found = all?.find(a => a.id === articleId.value)
+  if (!found) return null
+  return {
+    id: found.id,
+    title: found.title,
+    category: found.category,
+    date: found.date,
+    readTime: found.readTime,
+    excerpt: found.excerpt,
+    image: found.image,
+    aiSummary: [found.excerpt],
+    content: found.content ? found.content.split('\n').filter(Boolean) : [found.excerpt]
+  } as NewsItem
 })
+
+const article = computed(() => getNewsById(articleId.value) || fetchedStrapiArticle.value || strapiArticle.value)
 
 // Navigation: Previous & Next Article
 const currentIndex = computed(() => newsList.findIndex(n => n.id === articleId.value))
