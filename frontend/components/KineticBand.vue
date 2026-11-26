@@ -13,7 +13,6 @@ const logoPool: LogoItem[] = [
   { id: 'tceb', name: 'TCEB', image: '/images/clients/tceb.png' },
   { id: 'sju', name: 'มหาวิทยาลัยเซนต์จอห์น', image: '/images/clients/sju.png' },
   { id: 'pcru', name: 'มหาวิทยาลัยราชภัฏเพชรบูรณ์', image: '/images/clients/pcru.png' },
-  { id: 'mcru', name: 'มหาวิทยาลัยราชภัฏหมู่บ้านจอมบึง', image: '/images/clients/mcru.jpg' },
   { id: 'guts', name: 'GUTS Security', image: '/images/clients/guts.png' },
   { id: 'ktbgs', name: 'KTBGS', image: '/images/clients/ktbgs.png' },
   { id: 'thairung', name: 'Thairung Group', image: '/images/clients/thairung.png' },
