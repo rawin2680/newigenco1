@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Mail,
   Newspaper,
-  Trophy,
   Box,
   LogOut,
   Plus,
@@ -96,13 +95,12 @@ const userRoleLabel = computed(() => {
 // =========================================================================
 // 2. COLLECTIONS DATA & FETCHING
 // =========================================================================
-type AdminTab = 'dashboard' | 'inquiries' | 'news' | 'portfolio' | 'products'
+type AdminTab = 'dashboard' | 'inquiries' | 'news' | 'products'
 const activeTab = ref<AdminTab>('dashboard')
 const isLoadingData = ref(false)
 
 const inquiries = ref<any[]>([])
 const newsList = ref<any[]>([])
-const portfolioList = ref<any[]>([])
 const productsList = ref<any[]>([])
 
 const fetchCollection = async (uid: string) => {
@@ -115,15 +113,13 @@ const fetchCollection = async (uid: string) => {
 const fetchAllCollections = async () => {
   isLoadingData.value = true
   try {
-    const [inq, news, port, prod] = await Promise.all([
+    const [inq, news, prod] = await Promise.all([
       fetchCollection('api::inquiry.inquiry'),
       fetchCollection('api::news-article.news-article'),
-      fetchCollection('api::portfolio-case.portfolio-case'),
       fetchCollection('api::product.product')
     ])
     inquiries.value = inq
     newsList.value = news
-    portfolioList.value = port
     productsList.value = prod
   } catch (err: any) {
     showToast('โหลดข้อมูลบางส่วนไม่สำเร็จ กรุณาลองรีเฟรชอีกครั้ง')
@@ -358,120 +354,7 @@ const saveNews = async (publish: boolean) => {
 }
 
 // =========================================================================
-// 6. PORTFOLIO EDITOR MODAL
-// =========================================================================
-const portfolioModalOpen = ref(false)
-const savingPortfolio = ref(false)
-const portfolioForm = ref<any>({
-  documentId: null,
-  clientName: '',
-  title: '',
-  category: 'หน่วยงานราชการ',
-  location: '',
-  servicePoints: '',
-  queueMode: '',
-  highlight: '',
-  description: '',
-  resultsText: '',
-  tagsText: '',
-  imageId: null as number | null,
-  previewUrl: '',
-  fallbackImageUrl: ''
-})
-
-const openPortfolioModal = (item?: any) => {
-  if (item) {
-    portfolioForm.value = {
-      documentId: item.documentId || item.id,
-      clientName: item.clientName || '',
-      title: item.title || '',
-      category: item.category || 'หน่วยงานราชการ',
-      location: item.location || '',
-      servicePoints: item.servicePoints || '',
-      queueMode: item.queueMode || '',
-      highlight: item.highlight || '',
-      description: item.description || '',
-      resultsText: Array.isArray(item.results) ? item.results.join('\n') : '',
-      tagsText: Array.isArray(item.tags) ? item.tags.join(', ') : '',
-      imageId: item.image?.id || null,
-      previewUrl: resolveImage(item.image, item.fallbackImageUrl),
-      fallbackImageUrl: item.fallbackImageUrl || ''
-    }
-  } else {
-    portfolioForm.value = {
-      documentId: null,
-      clientName: '',
-      title: '',
-      category: 'หน่วยงานราชการ',
-      location: '',
-      servicePoints: '',
-      queueMode: 'Mobile QR e-Ticket + จอแสดงผล TV + แจ้งเตือน LINE',
-      highlight: '',
-      description: '',
-      resultsText: '',
-      tagsText: 'iGenQ, Smart Queue',
-      imageId: null,
-      previewUrl: '',
-      fallbackImageUrl: '/images/products/igenq-poster-1.jpg'
-    }
-  }
-  portfolioModalOpen.value = true
-}
-
-const onPortfolioImageSelect = async (e: Event) => {
-  const uploaded = await uploadImageFile(e)
-  if (uploaded) {
-    portfolioForm.value.imageId = uploaded.id
-    portfolioForm.value.previewUrl = uploaded.url.startsWith('http') ? uploaded.url : `${strapiUrl}${uploaded.url}`
-  }
-}
-
-const savePortfolio = async (publish: boolean) => {
-  if (!portfolioForm.value.clientName || !portfolioForm.value.title) {
-    showToast('กรุณากรอกชื่อหน่วยงานและหัวข้อผลงาน')
-    return
-  }
-  savingPortfolio.value = true
-  try {
-    const uid = encodeURIComponent('api::portfolio-case.portfolio-case')
-    const results = portfolioForm.value.resultsText.split('\n').map((s: string) => s.trim()).filter(Boolean)
-    const tags = portfolioForm.value.tagsText.split(',').map((s: string) => s.trim()).filter(Boolean)
-
-    const payload: Record<string, any> = {
-      clientName: portfolioForm.value.clientName,
-      title: portfolioForm.value.title,
-      category: portfolioForm.value.category,
-      location: portfolioForm.value.location,
-      servicePoints: portfolioForm.value.servicePoints,
-      queueMode: portfolioForm.value.queueMode,
-      highlight: portfolioForm.value.highlight,
-      description: portfolioForm.value.description,
-      results,
-      tags,
-      fallbackImageUrl: portfolioForm.value.fallbackImageUrl || '/images/products/igenq-poster-1.jpg',
-      _publish: publish
-    }
-    if (portfolioForm.value.imageId) {
-      payload.image = portfolioForm.value.imageId
-    }
-
-    if (portfolioForm.value.documentId) {
-      await $fetch(`/api/admin/collection/${uid}/${portfolioForm.value.documentId}`, { method: 'PUT', body: payload })
-    } else {
-      await $fetch(`/api/admin/collection/${uid}`, { method: 'POST', body: payload })
-    }
-    showToast(publish ? 'บันทึกและเผยแพร่ผลงานเรียบร้อยแล้ว!' : 'บันทึกฉบับร่างเรียบร้อยแล้ว')
-    portfolioModalOpen.value = false
-    portfolioList.value = await fetchCollection('api::portfolio-case.portfolio-case')
-  } catch {
-    showToast('เกิดข้อผิดพลาดในการบันทึกผลงาน')
-  } finally {
-    savingPortfolio.value = false
-  }
-}
-
-// =========================================================================
-// 7. PRODUCT EDITOR MODAL
+// 6. PRODUCT EDITOR MODAL
 // =========================================================================
 const productModalOpen = ref(false)
 const savingProduct = ref(false)
@@ -759,21 +642,6 @@ onMounted(() => {
               type="button"
               :class="[
                 'w-full px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between transition-all cursor-pointer',
-                activeTab === 'portfolio' ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
-              ]"
-              @click="activeTab = 'portfolio'"
-            >
-              <span class="flex items-center gap-3">
-                <Trophy class="w-4 h-4" />
-                <span>จัดการผลงาน iGenQ</span>
-              </span>
-              <span class="text-[11px] font-mono opacity-60">{{ portfolioList.length }}</span>
-            </button>
-
-            <button
-              type="button"
-              :class="[
-                'w-full px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between transition-all cursor-pointer',
                 activeTab === 'products' ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
               ]"
               @click="activeTab = 'products'"
@@ -830,7 +698,6 @@ onMounted(() => {
               <span v-if="activeTab === 'dashboard'">ภาพรวมระบบจัดการเว็บไซต์</span>
               <span v-else-if="activeTab === 'inquiries'">กล่องข้อความติดต่อสอบถามจากลูกค้า</span>
               <span v-else-if="activeTab === 'news'">จัดการข่าวสารและกิจกรรม</span>
-              <span v-else-if="activeTab === 'portfolio'">จัดการผลงานและความสำเร็จ iGenQ</span>
               <span v-else-if="activeTab === 'products'">จัดการสินค้าและบริการ</span>
             </h1>
           </div>
@@ -855,15 +722,6 @@ onMounted(() => {
               <span>เพิ่มข่าวใหม่</span>
             </button>
             <button
-              v-if="activeTab === 'portfolio'"
-              type="button"
-              class="px-4 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
-              @click="openPortfolioModal()"
-            >
-              <Plus class="w-4 h-4" />
-              <span>เพิ่มผลงานใหม่</span>
-            </button>
-            <button
               v-if="activeTab === 'products'"
               type="button"
               class="px-4 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
@@ -880,7 +738,7 @@ onMounted(() => {
         ====================================================== -->
         <div v-if="activeTab === 'dashboard'" class="space-y-8">
           <!-- KPI Bento Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div
               class="p-6 rounded-3xl spatial-glass border border-[#00C864]/25 shadow-lg space-y-2 cursor-pointer hover:-translate-y-1 transition-all"
               @click="activeTab = 'inquiries'"
@@ -905,18 +763,6 @@ onMounted(() => {
               </div>
               <div class="text-3xl font-black font-display">{{ newsList.length }}</div>
               <div class="text-xs opacity-70">เผยแพร่บนหน้าแรก &amp; หน้าข่าว</div>
-            </div>
-
-            <div
-              class="p-6 rounded-3xl spatial-glass border border-[#00C864]/25 shadow-lg space-y-2 cursor-pointer hover:-translate-y-1 transition-all"
-              @click="activeTab = 'portfolio'"
-            >
-              <div class="flex items-center justify-between text-xs font-mono opacity-70">
-                <span>ผลงาน iGenQ</span>
-                <Trophy class="w-4 h-4 text-[#00C864]" />
-              </div>
-              <div class="text-3xl font-black font-display">{{ portfolioList.length }}</div>
-              <div class="text-xs opacity-70">เคสตัวอย่างลูกค้าองค์กร</div>
             </div>
 
             <div
@@ -979,17 +825,6 @@ onMounted(() => {
                   <div>
                     <div class="text-sm font-bold">+ โพสต์ข่าวสาร / กิจกรรมใหม่</div>
                     <div class="text-xs opacity-70">อัปโหลดรูปและขึ้นหน้าแรกทันที</div>
-                  </div>
-                  <Plus class="w-5 h-5 text-[#00C864]" />
-                </button>
-                <button
-                  type="button"
-                  class="w-full p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04] hover:border-[#00C864]/50 border border-current/10 text-left flex items-center justify-between transition-all cursor-pointer"
-                  @click="activeTab = 'portfolio'; openPortfolioModal()"
-                >
-                  <div>
-                    <div class="text-sm font-bold">+ เพิ่มผลงานลูกค้า iGenQ</div>
-                    <div class="text-xs opacity-70">เพิ่มเคสตัวอย่างลงหน้า Portfolio</div>
                   </div>
                   <Plus class="w-5 h-5 text-[#00C864]" />
                 </button>
@@ -1146,65 +981,7 @@ onMounted(() => {
         </div>
 
         <!-- =====================================================
-             TAB 4: PORTFOLIO MANAGEMENT
-        ====================================================== -->
-        <div v-if="activeTab === 'portfolio'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <article
-            v-for="item in portfolioList"
-            :key="item.id"
-            class="rounded-3xl spatial-glass border border-current/10 overflow-hidden flex flex-col justify-between shadow-lg"
-          >
-            <div>
-              <div class="aspect-video bg-[#ECFDF5] dark:bg-[#022C22]/40 relative overflow-hidden p-2 flex items-center justify-center">
-                <img :src="resolveImage(item.image, item.fallbackImageUrl)" :alt="item.clientName" class="w-full h-full object-contain">
-                <span
-                  :class="[
-                    'absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-bold backdrop-blur-md border',
-                    item.publishedAt ? 'bg-[#00C864]/90 text-[#022C22] border-white/30' : 'bg-amber-500/90 text-white border-white/30'
-                  ]"
-                >
-                  {{ item.publishedAt ? 'เผยแพร่แล้ว' : 'ฉบับร่าง' }}
-                </span>
-              </div>
-              <div class="p-5 space-y-1.5">
-                <div class="text-[11px] font-mono text-[#00A854] dark:text-[#00FF88] font-bold">
-                  {{ item.category }} • {{ item.location }}
-                </div>
-                <h3 class="font-bold text-base line-clamp-1">{{ item.clientName }}</h3>
-                <p class="text-xs opacity-75 line-clamp-2">{{ item.title }}</p>
-              </div>
-            </div>
-
-            <div class="px-5 py-3.5 border-t border-current/10 flex items-center justify-between gap-2">
-              <button
-                type="button"
-                class="px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/20 text-xs font-bold cursor-pointer"
-                @click="togglePublish('api::portfolio-case.portfolio-case', item, async () => { portfolioList = await fetchCollection('api::portfolio-case.portfolio-case') })"
-              >
-                {{ item.publishedAt ? 'ซ่อนชั่วคราว' : 'กดเผยแพร่' }}
-              </button>
-              <div class="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  class="p-2 rounded-lg bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white transition-all cursor-pointer"
-                  @click="openPortfolioModal(item)"
-                >
-                  <Edit3 class="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  class="p-2 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer"
-                  @click="deleteEntry('api::portfolio-case.portfolio-case', item, async () => { portfolioList = await fetchCollection('api::portfolio-case.portfolio-case') })"
-                >
-                  <Trash2 class="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- =====================================================
-             TAB 5: PRODUCTS MANAGEMENT
+             TAB 4: PRODUCTS MANAGEMENT
         ====================================================== -->
         <div v-if="activeTab === 'products'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <article
@@ -1387,97 +1164,7 @@ onMounted(() => {
     </Teleport>
 
     <!-- =========================================================
-         MODAL 3: PORTFOLIO EDITOR
-    ========================================================== -->
-    <Teleport to="body">
-      <div v-if="portfolioModalOpen" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto" @click="portfolioModalOpen = false">
-        <div class="max-w-2xl w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
-          <div class="flex items-center justify-between border-b border-current/10 pb-3">
-            <h3 class="text-lg font-extrabold">{{ portfolioForm.documentId ? 'แก้ไขผลงาน iGenQ' : 'เพิ่มผลงาน iGenQ ใหม่' }}</h3>
-            <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" @click="portfolioModalOpen = false"><X class="w-4 h-4" /></button>
-          </div>
-
-          <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-            <div>
-              <label class="block text-xs font-bold mb-1.5">รูปภาพหน้างาน / โลโก้ลูกค้า</label>
-              <div class="flex items-center gap-4">
-                <div class="w-32 h-20 rounded-xl overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
-                  <img v-if="portfolioForm.previewUrl" :src="portfolioForm.previewUrl" class="w-full h-full object-contain">
-                  <ImageIcon v-else class="w-6 h-6 opacity-40" />
-                </div>
-                <label class="px-4 py-2.5 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer flex items-center gap-2 transition-all">
-                  <Upload class="w-4 h-4" />
-                  <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'เลือกรูปภาพจากเครื่อง' }}</span>
-                  <input type="file" accept="image/*" class="hidden" @change="onPortfolioImageSelect">
-                </label>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold mb-1">ชื่อหน่วยงาน / ลูกค้า *</label>
-                <input v-model="portfolioForm.clientName" type="text" placeholder="เช่น ที่ว่าการอำเภอ..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-              </div>
-              <div>
-                <label class="block text-xs font-bold mb-1">หมวดหมู่</label>
-                <select v-model="portfolioForm.category" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-                  <option value="หน่วยงานราชการ">หน่วยงานราชการ</option>
-                  <option value="โรงพยาบาล">โรงพยาบาล</option>
-                  <option value="องค์กรเอกชน">องค์กรเอกชน</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold mb-1">ชื่อโครงการ / ระบบที่ติดตั้ง *</label>
-                <input v-model="portfolioForm.title" type="text" placeholder="เช่น ระบบบริหารคิวอัจฉริยะ..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-              </div>
-              <div>
-                <label class="block text-xs font-bold mb-1">จังหวัด / สถานที่</label>
-                <input v-model="portfolioForm.location" type="text" placeholder="เช่น กรุงเทพมหานคร" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold mb-1">จุดบริการที่ติดตั้ง</label>
-                <input v-model="portfolioForm.servicePoints" type="text" placeholder="เช่น เคาน์เตอร์บริการ 8 ช่อง" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-              </div>
-              <div>
-                <label class="block text-xs font-bold mb-1">รูปแบบระบบคิว</label>
-                <input v-model="portfolioForm.queueMode" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold mb-1">จุดเด่นสำคัญ (Highlight)</label>
-              <input v-model="portfolioForm.highlight" type="text" placeholder="เช่น ลดเวลารอคิวได้กว่า 45%" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold mb-1">คำอธิบายรายละเอียด</label>
-              <textarea v-model="portfolioForm.description" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold mb-1">ผลลัพธ์ความสำเร็จ (บรรทัดละ 1 ข้อ)</label>
-              <textarea v-model="portfolioForm.resultsText" rows="3" placeholder="ผลลัพธ์ข้อที่ 1&#10;ผลลัพธ์ข้อที่ 2" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-current/10">
-            <button type="button" :disabled="savingPortfolio" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="savePortfolio(false)">บันทึกเป็นฉบับร่าง</button>
-            <button type="button" :disabled="savingPortfolio" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md" @click="savePortfolio(true)">
-              {{ savingPortfolio ? 'กำลังบันทึก...' : 'บันทึกและเผยแพร่ขึ้นหน้าเว็บทันที' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
-
-    <!-- =========================================================
-         MODAL 4: PRODUCT EDITOR
+         MODAL 3: PRODUCT EDITOR
     ========================================================== -->
     <Teleport to="body">
       <div v-if="productModalOpen" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto" @click="productModalOpen = false">
