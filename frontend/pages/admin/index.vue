@@ -1003,37 +1003,21 @@ onMounted(() => {
              TAB 3: NEWS MANAGEMENT (Compact List Layout)
         ====================================================== -->
         <div v-if="activeTab === 'news'" class="space-y-5">
-          <!-- Filter Pills & Instant Search Bar -->
+          <!-- Category Filter Pills & Instant Search Bar -->
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <!-- Status + Category Filters -->
-            <div class="flex flex-wrap items-center gap-2">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <button
-                  v-for="st in [
-                    { key: 'all', text: 'ทั้งหมด' },
-                    { key: 'published', text: 'เผยแพร่แล้ว' },
-                    { key: 'draft', text: 'ฉบับร่าง' }
-                  ]"
-                  :key="st.key"
-                  type="button"
-                  :class="[
-                    'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer',
-                    newsStatusFilter === st.key ? 'bg-[#00C864] text-[#022C22]' : 'spatial-glass border border-current/10 opacity-75 hover:opacity-100'
-                  ]"
-                  @click="newsStatusFilter = st.key as any"
-                >
-                  {{ st.text }}
-                </button>
-              </div>
-
-              <select
-                v-model="newsCategoryFilter"
-                class="px-3 py-1.5 rounded-xl bg-white/80 dark:bg-black/50 border border-current/15 text-xs font-semibold focus:outline-none focus:border-[#00C864] cursor-pointer"
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button
+                v-for="cat in newsCategories"
+                :key="cat"
+                type="button"
+                :class="[
+                  'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer',
+                  newsCategoryFilter === cat ? 'bg-[#00C864] text-[#022C22]' : 'spatial-glass border border-current/10 opacity-75 hover:opacity-100'
+                ]"
+                @click="newsCategoryFilter = cat"
               >
-                <option v-for="cat in newsCategories" :key="cat" :value="cat">
-                  หมวดหมู่: {{ cat }}
-                </option>
-              </select>
+                {{ cat }}
+              </button>
             </div>
 
             <!-- Search Input -->
@@ -1081,21 +1065,9 @@ onMounted(() => {
                 </div>
 
                 <div class="min-w-0 flex-1 space-y-1">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="font-bold text-sm sm:text-base truncate max-w-full sm:max-w-xl">
-                      {{ item.title }}
-                    </h3>
-                    <span
-                      :class="[
-                        'px-2.5 py-0.5 rounded-full text-[11px] font-bold border shrink-0',
-                        item.publishedAt
-                          ? 'bg-[#00C864]/15 text-[#00A854] dark:text-[#00FF88] border-[#00C864]/30'
-                          : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
-                      ]"
-                    >
-                      {{ item.publishedAt ? 'เผยแพร่แล้ว' : 'ฉบับร่าง (Draft)' }}
-                    </span>
-                  </div>
+                  <h3 class="font-bold text-sm sm:text-base truncate max-w-full sm:max-w-xl">
+                    {{ item.title }}
+                  </h3>
 
                   <div class="text-xs opacity-75 flex flex-wrap items-center gap-2.5">
                     <span class="font-semibold text-[#00A854] dark:text-[#00FF88]">{{ item.category }}</span>
@@ -1111,13 +1083,6 @@ onMounted(() => {
 
               <!-- Right: Action Buttons -->
               <div class="flex items-center justify-end gap-2 shrink-0">
-                <button
-                  type="button"
-                  class="px-3 py-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/20 text-xs font-bold cursor-pointer transition-colors"
-                  @click="togglePublish('api::news-article.news-article', item, async () => { newsList = await fetchCollection('api::news-article.news-article') })"
-                >
-                  {{ item.publishedAt ? 'ซ่อนชั่วคราว' : 'กดเผยแพร่' }}
-                </button>
                 <button
                   type="button"
                   title="แก้ไขข่าว"
@@ -1184,37 +1149,21 @@ onMounted(() => {
              TAB 4: PRODUCTS MANAGEMENT (Compact List Layout)
         ====================================================== -->
         <div v-if="activeTab === 'products'" class="space-y-5">
-          <!-- Filter Pills & Instant Search Bar -->
+          <!-- Category Filter Pills & Instant Search Bar -->
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <!-- Status + Category Filters -->
-            <div class="flex flex-wrap items-center gap-2">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <button
-                  v-for="st in [
-                    { key: 'all', text: 'ทั้งหมด' },
-                    { key: 'published', text: 'เผยแพร่แล้ว' },
-                    { key: 'draft', text: 'ฉบับร่าง' }
-                  ]"
-                  :key="st.key"
-                  type="button"
-                  :class="[
-                    'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer',
-                    productStatusFilter === st.key ? 'bg-[#00C864] text-[#022C22]' : 'spatial-glass border border-current/10 opacity-75 hover:opacity-100'
-                  ]"
-                  @click="productStatusFilter = st.key as any"
-                >
-                  {{ st.text }}
-                </button>
-              </div>
-
-              <select
-                v-model="productCategoryFilter"
-                class="px-3 py-1.5 rounded-xl bg-white/80 dark:bg-black/50 border border-current/15 text-xs font-semibold focus:outline-none focus:border-[#00C864] cursor-pointer"
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button
+                v-for="cat in productCategories"
+                :key="cat"
+                type="button"
+                :class="[
+                  'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer',
+                  productCategoryFilter === cat ? 'bg-[#00C864] text-[#022C22]' : 'spatial-glass border border-current/10 opacity-75 hover:opacity-100'
+                ]"
+                @click="productCategoryFilter = cat"
               >
-                <option v-for="cat in productCategories" :key="cat" :value="cat">
-                  หมวดหมู่: {{ cat }}
-                </option>
-              </select>
+                {{ cat }}
+              </button>
             </div>
 
             <!-- Search Input -->
@@ -1262,21 +1211,9 @@ onMounted(() => {
                 </div>
 
                 <div class="min-w-0 flex-1 space-y-1">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="font-bold text-sm sm:text-base truncate max-w-full sm:max-w-xl">
-                      {{ item.name }}
-                    </h3>
-                    <span
-                      :class="[
-                        'px-2.5 py-0.5 rounded-full text-[11px] font-bold border shrink-0',
-                        item.publishedAt
-                          ? 'bg-[#00C864]/15 text-[#00A854] dark:text-[#00FF88] border-[#00C864]/30'
-                          : 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
-                      ]"
-                    >
-                      {{ item.publishedAt ? 'เผยแพร่แล้ว' : 'ฉบับร่าง' }}
-                    </span>
-                  </div>
+                  <h3 class="font-bold text-sm sm:text-base truncate max-w-full sm:max-w-xl">
+                    {{ item.name }}
+                  </h3>
 
                   <div class="text-xs opacity-75 flex flex-wrap items-center gap-2.5">
                     <span class="font-semibold text-[#00A854] dark:text-[#00FF88]">{{ item.category }}</span>
@@ -1292,13 +1229,6 @@ onMounted(() => {
 
               <!-- Right: Action Buttons -->
               <div class="flex items-center justify-end gap-2 shrink-0">
-                <button
-                  type="button"
-                  class="px-3 py-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/20 text-xs font-bold cursor-pointer transition-colors"
-                  @click="togglePublish('api::product.product', item, async () => { productsList = await fetchCollection('api::product.product') })"
-                >
-                  {{ item.publishedAt ? 'ซ่อนชั่วคราว' : 'กดเผยแพร่' }}
-                </button>
                 <button
                   type="button"
                   title="แก้ไขสินค้า"
@@ -1477,9 +1407,9 @@ onMounted(() => {
           </div>
 
           <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-current/10">
-            <button type="button" :disabled="savingNews" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="saveNews(false)">บันทึกเป็นฉบับร่าง</button>
+            <button type="button" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="newsModalOpen = false">ยกเลิก</button>
             <button type="button" :disabled="savingNews" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md" @click="saveNews(true)">
-              {{ savingNews ? 'กำลังบันทึก...' : 'บันทึกและเผยแพร่ขึ้นหน้าเว็บทันที' }}
+              {{ savingNews ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
             </button>
           </div>
         </div>
@@ -1545,9 +1475,9 @@ onMounted(() => {
           </div>
 
           <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-current/10">
-            <button type="button" :disabled="savingProduct" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="saveProduct(false)">บันทึกเป็นฉบับร่าง</button>
+            <button type="button" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="productModalOpen = false">ยกเลิก</button>
             <button type="button" :disabled="savingProduct" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md" @click="saveProduct(true)">
-              {{ savingProduct ? 'กำลังบันทึก...' : 'บันทึกและเผยแพร่ขึ้นหน้าเว็บทันที' }}
+              {{ savingProduct ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
             </button>
           </div>
         </div>
