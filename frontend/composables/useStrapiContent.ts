@@ -1,3 +1,4 @@
+import { newsEditorFields } from '~/shared/newsEditorFields'
 import type {
   CapabilityModule,
   ProjectCase,
@@ -182,23 +183,29 @@ export const useStrapiContent = () => {
   // Fetch News Articles from Strapi (with graceful fallback if backend is offline)
   const getNewsArticles = async (): Promise<StrapiNewsItem[] | null> => {
     try {
-      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/news-articles?populate=*&sort=sortOrder:asc,createdAt:desc,id:desc`, {
-        timeout: 2500
-      })
-      if (res && Array.isArray(res.data) && res.data.length > 0) {
-        return res.data.map(item => ({
-          id: item.id,
-          documentId: item.documentId,
-          title: item.title,
-          category: item.category || 'ข่าวประชาสัมพันธ์',
-          date: item.dateText || '',
-          readTime: item.readTime || '3 นาทีในการอ่าน',
-          excerpt: item.excerpt || '',
-          content: item.content || '',
-          image: resolveMediaUrl(item.coverImage, item.fallbackImageUrl),
-          detail: item.detail && typeof item.detail === 'object' ? item.detail : null
-        }))
+      const all: any[] = []
+      for (let page = 1; ; page++) {
+        const res = await $fetch<{ data: any[]; meta: { pagination: { pageCount: number } } }>(strapiUrl + '/api/news-articles', {
+          cache: 'no-store',
+          timeout: 2500,
+          query: { populate: 'coverImage', sort: 'sortOrder:asc,createdAt:desc,id:desc', status: 'published', 'pagination[page]': page, 'pagination[pageSize]': 100 }
+        })
+        all.push(...res.data)
+        if (page >= res.meta.pagination.pageCount) break
       }
+      return all.map(item => ({
+        id: item.id,
+        documentId: item.documentId,
+        title: item.title,
+        category: item.category || '',
+        date: item.dateText || '',
+        readTime: item.readTime || '',
+        excerpt: item.excerpt || '',
+        content: item.content || '',
+        image: item.coverImage?.url || item.coverImage?.data?.attributes?.url ? resolveMediaUrl(item.coverImage) : item.fallbackImageUrl || '',
+        detail: item.detail && typeof item.detail === 'object' ? item.detail : null,
+        ...newsEditorFields(item)
+      }))
     } catch {
       // Strapi not yet reachable
     }
@@ -257,7 +264,7 @@ export const useStrapiContent = () => {
         const res = await $fetch<{ data: unknown[]; meta: { pagination: { pageCount: number } } }>(
           `${strapiUrl}/api/products`,
           {
-            query: { populate: 'image', sort: 'sortOrder:asc,id:asc', status: 'published', 'pagination[page]': page, 'pagination[pageSize]': 100 },
+            query: { populate: 'image', sort: 'sortOrder:asc,id:desc', status: 'published', 'pagination[page]': page, 'pagination[pageSize]': 100 },
             timeout: 2500
           }
         )

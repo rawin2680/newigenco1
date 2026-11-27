@@ -69,6 +69,11 @@ export interface ContactInquiry {
 
 // 5. News Article from Strapi
 export interface StrapiNewsItem {
+  legacyId?: number
+  slug?: string
+  seoTitle?: string
+  seoDescription?: string
+  blocks?: import('~/shared/newsBlocks').NewsBlock[] | null
   id: number
   documentId?: string
   title: string

@@ -1,3 +1,5 @@
+import type { NewsBlock } from '~/shared/newsBlocks'
+
 export interface FlowchartStep {
   id: string
   code: string
@@ -37,6 +39,8 @@ export interface NewsMilestone {
 }
 
 export interface NewsSectionTitles {
+  lead?: string
+  extra?: string
   history?: string
   services?: string
   servicesSubtitle?: string
@@ -60,6 +64,11 @@ export interface NewsSidebarCta {
 }
 
 export interface NewsItem {
+  documentId?: string
+  slug?: string
+  seoTitle?: string
+  seoDescription?: string
+  blocks?: NewsBlock[] | null
   id: number
   title: string
   subtitle?: string
@@ -71,9 +80,11 @@ export interface NewsItem {
   fullContent: string[]
   aiSummary: string[]
   image: string
+  extraBlocks?: NewsBlock[]
+  coverGallery?: string[]
   gallery?: { url: string; caption?: string }[]
   isFeatured?: boolean
-  author: NewsAuthor
+  author?: NewsAuthor
   rating: {
     score: number
     count: number
@@ -688,6 +699,12 @@ export const useNews = () => {
         partnerships: 'กลุ่มองค์กรและหน่วยงานที่รองรับ',
         partnershipsSubtitle: 'TARGET ORGANIZATIONS // องค์กรและหน่วยงานที่รองรับ'
       },
+      sidebarCta: {
+        title: 'นัดสาธิตระบบ i-SmartSoft',
+        text: 'ฝ่ายการตลาดและการขาย (คุณภนิดาพร จูมมณี) ยินดีให้คำปรึกษาและจัดเตรียมการสาธิตระบบบริหารสำนักงานอัจฉริยะ i-SmartSoft เพื่อตอบสนองความต้องการเฉพาะองค์กรของคุณ',
+        buttonLabel: 'โทร. 09 6294 9236',
+        buttonLink: 'tel:0962949236'
+      },
       image: '/images/news/ismartsoft-mascot.png',
       gallery: [
         {
@@ -721,11 +738,17 @@ export const useNews = () => {
 
 // ฟิลด์หน้ารายละเอียดที่เก็บใน Strapi `detail` (รูปแบบเดียวกับ NewsItem ยกเว้นฟิลด์ตัวอย่าง)
 export type NewsDetail = Partial<Pick<NewsItem,
-  'subtitle' | 'gallery' | 'aiSummary' | 'fullContent' | 'sectionTitles' | 'milestones' | 'services' |
+  'subtitle' | 'extraBlocks' | 'coverGallery' | 'gallery' | 'aiSummary' | 'fullContent' | 'sectionTitles' | 'milestones' | 'services' |
   'partnerships' | 'flowcharts' | 'certifier' | 'author' | 'rating' | 'likes' | 'sidebarCta'
->>
+>> & { managedContent?: boolean }
 
 export interface StrapiNewsLike {
+  legacyId?: number
+  slug?: string
+  seoTitle?: string
+  seoDescription?: string
+  blocks?: NewsBlock[] | null
+  documentId?: string
   id?: number
   title: string
   category?: string
@@ -737,14 +760,11 @@ export interface StrapiNewsLike {
   detail?: NewsDetail | Record<string, any> | null
 }
 
-export const matchesStaticNews = (staticItem: NewsItem, strapiItem: StrapiNewsLike) =>
-  staticItem.title.trim() === (strapiItem.title || '').trim() ||
-  Boolean(strapiItem.date && staticItem.date.trim() === strapiItem.date.trim())
-
-const defaultNewsAuthor: NewsAuthor = {
-  name: 'ทีมประชาสัมพันธ์ IGENCO',
-  role: 'บริษัท ไอเจนโก้ จำกัด',
-  avatar: '/images/about/general-management-avatar.jpg'
+export const matchesStaticNews = (staticItem: NewsItem, strapiItem: StrapiNewsLike) => {
+  if (strapiItem.legacyId != null) return staticItem.id === strapiItem.legacyId
+  const original = staticItem.title.trim()
+  const title = (strapiItem.title || '').trim()
+  return title === original || (title.startsWith(original + ' ') && staticItem.date.trim() === strapiItem.date?.trim())
 }
 
 const hasValue = (value: unknown): boolean => {
@@ -775,55 +795,93 @@ export const mergeStrapiNews = (
   strapiItem: StrapiNewsLike,
   staticItem?: NewsItem,
   fallbackId = 1000,
-  strapiUrl?: string
+  strapiUrl?: string,
+  fromCmsOnly = false
 ): NewsItem => {
   const detail = (strapiItem.detail || {}) as NewsDetail
+  const fallback = detail.managedContent || fromCmsOnly ? undefined : staticItem
   const excerpt = (strapiItem.excerpt || '').trim()
-  const pick = <K extends keyof NewsDetail>(key: K) => (hasValue(detail[key]) ? detail[key] : staticItem?.[key as keyof NewsItem]) as NewsItem[K]
+  const pick = <K extends keyof NewsDetail>(key: K) => (hasValue(detail[key]) ? detail[key] : fallback?.[key as keyof NewsItem]) as NewsItem[K]
 
   const paragraphs = (strapiItem.content || '').split('\n').map(p => p.trim()).filter(Boolean)
   // คงตำแหน่งย่อหน้าไว้ (ย่อหน้าที่ 2 และ 3 ผูกกับหัวข้อเฉพาะในหน้ารายละเอียด) ตัดเฉพาะช่องว่างท้ายรายการ
   const detailParagraphs = (detail.fullContent || []).map(p => (p || '').trim())
   while (detailParagraphs.length && !detailParagraphs[detailParagraphs.length - 1]) detailParagraphs.pop()
-  const fullContent = detailParagraphs.some(Boolean)
+  const fullContent = detail.managedContent || detailParagraphs.some(Boolean)
     ? detailParagraphs
-    : staticItem?.fullContent?.length ? staticItem.fullContent : paragraphs.length ? paragraphs : excerpt ? [excerpt] : []
+    : fallback?.fullContent?.length ? fallback.fullContent : paragraphs
 
   const detailGallery = (detail.gallery || []).filter(g => g?.url)
   const gallery = detailGallery.length
     ? detailGallery.map(g => ({ ...g, url: resolveNewsImage(g.url, strapiUrl) }))
-    : staticItem?.gallery
+    : fallback?.gallery
 
   const flowcharts = hasValue(detail.flowcharts)
     ? detail.flowcharts!.map(chart => ({ ...chart, image: resolveNewsImage(chart.image, strapiUrl) || undefined }))
-    : staticItem?.flowcharts
+    : fallback?.flowcharts
 
-  const certifier = mergeFields(detail.certifier, staticItem?.certifier)
-  const author = mergeFields(detail.author, staticItem?.author) || defaultNewsAuthor
+  const certifier = mergeFields(detail.certifier, fallback?.certifier)
+  const author = mergeFields(detail.author, fallback?.author)
   const aiSummary = (detail.aiSummary || []).filter(p => (p || '').trim())
 
   return {
     ...(staticItem || {}),
+    documentId: strapiItem.documentId, slug: strapiItem.slug, seoTitle: strapiItem.seoTitle, seoDescription: strapiItem.seoDescription, blocks: strapiItem.blocks,
     id: staticItem ? staticItem.id : (strapiItem.id ?? fallbackId),
     title: strapiItem.title || staticItem?.title || '',
     subtitle: pick('subtitle'),
-    category: strapiItem.category || staticItem?.category || 'ข่าวประชาสัมพันธ์',
-    date: strapiItem.date || staticItem?.date || '',
-    readTime: strapiItem.readTime || staticItem?.readTime || '3 นาทีในการอ่าน',
-    summary: excerpt || staticItem?.summary || '',
+    category: strapiItem.category || fallback?.category || '',
+    date: strapiItem.date || fallback?.date || '',
+    readTime: strapiItem.readTime || fallback?.readTime || '',
+    summary: excerpt || fallback?.summary || '',
     fullContent,
-    aiSummary: aiSummary.length ? aiSummary : staticItem?.aiSummary?.length ? staticItem.aiSummary : excerpt ? [excerpt] : [],
-    image: strapiItem.image || staticItem?.image || '',
+    aiSummary: aiSummary.length ? aiSummary : fallback?.aiSummary || [],
+    image: strapiItem.image || fallback?.image || '',
+    extraBlocks: Array.isArray(detail.extraBlocks) ? detail.extraBlocks : undefined,
+    coverGallery: Array.isArray(detail.coverGallery) ? detail.coverGallery.filter(url => typeof url === 'string').map(url => resolveNewsImage(url, strapiUrl)) : fallback?.coverGallery,
     gallery,
     milestones: pick('milestones'),
     services: pick('services'),
     partnerships: pick('partnerships'),
     flowcharts,
-    sectionTitles: mergeFields(detail.sectionTitles, staticItem?.sectionTitles),
+    sectionTitles: mergeFields(detail.sectionTitles, fallback?.sectionTitles),
     certifier: certifier ? { ...certifier, logoImage: resolveNewsImage(certifier.logoImage, strapiUrl) || undefined } : undefined,
-    sidebarCta: mergeFields(detail.sidebarCta, staticItem?.sidebarCta),
-    author: { ...author, avatar: resolveNewsImage(author.avatar, strapiUrl) || defaultNewsAuthor.avatar },
+    sidebarCta: mergeFields(detail.sidebarCta, fallback?.sidebarCta),
+    author: author?.name?.trim() ? { ...author, avatar: resolveNewsImage(author.avatar, strapiUrl) } : undefined,
     rating: mergeFields(detail.rating, staticItem?.rating) || { score: 5, count: 0 },
     likes: hasValue(detail.likes) ? Number(detail.likes) : (staticItem?.likes ?? 0)
+  }
+}
+
+export const newsPath = (item: NewsItem) => '/news/' + encodeURIComponent(item.slug || (item.documentId ? 'doc-' + item.documentId : String(item.id)))
+
+export function mergePublishedNews(items: StrapiNewsLike[], legacy: NewsItem[], strapiUrl?: string, fromCmsOnly = false) {
+  const matched = new Set<number>()
+  const mapped = items.map((item, index) => {
+    const original = legacy.find(entry => !matched.has(entry.id) && matchesStaticNews(entry, item))
+    if (original) matched.add(original.id)
+    return mergeStrapiNews(item, original, 1000 + index, strapiUrl, fromCmsOnly)
+  })
+  return [...mapped, ...legacy.filter(entry => !matched.has(entry.id))]
+}
+
+export function editableNewsDetail(item: StrapiNewsLike, original?: NewsItem): NewsDetail {
+  const article = mergeStrapiNews(item, original)
+  return {
+    ...item.detail,
+    subtitle: article.subtitle,
+    fullContent: article.fullContent,
+    gallery: article.gallery,
+    aiSummary: article.aiSummary,
+    milestones: article.milestones,
+    services: article.services,
+    partnerships: article.partnerships,
+    flowcharts: article.flowcharts,
+    sectionTitles: article.sectionTitles,
+    certifier: article.certifier,
+    sidebarCta: article.sidebarCta,
+    author: article.author,
+    rating: article.rating,
+    likes: article.likes
   }
 }

@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { Calendar, ArrowRight, ArrowUpRight, Sparkles, BookOpen, ChevronLeft, ChevronRight, Clock, X } from 'lucide-vue-next'
-import { useNews, matchesStaticNews, mergeStrapiNews, type NewsItem } from '~/composables/useNews'
+import { ref, onMounted } from 'vue'
+import { Calendar, ArrowRight, ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, Clock } from 'lucide-vue-next'
+import { useNews, mergePublishedNews, newsPath, type NewsItem } from '~/composables/useNews'
 import { useLiveRefresh, contentSignature } from '~/composables/useLiveRefresh'
 import { useStrapiContent } from '~/composables/useStrapiContent'
-import { useTheme } from '~/composables/useTheme'
 
-const { showToast } = useTheme()
 const { newsList: staticNewsList } = useNews()
 const { getNewsArticles } = useStrapiContent()
 const newsStrapiUrl = useRuntimeConfig().public.strapiUrl as string
@@ -17,19 +15,12 @@ const activeNewsList = ref<NewsItem[]>(staticNewsList)
 let lastNewsSignature = ''
 const loadStrapiNews = async () => {
   const strapiNews = await getNewsArticles()
-  if (!strapiNews || strapiNews.length === 0) return // Strapi ออฟไลน์: ใช้ข่าวในโค้ดเป็นค่าสำรอง
+  if (!strapiNews) return // Strapi ออฟไลน์: ใช้ข่าวในโค้ดเป็นค่าสำรอง
   const signature = contentSignature(strapiNews)
   if (signature === lastNewsSignature) return
   lastNewsSignature = signature
 
-  const mapped: NewsItem[] = strapiNews.map((sn, index) =>
-    mergeStrapiNews(sn, staticNewsList.find(s => matchesStaticNews(s, sn)), 1000 + index, newsStrapiUrl)
-  )
-  // ข่าวในโค้ดที่ไม่มีใน Strapi ต่อท้าย (กันซ้ำทั้ง id และหัวข้อ)
-  const matchedIds = new Set(mapped.map(m => m.id))
-  const strapiTitles = new Set(mapped.map(m => m.title.trim()))
-  const remainingStatic = staticNewsList.filter(s => !matchedIds.has(s.id) && !strapiTitles.has(s.title.trim()))
-  activeNewsList.value = [...mapped, ...remainingStatic]
+  activeNewsList.value = mergePublishedNews(strapiNews, staticNewsList, newsStrapiUrl)
 }
 
 onMounted(loadStrapiNews)
@@ -39,7 +30,11 @@ useLiveRefresh(loadStrapiNews)
 // -------------------------------------------------------------
 // หมวดหมู่ข่าวสาร
 // -------------------------------------------------------------
-const categories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'กิจกรรมองค์กร', 'ข่าวประชาสัมพันธ์']
+const defaultCategories = ['ทั้งหมด', 'Enterprise Software', 'Service Development', 'กิจกรรมองค์กร', 'ข่าวประชาสัมพันธ์']
+const categories = reactive([...defaultCategories])
+watch(activeNewsList, items => {
+  categories.splice(defaultCategories.length, Infinity, ...new Set(items.map(item => item.category).filter(category => !defaultCategories.includes(category))))
+}, { immediate: true })
 
 const itemsPerPage = 3
 const {
@@ -52,10 +47,6 @@ const {
   prevPage,
   nextPage
 } = useSectionPagination(activeNewsList, categories, itemsPerPage, 'news', 'newsCategory', 'newsPage')
-
-watch([activeCategory, currentPage], () => {
-  activeAiSummaryId.value = null
-})
 
 // -------------------------------------------------------------
 // Mouse-Tracking Dynamic Glow Spotlight
@@ -70,19 +61,6 @@ const onCardMouseMove = (e: MouseEvent, id: number) => {
   }
 }
 
-// -------------------------------------------------------------
-// AI Quick Summary Popover (แสดงในตัวการ์ด ไม่มีการเปิดป๊อบอัพทับหน้าจอ)
-// -------------------------------------------------------------
-const activeAiSummaryId = ref<number | null>(null)
-
-const toggleAiSummary = (id: number) => {
-  if (activeAiSummaryId.value === id) {
-    activeAiSummaryId.value = null
-  } else {
-    activeAiSummaryId.value = id
-    showToast('AI ดึงสรุปประเด็นสำคัญเรียบร้อย')
-  }
-}
 </script>
 
 <template>
@@ -111,8 +89,8 @@ const toggleAiSummary = (id: number) => {
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch"
         >
           <article
-            v-for="(item, idx) in displayedNews"
-            :key="item.id"
+            v-for="item in displayedNews"
+            :key="newsPath(item)"
             class="spatial-glass rounded-3xl overflow-hidden relative group transition-all duration-300 hover:-translate-y-2.5 flex flex-col justify-between border border-current/10 hover:border-[#00C864] dark:hover:border-[#00FF88] hover:shadow-[0_20px_45px_rgba(0,200,100,0.18)] hover-lift"
             @mousemove="onCardMouseMove($event, item.id)"
           >
@@ -126,7 +104,7 @@ const toggleAiSummary = (id: number) => {
 
         <div>
           <!-- Article Cover Image: aspect-[16/10] to match Product Cards -->
-          <NuxtLink :to="'/news/' + item.id" class="block relative aspect-[16/10] w-full overflow-hidden bg-black/15 border-b border-current/10">
+          <NuxtLink :to="newsPath(item)" class="block relative aspect-[16/10] w-full overflow-hidden bg-black/15 border-b border-current/10">
             <img
               :src="item.image"
               :alt="item.title"
@@ -141,16 +119,12 @@ const toggleAiSummary = (id: number) => {
               </span>
             </div>
 
-            <!-- AI Quick Summary Trigger -->
-            <button
-              type="button"
-              class="absolute top-3.5 right-3.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all flex items-center gap-1.5 z-20 hover:scale-105 active:scale-95 shadow-lg"
-              title="กดเพื่อดูสรุป 3 ข้อโดย AI"
-              @click.prevent.stop="toggleAiSummary(item.id)"
+            <span
+              class="absolute right-3.5 top-3.5 z-20 rounded-full bg-[#022C22]/90 px-2.5 py-1 text-xs font-bold tabular-nums text-white"
+              :aria-label="`ลำดับข่าว ${activeNewsList.indexOf(item) + 1}`"
             >
-              <Sparkles class="w-3.5 h-3.5 text-[#00FF88]" />
-              <span>สรุป AI</span>
-            </button>
+              {{ activeNewsList.indexOf(item) + 1 }}
+            </span>
           </NuxtLink>
 
           <!-- Card Content -->
@@ -170,7 +144,7 @@ const toggleAiSummary = (id: number) => {
 
             <!-- Title with Direct Link -->
             <h3 class="text-xl sm:text-2xl font-bold leading-snug line-clamp-2 group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] transition-colors">
-              <NuxtLink :to="'/news/' + item.id">
+              <NuxtLink :to="newsPath(item)">
                 {{ item.title }}
               </NuxtLink>
             </h3>
@@ -180,48 +154,18 @@ const toggleAiSummary = (id: number) => {
               {{ item.summary }}
             </p>
 
-            <!-- Inline AI Summary Popover Box -->
-            <div
-              v-if="activeAiSummaryId === item.id"
-              class="p-4 rounded-2xl bg-[#020806]/95 text-white border border-[#00FF88]/40 shadow-2xl space-y-2.5 animate-in fade-in zoom-in-95 duration-200 mt-2"
-            >
-              <div class="flex items-center justify-between border-b border-white/10 pb-2">
-                <div class="flex items-center gap-1.5 text-xs font-mono text-[#00FF88] font-bold">
-                  <Sparkles class="w-3.5 h-3.5" />
-                  <span>AI SUMMARY // 3 ข้อย่อ</span>
-                </div>
-                <button
-                  type="button"
-                  class="text-xs opacity-60 hover:opacity-100 p-1"
-                  @click="activeAiSummaryId = null"
-                >
-                  <X class="w-4 h-4" />
-                </button>
-              </div>
-              <ul class="space-y-1.5 text-xs text-slate-200">
-                <li
-                  v-for="(point, idx) in item.aiSummary"
-                  :key="idx"
-                  class="flex items-start gap-2"
-                >
-                  <span class="text-[#00FF88] font-bold">✦</span>
-                  <span>{{ point }}</span>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
 
         <!-- Card Footer Action: Direct Link Button (Unified with Product CTA) -->
         <div class="px-6 sm:px-7 pb-6 pt-3 flex items-center justify-between border-t border-current/10 relative z-10">
           <NuxtLink
-            :to="'/news/' + item.id"
+            :to="newsPath(item)"
             class="px-4 py-2 rounded-xl text-xs font-bold bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] hover:opacity-90 active:scale-95 transition-all flex items-center gap-1.5 shadow-md"
           >
             <span>อ่านบทความเต็ม</span>
             <ArrowUpRight class="w-3.5 h-3.5" />
           </NuxtLink>
-          <span class="text-[11px] font-mono opacity-50">IGENCO // 0{{ item.id }}</span>
         </div>
       </article>
         </div>

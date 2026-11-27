@@ -1,6 +1,8 @@
 import { defineEventHandler, getRouterParam, readBody, createError } from 'h3'
 import { assertAllowedUid, getStrapiBaseUrl, requireAdminToken } from '../../../../utils/strapiAdmin'
 
+import { validateNewsPayload } from '../../../../utils/validateNewsPayload'
+
 export default defineEventHandler(async (event) => {
   const token = requireAdminToken(event)
   const uid = decodeURIComponent(getRouterParam(event, 'uid') || '')
@@ -15,6 +17,7 @@ export default defineEventHandler(async (event) => {
   const shouldPublish = body?._publish === true
   const payload = { ...body }
   delete payload._publish
+  if (uid === 'api::news-article.news-article') validateNewsPayload(payload)
 
   const strapiUrl = getStrapiBaseUrl()
 

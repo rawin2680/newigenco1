@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
 import {
   ArrowUpRight,
   Box,
@@ -410,7 +409,7 @@ const inquireProduct = (title: string) => {
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
           <div
-            v-for="(product, idx) in displayedProducts"
+            v-for="product in displayedProducts"
             :key="product.link || product.title"
             class="product-card spatial-glass rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-2.5 transition-all duration-300 border border-current/10 relative"
             :style="{
@@ -452,6 +451,9 @@ const inquireProduct = (title: string) => {
               {{ product.category }}
             </span>
           </div>
+          <span class="absolute right-3.5 top-3.5 z-10 rounded-full bg-[#022C22]/90 px-2.5 py-1 text-xs font-bold tabular-nums text-white" :aria-label="`ลำดับ ${activeProductsList.indexOf(product) + 1}`">
+            {{ activeProductsList.indexOf(product) + 1 }}
+          </span>
 
           <!-- Subtle Brand Accent Border Light -->
           <div 

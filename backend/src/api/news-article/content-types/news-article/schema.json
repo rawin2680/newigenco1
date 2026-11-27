@@ -53,6 +53,25 @@
     },
     "detail": {
       "type": "json"
+    },
+    "slug": {
+      "type": "uid"
+    },
+    "seoTitle": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "seoDescription": {
+      "type": "text",
+      "maxLength": 320
+    },
+    "blocks": {
+      "type": "json"
+    },
+    "legacyId": {
+      "type": "integer",
+      "unique": true,
+      "min": 1
     }
   }
 }
