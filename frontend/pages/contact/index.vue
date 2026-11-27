@@ -331,6 +331,7 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
 
     </main>
 
-    <ContactFooter />
+    <!-- หน้านี้มีแบบฟอร์มขอคำปรึกษาอยู่แล้ว จึงซ่อนแบบฟอร์มซ้ำในส่วนท้าย -->
+    <ContactFooter hide-inquiry />
   </div>
 </template>

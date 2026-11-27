@@ -21,6 +21,9 @@ import { useTheme } from '~/composables/useTheme'
 import { useLiveRefresh } from '~/composables/useLiveRefresh'
 import { mergeContactPage, telDigits } from '~/shared/contactPage'
 
+// hideInquiry: ซ่อนส่วนแบบฟอร์มขอคำปรึกษาด้านบนของส่วนท้าย (ใช้ในหน้า /contact ซึ่งมีแบบฟอร์มของตัวเองแล้ว)
+defineProps<{ hideInquiry?: boolean }>()
+
 const { submitInquiry, getContactPage } = useStrapiContent()
 // ที่อยู่และเบอร์โทร ใช้ข้อมูลเดียวกับหน้าติดต่อเรา (แก้ได้จากแอดมิน แท็บ "หน้าติดต่อเรา")
 const { data: fetchedContact, refresh: refreshContact } = await useAsyncData('contact-page-content', getContactPage)
@@ -109,7 +112,7 @@ const scrollToTop = () => {
     <!-- =========================================================
          1. CONSULTATION FORM SECTION (ส่วนรับเรื่องขอคำปรึกษา)
     ========================================================== -->
-    <div class="pt-20 pb-16 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto">
+    <div v-if="!hideInquiry" class="pt-20 pb-16 px-5 sm:px-10 lg:px-16 max-w-[1440px] mx-auto">
       <div class="spatial-glass rounded-[2.5rem] p-8 sm:p-14 lg:p-16 border border-current/10 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start relative z-10">
