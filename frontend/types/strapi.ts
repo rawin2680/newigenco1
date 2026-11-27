@@ -117,4 +117,8 @@ export interface StrapiProductItem {
   features: string[]
   image: string
   detailRoute?: string
+  seoTitle?: string
+  seoDescription?: string
+  // ส่วนต่าง ๆ ของหน้ารายละเอียดสินค้า (ดู shared/productBlocks.ts)
+  blocks?: unknown[] | null
 }

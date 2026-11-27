@@ -35,6 +35,7 @@ import { notifyContentChanged } from '~/composables/useLiveRefresh'
 import { newsEditorFields } from '~/shared/newsEditorFields'
 import { articleBlocks } from '~/composables/articleBlocks'
 import { uploadNewsPhotos } from '~/shared/uploadNewsPhotos'
+import { normalizeProductSections, productSlugFromName, type ProductSection } from '~/shared/productBlocks'
 import { matchesStaticNews, mergeStrapiNews, resolveNewsImage, useNews } from '~/composables/useNews'
 
 useHead({
@@ -745,8 +746,14 @@ watch([productSearch, productCategoryFilter, productStatusFilter, productPageSiz
 
 const productModalOpen = ref(false)
 const savingProduct = ref(false)
-const productForm = ref<any>({
-  documentId: null,
+// หน้าต่างแก้ไขสินค้า 2 ส่วน: 1) การ์ดแคตตาล็อก 2) หน้ารายละเอียดสินค้า (เหมือนตัวแก้ข่าว)
+const productStep = ref<'main' | 'detail'>('main')
+const productMediaBusy = ref(false)
+const productSaveError = ref('')
+const previewProductPage = ref(false)
+const productEditorBody = ref<HTMLElement | null>(null)
+const blankProductForm = () => ({
+  documentId: null as string | null,
   name: '',
   slug: '',
   category: 'Enterprise Software',
@@ -755,45 +762,70 @@ const productForm = ref<any>({
   fullDetails: '',
   featuresText: '',
   detailRoute: '',
+  seoTitle: '',
+  seoDescription: '',
+  blocks: [] as ProductSection[],
   imageId: null as number | null,
   previewUrl: '',
-  fallbackImageUrl: ''
+  fallbackImageUrl: '/images/products/software-ondemand.svg'
 })
+const productForm = ref<any>(blankProductForm())
 
 const openProductModal = (item?: any) => {
-  if (item) {
-    productForm.value = {
-      documentId: item.documentId || item.id,
-      name: item.name || '',
-      slug: item.slug || '',
-      category: item.category || 'Enterprise Software',
-      badge: item.badge || 'ENTERPRISE GRADE',
-      shortDesc: item.shortDesc || '',
-      fullDetails: item.fullDetails || '',
-      featuresText: Array.isArray(item.features) ? item.features.join('\n') : '',
-      detailRoute: item.detailRoute || '',
-      imageId: item.image?.id || null,
-      previewUrl: resolveImage(item.image, item.fallbackImageUrl),
-      fallbackImageUrl: item.fallbackImageUrl || ''
-    }
-  } else {
-    productForm.value = {
-      documentId: null,
-      name: '',
-      slug: '',
-      category: 'Enterprise Software',
-      badge: 'ENTERPRISE GRADE',
-      shortDesc: '',
-      fullDetails: '',
-      featuresText: '',
-      detailRoute: '',
-      imageId: null,
-      previewUrl: '',
-      fallbackImageUrl: '/images/products/software-ondemand.svg'
-    }
-  }
+  productStep.value = 'main'
+  productSaveError.value = ''
+  productMediaBusy.value = false
+  previewProductPage.value = false
+  productForm.value = item
+    ? {
+        documentId: item.documentId || item.id,
+        name: item.name || '',
+        slug: item.slug || '',
+        category: item.category || 'Enterprise Software',
+        badge: item.badge || 'ENTERPRISE GRADE',
+        shortDesc: item.shortDesc || '',
+        fullDetails: item.fullDetails || '',
+        featuresText: Array.isArray(item.features) ? item.features.join('\n') : '',
+        detailRoute: item.detailRoute || '',
+        seoTitle: item.seoTitle || '',
+        seoDescription: item.seoDescription || '',
+        blocks: normalizeProductSections(JSON.parse(JSON.stringify(item.blocks || []))),
+        imageId: item.image?.id || null,
+        previewUrl: resolveImage(item.image, item.fallbackImageUrl),
+        fallbackImageUrl: item.fallbackImageUrl || ''
+      }
+    : blankProductForm()
   productModalOpen.value = true
 }
+
+function changeProductStep(step: 'main' | 'detail') {
+  productStep.value = step
+  previewProductPage.value = false
+  productEditorBody.value?.scrollTo({ top: 0 })
+}
+
+const closeProductModal = () => {
+  if (!productMediaBusy.value && !uploadingImage.value && !savingProduct.value) productModalOpen.value = false
+}
+
+// ข้อมูลสำหรับหน้าตัวอย่าง (รูปแบบเดียวกับที่หน้าเว็บได้รับจาก Strapi)
+const previewProduct = computed(() => {
+  const form = productForm.value
+  return {
+    id: 0,
+    documentId: form.documentId || undefined,
+    name: form.name || 'ชื่อสินค้า',
+    slug: form.slug,
+    category: form.category,
+    badge: form.badge,
+    shortDesc: form.shortDesc,
+    fullDetails: form.fullDetails,
+    features: [],
+    image: form.previewUrl || form.fallbackImageUrl || '',
+    detailRoute: form.detailRoute,
+    blocks: form.blocks
+  }
+})
 
 const onProductImageSelect = async (e: Event) => {
   const uploaded = await uploadImageFile(e)
@@ -804,8 +836,17 @@ const onProductImageSelect = async (e: Event) => {
 }
 
 const saveProduct = async (publish: boolean) => {
+  productSaveError.value = ''
   if (!productForm.value.name || !productForm.value.shortDesc) {
-    showToast('กรุณากรอกชื่อสินค้าและคำอธิบายย่อ')
+    changeProductStep('main')
+    productSaveError.value = 'กรุณากรอกชื่อสินค้าและคำอธิบายย่อ'
+    return
+  }
+  // ถ้าไม่ได้ใส่ slug จะสร้างจากชื่อสินค้า (ใช้เป็นที่อยู่หน้า /products/<slug>)
+  const slug = (productForm.value.slug || '').trim().toLowerCase() || productSlugFromName(productForm.value.name)
+  if (!slug) {
+    changeProductStep('main')
+    productSaveError.value = 'กรุณากำหนด Slug เป็นภาษาอังกฤษ เช่น smart-queue (ชื่อสินค้าเป็นภาษาไทยล้วนจึงสร้างให้อัตโนมัติไม่ได้)'
     return
   }
   savingProduct.value = true
@@ -815,16 +856,19 @@ const saveProduct = async (publish: boolean) => {
 
     const payload: Record<string, any> = {
       name: productForm.value.name,
+      slug,
       category: productForm.value.category,
       badge: productForm.value.badge || 'ENTERPRISE GRADE',
       shortDesc: productForm.value.shortDesc,
       fullDetails: productForm.value.fullDetails || productForm.value.shortDesc,
       features,
-      detailRoute: productForm.value.detailRoute || '',
+      detailRoute: (productForm.value.detailRoute || '').trim(),
+      seoTitle: (productForm.value.seoTitle || '').trim(),
+      seoDescription: (productForm.value.seoDescription || '').trim(),
+      blocks: productForm.value.blocks,
       fallbackImageUrl: productForm.value.fallbackImageUrl || '/images/products/software-ondemand.svg',
       _publish: publish
     }
-    if (productForm.value.slug) payload.slug = productForm.value.slug
     if (productForm.value.imageId) payload.image = productForm.value.imageId
 
     if (productForm.value.documentId) {
@@ -837,8 +881,8 @@ const saveProduct = async (publish: boolean) => {
     notifyContentChanged('api::product.product')
     productModalOpen.value = false
     productsList.value = await fetchCollection('api::product.product', ORDERED_SORT)
-  } catch {
-    showToast('เกิดข้อผิดพลาดในการบันทึกสินค้า')
+  } catch (err: any) {
+    productSaveError.value = 'บันทึกไม่สำเร็จ: ' + (err?.data?.statusMessage || err?.data?.message || err?.statusMessage || 'เกิดข้อผิดพลาดในการบันทึกสินค้า')
   } finally {
     savingProduct.value = false
   }
@@ -1895,71 +1939,114 @@ onMounted(() => {
          MODAL 3: PRODUCT EDITOR
     ========================================================== -->
     <Teleport to="body">
-      <div v-if="productModalOpen" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto" @click="productModalOpen = false">
-        <div class="max-w-2xl w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
+      <div v-if="productModalOpen" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto" @click="closeProductModal">
+        <div :class="previewProductPage ? 'max-w-[1380px]' : 'max-w-4xl'" class="w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
           <div class="flex items-center justify-between border-b border-current/10 pb-3">
             <h3 class="text-lg font-extrabold">{{ productForm.documentId ? 'แก้ไขสินค้าและบริการ' : 'เพิ่มสินค้าและบริการใหม่' }}</h3>
-            <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" @click="productModalOpen = false"><X class="w-4 h-4" /></button>
+            <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" @click="closeProductModal"><X class="w-4 h-4" /></button>
           </div>
 
-          <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-            <div>
-              <label class="block text-xs font-bold mb-1.5">รูปภาพสินค้า</label>
-              <div class="flex items-center gap-4">
-                <div class="w-32 h-20 rounded-xl overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
-                  <img v-if="productForm.previewUrl" :src="productForm.previewUrl" class="w-full h-full object-cover">
-                  <ImageIcon v-else class="w-6 h-6 opacity-40" />
-                </div>
-                <label class="px-4 py-2.5 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer flex items-center gap-2 transition-all">
-                  <Upload class="w-4 h-4" />
-                  <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'เลือกรูปภาพจากเครื่อง' }}</span>
-                  <input type="file" accept="image/*" class="hidden" @change="onProductImageSelect">
-                </label>
-              </div>
-            </div>
+          <div class="grid grid-cols-2 gap-2 rounded-xl bg-current/5 p-1" aria-label="ส่วนแก้ไขสินค้า">
+            <button type="button" class="rounded-lg px-3 py-2.5 text-sm font-bold cursor-pointer transition-all" :aria-pressed="productStep === 'main'" :class="productStep === 'main' ? 'bg-white shadow-sm dark:bg-white/15 text-[#008A45] dark:text-[#00FF88]' : 'opacity-70 hover:opacity-100'" @click="changeProductStep('main')">1. การ์ดแคตตาล็อก</button>
+            <button type="button" class="rounded-lg px-3 py-2.5 text-sm font-bold cursor-pointer transition-all" :aria-pressed="productStep === 'detail'" :class="productStep === 'detail' ? 'bg-white shadow-sm dark:bg-white/15 text-[#008A45] dark:text-[#00FF88]' : 'opacity-70 hover:opacity-100'" @click="changeProductStep('detail')">2. หน้ารายละเอียดสินค้า</button>
+          </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div ref="productEditorBody" data-news-editor-scroll class="max-h-[60vh] overflow-y-auto pr-1 space-y-6">
+            <div v-show="productStep === 'main'" class="space-y-4 rounded-2xl border border-current/10 bg-black/[0.015] dark:bg-white/[0.02] p-4 sm:p-5">
+              <div>
+                <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">ข้อมูลการ์ดสินค้าในแคตตาล็อก</h4>
+                <p class="text-[11px] opacity-60 mt-0.5">รูปภาพ ชื่อ หมวดหมู่ ป้าย คำอธิบายย่อ และจุดเด่นที่แสดงบนการ์ดและหน้าต่างดูรายละเอียดในหน้าแรก</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold mb-1.5">รูปภาพสินค้า</label>
+                <div class="flex items-center gap-4">
+                  <div class="w-32 h-20 rounded-xl overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
+                    <img v-if="productForm.previewUrl" :src="productForm.previewUrl" class="w-full h-full object-cover">
+                    <ImageIcon v-else class="w-6 h-6 opacity-40" />
+                  </div>
+                  <label class="px-4 py-2.5 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer flex items-center gap-2 transition-all">
+                    <Upload class="w-4 h-4" />
+                    <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'เลือกรูปภาพจากเครื่อง' }}</span>
+                    <input type="file" accept="image/*" class="hidden" @change="onProductImageSelect">
+                  </label>
+                </div>
+              </div>
+
               <div>
                 <label class="block text-xs font-bold mb-1">ชื่อสินค้า / บริการ *</label>
-                <input v-model="productForm.name" type="text" placeholder="เช่น Smart Queue Pro" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
+                <input v-model="productForm.name" type="text" placeholder="เช่น Smart Queue Pro" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-base sm:text-lg font-bold text-[#008A45] dark:text-[#00FF88]">
               </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold mb-1">หมวดหมู่</label>
+                  <select v-model="productForm.category" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
+                    <option value="Enterprise Software">Enterprise Software</option>
+                    <option value="Service Development">Service Development</option>
+                    <option value="E-Commerce">E-Commerce</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1">ป้ายบนการ์ด</label>
+                  <input v-model="productForm.badge" type="text" placeholder="ENTERPRISE GRADE" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
+                </div>
+              </div>
+
               <div>
-                <label class="block text-xs font-bold mb-1">หมวดหมู่</label>
-                <select v-model="productForm.category" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-                  <option value="Enterprise Software">Enterprise Software</option>
-                  <option value="Service Development">Service Development</option>
-                  <option value="E-Commerce">E-Commerce</option>
-                </select>
+                <label class="block text-xs font-bold mb-1">คำอธิบายย่อ (แสดงบนการ์ดแคตตาล็อก) *</label>
+                <textarea v-model="productForm.shortDesc" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold mb-1">รายละเอียดเต็ม (สำหรับหน้าต่างดูรายละเอียด)</label>
+                <textarea v-model="productForm.fullDetails" rows="3" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold mb-1">จุดเด่น / คุณสมบัติ (บรรทัดละ 1 ข้อ)</label>
+                <textarea v-model="productForm.featuresText" rows="3" placeholder="รองรับการใช้งานผ่านเว็บเบราว์เซอร์&#10;เชื่อมต่อฐานข้อมูลองค์กรได้" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
+              </div>
+
+              <details class="space-y-3 border-t border-current/10 pt-3">
+                <summary class="cursor-pointer text-xs font-bold opacity-75">ตั้งค่า URL และ SEO (ไม่บังคับ)</summary>
+                <label class="block text-xs font-bold">Slug (ที่อยู่หน้า /products/…)
+                  <input v-model="productForm.slug" :class="detailInputCls" maxlength="100" :placeholder="productSlugFromName(productForm.name) || 'เช่น smart-queue'">
+                </label>
+                <p class="text-[11px] opacity-60">เว้นว่างไว้ ระบบจะสร้างจากชื่อสินค้า หน้าสินค้าจะอยู่ที่ /products/{{ productForm.slug || productSlugFromName(productForm.name) || '…' }}</p>
+                <label class="block text-xs font-bold">ลิงก์ภายนอก (ไม่บังคับ: ใส่เมื่อต้องการให้การ์ดลิงก์ไปเว็บอื่น เช่น https://...)
+                  <input v-model="productForm.detailRoute" :class="detailInputCls" maxlength="300" placeholder="เว้นว่างเพื่อใช้หน้า /products/<slug>">
+                </label>
+                <label class="block text-xs font-bold">หัวข้อ SEO<input v-model="productForm.seoTitle" :class="detailInputCls" maxlength="120"></label>
+                <label class="block text-xs font-bold">คำอธิบาย SEO<textarea v-model="productForm.seoDescription" :class="detailInputCls" maxlength="320" rows="2" /></label>
+              </details>
+            </div>
+
+            <div v-show="productStep === 'detail'" class="space-y-4">
+              <div class="space-y-4 rounded-2xl border border-current/10 bg-black/[0.015] dark:bg-white/[0.02] p-4 sm:p-5">
+                <div>
+                  <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">เนื้อหาหน้ารายละเอียดสินค้า (เรียงลำดับและลากย้ายได้)</h4>
+                  <p class="text-[11px] opacity-60 mt-0.5">ส่วนที่มีให้เลือก: ส่วนหัวสินค้า · ภาพรวมระบบ · โมดูล/ระบบย่อย · คุณสมบัติเด่น · ขั้นตอนการทำงาน · ตัวเลขไฮไลต์ · เปรียบเทียบ 2 รูปแบบ · แกลเลอรี · ผลงาน/ลูกค้า · เอกสารดาวน์โหลด · ติดต่อผู้เชี่ยวชาญ ถ้ายังไม่มีเนื้อหา หน้าเว็บจะใช้หน้าที่ทำไว้เดิม</p>
+                </div>
+                <ProductSectionEditor v-model="productForm.blocks" @busy="productMediaBusy = $event" />
+              </div>
+              <div class="space-y-3">
+                <button type="button" class="rounded-xl border border-current/15 px-3.5 py-2 text-xs font-bold cursor-pointer hover:bg-current/5 transition-colors" :aria-expanded="previewProductPage" @click="previewProductPage = !previewProductPage">{{ previewProductPage ? 'ซ่อนตัวอย่างหน้าสินค้า' : 'ดูตัวอย่างหน้าสินค้า' }}</button>
+                <ProductBlockPreview v-if="previewProductPage" :product="previewProduct" />
               </div>
             </div>
-
-            <div>
-              <label class="block text-xs font-bold mb-1">คำอธิบายย่อ (แสดงบนการ์ดแคตตาล็อก) *</label>
-              <textarea v-model="productForm.shortDesc" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold mb-1">รายละเอียดเต็ม (สำหรับหน้าต่างดูรายละเอียด)</label>
-              <textarea v-model="productForm.fullDetails" rows="3" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold mb-1">จุดเด่น / คุณสมบัติ (บรรทัดละ 1 ข้อ)</label>
-              <textarea v-model="productForm.featuresText" rows="3" placeholder="รองรับการใช้งานผ่านเว็บเบราว์เซอร์&#10;เชื่อมต่อฐานข้อมูลองค์กรได้" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
-            </div>
-            <p v-if="!productForm.documentId" class="text-xs opacity-75">
-              เมื่อกดบันทึกข้อมูล สินค้าจะเผยแพร่ในแคตตาล็อก ปุ่มดูรายละเอียดจะเปิดหน้าต่างข้อมูลสินค้า
-            </p>
           </div>
 
-          <p v-if="newsSaveError" role="alert" class="rounded-xl bg-red-500/10 border border-red-500/30 px-3.5 py-2 text-xs font-bold text-red-600 dark:text-red-400">
-            {{ newsSaveError }}
+          <p v-if="productSaveError" role="alert" class="rounded-xl bg-red-500/10 border border-red-500/30 px-3.5 py-2 text-xs font-bold text-red-600 dark:text-red-400">
+            {{ productSaveError }}
           </p>
 
           <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-current/10">
-            <button type="button" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="productModalOpen = false">ยกเลิก</button>
-            <button type="button" :disabled="savingProduct" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md" @click="saveProduct(true)">
-              {{ savingProduct ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
+            <button type="button" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="closeProductModal">ยกเลิก</button>
+            <button v-if="productStep === 'main'" type="button" class="px-4 py-2.5 rounded-xl bg-emerald-500/15 text-[#008A45] dark:text-[#00FF88] text-xs font-bold cursor-pointer hover:bg-emerald-500/25 transition-colors" @click="changeProductStep('detail')">ถัดไป · หน้ารายละเอียด →</button>
+            <button type="button" :disabled="savingProduct || productMediaBusy || uploadingImage" class="px-4 py-2.5 rounded-xl border border-current/15 text-xs font-bold cursor-pointer disabled:opacity-50" @click="saveProduct(false)">บันทึกฉบับร่าง</button>
+            <button type="button" :disabled="savingProduct || productMediaBusy || uploadingImage" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md disabled:opacity-50" @click="saveProduct(true)">
+              {{ savingProduct ? 'กำลังบันทึก...' : 'บันทึกและเผยแพร่' }}
             </button>
           </div>
         </div>

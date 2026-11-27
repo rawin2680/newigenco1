@@ -20,6 +20,7 @@ import {
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 import { useStrapiContent } from '~/composables/useStrapiContent'
+import { productPath } from '~/shared/productBlocks'
 import { useLiveRefresh, contentSignature } from '~/composables/useLiveRefresh'
 
 const { showToast } = useTheme()
@@ -61,7 +62,7 @@ const loadStrapiProducts = async () => {
       accentColor: '#00C864',
       glowColor: 'rgba(0, 200, 100, 0.25)',
       icon: 'Box',
-      link: sp.detailRoute || undefined
+      link: productPath(sp) || undefined
     }))
     const matchesProduct = (first: ProductItem, second: ProductItem) =>
       first.title.trim() === second.title.trim() || Boolean(first.link && first.link === second.link)
@@ -73,7 +74,8 @@ const loadStrapiProducts = async () => {
       const theme = local.link && inquiryButtonThemes[local.link] ? local : product
       return {
         ...product,
-        link: local.link || product.link,
+        // ลิงก์จาก Strapi มาก่อน (/products/<slug> หรือลิงก์ภายนอกที่ตั้งไว้) ถ้าไม่มีใช้ลิงก์เดิมในโค้ด
+        link: product.link || local.link,
         image: local === finsoftProduct ? local.image : product.image,
         accentColor: theme.accentColor,
         glowColor: theme.glowColor

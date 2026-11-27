@@ -252,7 +252,10 @@ export const useStrapiContent = () => {
     fullDetails: item.fullDetails || '',
     features: Array.isArray(item.features) ? item.features : [],
     image: resolveMediaUrl(item.image, item.fallbackImageUrl || '/images/products/regist-ai-banner.png'),
-    detailRoute: item.detailRoute || ''
+    detailRoute: item.detailRoute || '',
+    seoTitle: item.seoTitle || '',
+    seoDescription: item.seoDescription || '',
+    blocks: Array.isArray(item.blocks) ? item.blocks : null
   })
 
   const getProducts = async (): Promise<StrapiProductItem[] | null> => {

@@ -56,6 +56,17 @@
     },
     "detailRoute": {
       "type": "string"
+    },
+    "seoTitle": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "seoDescription": {
+      "type": "text",
+      "maxLength": 320
+    },
+    "blocks": {
+      "type": "json"
     }
   }
 }

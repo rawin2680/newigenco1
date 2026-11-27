@@ -561,6 +561,7 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    blocks: Schema.Attribute.JSON;
     category: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'\u0E02\u0E48\u0E32\u0E27\u0E1B\u0E23\u0E30\u0E0A\u0E32\u0E2A\u0E31\u0E21\u0E1E\u0E31\u0E19\u0E18\u0E4C'>;
@@ -573,6 +574,14 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     detail: Schema.Attribute.JSON;
     excerpt: Schema.Attribute.Text & Schema.Attribute.Required;
     fallbackImageUrl: Schema.Attribute.String;
+    legacyId: Schema.Attribute.Integer &
+      Schema.Attribute.Unique &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -582,6 +591,15 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     readTime: Schema.Attribute.String &
       Schema.Attribute.DefaultTo<'3 \u0E19\u0E32\u0E17\u0E35\u0E43\u0E19\u0E01\u0E32\u0E23\u0E2D\u0E48\u0E32\u0E19'>;
+    seoDescription: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 320;
+      }>;
+    seoTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 120;
+      }>;
+    slug: Schema.Attribute.UID;
     sortOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -647,6 +665,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   attributes: {
     badge: Schema.Attribute.String &
       Schema.Attribute.DefaultTo<'ENTERPRISE GRADE'>;
+    blocks: Schema.Attribute.JSON;
     category: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Enterprise Software'>;
@@ -666,6 +685,14 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    seoDescription: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 320;
+      }>;
+    seoTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 120;
+      }>;
     shortDesc: Schema.Attribute.Text & Schema.Attribute.Required;
     slug: Schema.Attribute.UID<'name'>;
     sortOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
