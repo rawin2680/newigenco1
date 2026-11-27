@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { Building2, ArrowUpRight, Calendar, Sparkles, Users, Briefcase, FileText, Cpu } from 'lucide-vue-next'
+import { Building2, ArrowUpRight, Calendar, Sparkles, Users, Briefcase, FileText } from 'lucide-vue-next'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const sectionRef = ref<HTMLElement | null>(null)
-const heroHeadingRef = ref<HTMLElement | null>(null)
-const isHeroVisible = ref(false)
 let ctx: gsap.Context | null = null
-let heroObserver: IntersectionObserver | null = null
 
 const exploreTopics = [
   {

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount, type Ref } from 'vue'
 import {
   LayoutDashboard,
@@ -214,20 +214,30 @@ const saveInquiryUpdate = async () => {
   }
 }
 
-const deleteEntry = async (uid: string, item: any, refreshFn: () => Promise<void>) => {
-  if (import.meta.client && !confirm(`ยืนยันการลบรายการ "${item.title || item.clientName || item.name}" ?`)) {
-    return
-  }
+const deleteTarget = ref<{ uid: string; item: any; refreshFn: () => Promise<void> } | null>(null)
+const deletingEntry = ref(false)
+
+const deleteEntry = (uid: string, item: any, refreshFn: () => Promise<void>) => {
+  deleteTarget.value = { uid, item, refreshFn }
+}
+
+const confirmDeleteEntry = async () => {
+  if (!deleteTarget.value || deletingEntry.value) return
+  const { uid, item, refreshFn } = deleteTarget.value
+  deletingEntry.value = true
   try {
     const docId = item.documentId || item.id
     await $fetch(`/api/admin/collection/${encodeURIComponent(uid)}/${docId}`, {
       method: 'DELETE'
     })
+    deleteTarget.value = null
     showToast('ลบข้อมูลเรียบร้อยแล้ว')
     notifyContentChanged(uid)
     await refreshFn()
   } catch {
     showToast('ไม่สามารถลบข้อมูลได้')
+  } finally {
+    deletingEntry.value = false
   }
 }
 
@@ -423,6 +433,7 @@ const detailImageSrc = (url: string) => resolveNewsImage(url, strapiUrl)
 const previewNews = ref(false)
 const newsStep = ref<'main' | 'detail'>('main')
 const newsCoverError = ref('')
+const newsSaveError = ref('')
 const newsEditorBody = ref<HTMLElement | null>(null)
 const { newsList: originalNews } = useNews()
 const newsMediaBusy = ref(false)
@@ -443,6 +454,7 @@ const openNewsModal = (item?: any) => {
   previewNews.value = false
   newsStep.value = 'main'
   newsCoverError.value = ''
+  newsSaveError.value = ''
   newsMediaBusy.value = false
   if (item) {
     const source = { ...item, ...newsEditorFields(item), date: item.dateText }
@@ -552,20 +564,29 @@ const onNewsImageSelect = async (e: Event) => {
 
 const saveNews = async (publish: boolean) => {
   if (newsMediaBusy.value || savingNews.value) return
-  if (!newsForm.value.title.trim() || !newsForm.value.excerpt.trim()) {
-    changeNewsStep('main')
-    showToast('กรุณากรอกหัวข้อข่าวและเนื้อหาย่อให้ครบถ้วน')
+  newsSaveError.value = ''
+  if (!newsForm.value.title.trim()) {
+    newsEditorBody.value?.scrollTo({ top: 0, behavior: 'smooth' })
+    newsSaveError.value = 'กรุณากรอกหัวข้อหลักของข่าว'
+    showToast(newsSaveError.value)
     return
   }
+  const firstParagraph = Array.isArray(newsForm.value.blocks)
+    ? newsForm.value.blocks.find((b: any) => b.type === 'paragraph' && b.data?.text?.trim())?.data?.text?.trim()
+    : ''
+  const resolvedExcerpt = newsForm.value.excerpt.trim()
+    || newsForm.value.originalDetail?.subtitle?.trim()
+    || (firstParagraph ? firstParagraph.slice(0, 220) : '')
+    || newsForm.value.title.trim()
   savingNews.value = true
   try {
     const uid = encodeURIComponent('api::news-article.news-article')
     const payload: Record<string, any> = {
-      title: newsForm.value.title,
+      title: newsForm.value.title.trim(),
       category: newsForm.value.category,
       dateText: newsForm.value.dateText || 'วันนี้',
       readTime: newsForm.value.readTime || null,
-      excerpt: newsForm.value.excerpt,
+      excerpt: resolvedExcerpt,
       fallbackImageUrl: newsForm.value.fallbackImageUrl || null,
       _publish: false
     }
@@ -589,7 +610,8 @@ const saveNews = async (publish: boolean) => {
         await $fetch(`/api/admin/collection/${uid}/${newsForm.value.documentId}/publish`, { method: 'POST', body: { action: 'publish' } })
       } catch {
         newsList.value = await fetchCollection('api::news-article.news-article', ORDERED_SORT)
-        showToast('บันทึกร่างแล้ว แต่เผยแพร่ไม่สำเร็จ กรุณาลองอีกครั้ง')
+        newsSaveError.value = 'บันทึกร่างแล้ว แต่เผยแพร่ไม่สำเร็จ กรุณาลองอีกครั้ง'
+        showToast(newsSaveError.value)
         return
       }
     }
@@ -598,7 +620,14 @@ const saveNews = async (publish: boolean) => {
     newsModalOpen.value = false
     newsList.value = await fetchCollection('api::news-article.news-article', ORDERED_SORT)
   } catch (cause: any) {
-    showToast(cause?.data?.statusMessage || 'เกิดข้อผิดพลาดในการบันทึกข่าว')
+    const status = cause?.statusCode || cause?.data?.statusCode || cause?.response?.status
+    const msg = cause?.data?.statusMessage || cause?.message || 'เกิดข้อผิดพลาดในการบันทึกข่าว'
+    if (status === 401 || /credentials|unauthorized/i.test(msg)) {
+      newsSaveError.value = 'เซสชันผู้ดูแลระบบหมดอายุ กรุณากด "ออกจากระบบ" แล้วเข้าสู่ระบบใหม่อีกครั้ง'
+    } else {
+      newsSaveError.value = msg
+    }
+    showToast(newsSaveError.value)
   } finally {
     savingNews.value = false
   }
@@ -1729,125 +1758,132 @@ onMounted(() => {
     </Teleport>
 
     <!-- =========================================================
+         MODAL 4: DELETE CONFIRMATION
+    ========================================================== -->
+    <Teleport to="body">
+      <div v-if="deleteTarget" class="fixed inset-0 z-[120] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4" @click="!deletingEntry && (deleteTarget = null)">
+        <div class="max-w-md w-full rounded-3xl bg-white dark:bg-[#03150e] border border-red-500/30 shadow-2xl p-6 space-y-4" @click.stop>
+          <h3 class="text-base font-extrabold text-red-600 dark:text-red-400">ยืนยันการลบข้อมูล</h3>
+          <p class="text-sm opacity-80">
+            ต้องการลบรายการ <strong class="font-bold">"{{ deleteTarget.item.title || deleteTarget.item.clientName || deleteTarget.item.name }}"</strong> ออกจากระบบใช่หรือไม่?
+          </p>
+          <div class="flex items-center justify-end gap-2 pt-2">
+            <button type="button" :disabled="deletingEntry" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer disabled:opacity-50" @click="deleteTarget = null">ยกเลิก</button>
+            <button type="button" :disabled="deletingEntry" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50" @click="confirmDeleteEntry">
+              {{ deletingEntry ? 'กำลังลบ...' : 'ยืนยันการลบ' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- =========================================================
          MODAL 2: NEWS EDITOR
     ========================================================== -->
     <Teleport to="body">
       <div v-if="newsModalOpen" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto" @click="!newsMediaBusy && !uploadingImage && !savingNews && (newsModalOpen = false)">
-        <div :class="previewNews ? 'max-w-[1380px]' : 'max-w-3xl'" class="w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
+        <div :class="previewNews ? 'max-w-[1380px]' : 'max-w-4xl'" class="w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
           <div class="flex items-center justify-between border-b border-current/10 pb-3">
             <h3 class="text-lg font-extrabold">{{ newsForm.documentId ? 'แก้ไขข่าวสาร' : 'เพิ่มข่าวสารใหม่' }}</h3>
             <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" @click="!newsMediaBusy && !uploadingImage && !savingNews && (newsModalOpen = false)"><X class="w-4 h-4" /></button>
           </div>
 
           <div class="grid grid-cols-2 gap-2 rounded-xl bg-current/5 p-1" aria-label="ส่วนแก้ไขข่าว">
-            <button type="button" class="rounded-lg px-3 py-2.5 text-sm font-bold" :aria-pressed="newsStep === 'main'" :class="newsStep === 'main' && 'bg-white shadow-sm dark:bg-white/15'" @click="changeNewsStep('main')">1. ข้อมูลหลัก</button>
-            <button type="button" class="rounded-lg px-3 py-2.5 text-sm font-bold" :aria-pressed="newsStep === 'detail'" :class="newsStep === 'detail' && 'bg-white shadow-sm dark:bg-white/15'" @click="changeNewsStep('detail')">2. หน้ารายละเอียด</button>
+            <button type="button" class="rounded-lg px-3 py-2.5 text-sm font-bold cursor-pointer transition-all" :aria-pressed="newsStep === 'main'" :class="newsStep === 'main' ? 'bg-white shadow-sm dark:bg-white/15 text-[#008A45] dark:text-[#00FF88]' : 'opacity-70 hover:opacity-100'" @click="changeNewsStep('main')">1. ข้อมูลหลัก</button>
+            <button type="button" class="rounded-lg px-3 py-2.5 text-sm font-bold cursor-pointer transition-all" :aria-pressed="newsStep === 'detail'" :class="newsStep === 'detail' ? 'bg-white shadow-sm dark:bg-white/15 text-[#008A45] dark:text-[#00FF88]' : 'opacity-70 hover:opacity-100'" @click="changeNewsStep('detail')">2. หน้ารายละเอียด</button>
           </div>
-          <div ref="newsEditorBody" data-news-editor-scroll class="max-h-[58vh] overflow-y-auto pr-1">
-            <div v-show="newsStep === 'main'" class="space-y-4">
-              <label class="block text-xs font-bold">ชื่อผู้เขียน (ไม่บังคับ)
-                <input v-model="newsForm.authorName" :class="detailInputCls" maxlength="150" placeholder="ระบุชื่อผู้เขียนข่าว">
-              </label>
-            <div class="">
-              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">ข้อมูลที่แสดงบนการ์ดข่าว</h4>
-              <p class="text-[11px] opacity-60 mt-0.5">รูปปก หัวข้อ หมวดหมู่ วันที่ และคำโปรย ใช้ทั้งการ์ดหน้าแรกและส่วนหัวของหน้ารายละเอียด</p>
-            </div>
-            <!-- Cover Image Upload -->
-            <div>
-              <label class="block text-xs font-bold mb-1.5">รูปปกหลัก</label>
-              <div class="flex items-center gap-4">
-                <div class="w-32 h-20 rounded-xl overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
-                  <img v-if="newsForm.previewUrl" :src="newsForm.previewUrl" class="w-full h-full object-cover">
-                  <ImageIcon v-else class="w-6 h-6 opacity-40" />
-                </div>
-                <label class="px-4 py-2.5 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer flex items-center gap-2 transition-all">
-                  <Upload class="w-4 h-4" />
-                  <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'เลือกรูปภาพจากเครื่อง' }}</span>
-                  <input type="file" accept="image/*" class="hidden" @change="onNewsImageSelect">
-                </label>
+
+          <div ref="newsEditorBody" data-news-editor-scroll class="max-h-[60vh] overflow-y-auto pr-1 space-y-6">
+            <div v-show="newsStep === 'main'" class="space-y-4 rounded-2xl border border-current/10 bg-black/[0.015] dark:bg-white/[0.02] p-4 sm:p-5">
+              <div>
+                <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">ข้อมูลการ์ดข่าวหน้าแรก</h4>
+                <p class="text-[11px] opacity-60 mt-0.5">รูปภาพ หมวดหมู่ วันที่ เวลาอ่าน หัวข้อ และเนื้อหาย่อที่แสดงบนการ์ดหน้าแรก</p>
               </div>
-              <div class="mt-3 space-y-2 rounded-xl border border-current/10 p-3">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <div><p class="text-xs font-bold">รูปปกเสริม</p><p class="mt-1 text-xs opacity-70">แสดงต่อจากรูปปกหลักในสไลด์ใต้หัวข่าว</p></div>
-                  <label class="cursor-pointer rounded-lg bg-emerald-500/15 px-3 py-2 text-xs font-bold">
-                    {{ newsMediaBusy ? 'กำลังอัปโหลด...' : 'เลือกรูปปกเสริมหลายใบ' }}
-                    <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" class="sr-only" :disabled="newsMediaBusy" @change="addNewsCoverPhotos">
+
+              <div class="pt-1">
+                <label class="block text-xs font-bold mb-1.5">รูปภาพการ์ดข่าว</label>
+                <div class="flex items-center gap-4">
+                  <div class="w-32 h-20 rounded-xl overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
+                    <img v-if="newsForm.previewUrl" :src="newsForm.previewUrl" class="w-full h-full object-cover">
+                    <ImageIcon v-else class="w-6 h-6 opacity-40" />
+                  </div>
+                  <label class="px-4 py-2.5 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer flex items-center gap-2 transition-all">
+                    <Upload class="w-4 h-4" />
+                    <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'เลือกรูปภาพจากเครื่อง' }}</span>
+                    <input type="file" accept="image/*" class="hidden" @change="onNewsImageSelect">
                   </label>
                 </div>
-                <p v-if="newsCoverError" role="alert" class="text-xs text-red-600">{{ newsCoverError }}</p>
-                <ul v-if="newsForm.coverGallery.length" class="space-y-2">
-                  <li v-for="(url, i) in newsForm.coverGallery" :key="i" class="flex items-center gap-2 rounded-lg border border-current/10 p-2">
-                    <img :src="detailImageSrc(url)" alt="" class="h-10 w-16 rounded object-cover">
-                    <span class="mr-auto text-xs">รูปเสริม {{ i + 1 }}</span>
-                    <button type="button" class="px-2 disabled:opacity-40" :disabled="i === 0 || newsMediaBusy" aria-label="เลื่อนรูปขึ้น" @click="moveInList(newsForm.coverGallery, i, -1)">↑</button>
-                    <button type="button" class="px-2 disabled:opacity-40" :disabled="i === newsForm.coverGallery.length - 1 || newsMediaBusy" aria-label="เลื่อนรูปลง" @click="moveInList(newsForm.coverGallery, i, 1)">↓</button>
-                    <button type="button" class="px-2 text-xs text-red-600" :disabled="newsMediaBusy" @click="newsForm.coverGallery.splice(i, 1)">ลบรูป</button>
-                  </li>
-                </ul>
               </div>
-            </div>
 
-            <div>
-              <label class="block text-xs font-bold mb-1">หัวข้อข่าว *</label>
-              <input v-model="newsForm.title" type="text" placeholder="ระบุหัวข้อข่าว..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs font-bold mb-1">หมวดหมู่</label>
-                <select v-model="newsForm.category" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-                  <option value="ข่าวประชาสัมพันธ์">ข่าวประชาสัมพันธ์</option>
-                  <option value="Enterprise Software">Enterprise Software</option>
-                  <option value="Service Development">Service Development</option>
-                  <option value="กิจกรรมองค์กร">กิจกรรมองค์กร</option>
-                </select>
+                <label class="block text-xs font-bold mb-1">หัวข้อข่าว *</label>
+                <input v-model="newsForm.title" type="text" placeholder="ระบุหัวข้อข่าว..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-base sm:text-lg font-bold text-[#008A45] dark:text-[#00FF88]">
               </div>
-              <div>
-                <label class="block text-xs font-bold mb-1">วันที่แสดงผล</label>
-                <input v-model="newsForm.dateText" type="text" placeholder="เช่น 25 พฤศจิกายน 2569" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
-              </div>
-            </div>
 
-            <div>
-              <label class="block text-xs font-bold mb-1">เนื้อหาย่อ (แสดงบนการ์ดหน้าแรก) *</label>
-              <textarea v-model="newsForm.excerpt" rows="2" placeholder="สรุปสั้นๆ 1-2 บรรทัด..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-bold mb-1">เวลาในการอ่าน</label>
-                <input v-model="newsForm.readTime" type="text" placeholder="3 นาทีในการอ่าน" :class="detailInputCls">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-xs font-bold mb-1">หมวดหมู่</label>
+                  <select v-model="newsForm.category" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
+                    <option value="ข่าวประชาสัมพันธ์">ข่าวประชาสัมพันธ์</option>
+                    <option value="Enterprise Software">Enterprise Software</option>
+                    <option value="Service Development">Service Development</option>
+                    <option value="กิจกรรมองค์กร">กิจกรรมองค์กร</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1">วันที่แสดงผล</label>
+                  <input v-model="newsForm.dateText" type="text" placeholder="เช่น 25 พฤศจิกายน 2569" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold mb-1">เวลาในการอ่าน</label>
+                  <input v-model="newsForm.readTime" type="text" placeholder="3 นาทีในการอ่าน" :class="detailInputCls">
+                </div>
               </div>
-              <div>
-                <label class="block text-xs font-bold mb-1">หัวข้อรอง (ใต้หัวข้อข่าว)</label>
-                <input v-model="newsForm.originalDetail.subtitle" type="text" placeholder="ไม่บังคับ" :class="detailInputCls">
-              </div>
-            </div>
 
-            <details class="space-y-3 border-t border-current/10 pt-4">
-              <summary class="cursor-pointer text-sm font-bold">ตั้งค่า URL และ SEO</summary>
-              <label class="block text-xs font-bold">Slug<input v-model="newsForm.slug" :class="detailInputCls" maxlength="100" placeholder="เช่น company-news"></label>
-              <label class="block text-xs font-bold">หัวข้อ SEO<input v-model="newsForm.seoTitle" :class="detailInputCls" maxlength="120"></label>
-              <label class="block text-xs font-bold">คำอธิบาย SEO<textarea v-model="newsForm.seoDescription" :class="detailInputCls" maxlength="320" rows="2" /></label>
-            </details>
+              <div>
+                <label class="block text-xs font-bold mb-1">เนื้อหาย่อ (แสดงบนการ์ดหน้าแรก) *</label>
+                <textarea v-model="newsForm.excerpt" rows="2" placeholder="สรุปสั้นๆ 1-2 บรรทัด..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-xs sm:text-sm text-black dark:text-white" />
+              </div>
+
+              <details class="space-y-3 border-t border-current/10 pt-3">
+                <summary class="cursor-pointer text-xs font-bold opacity-75">ตั้งค่า URL และ SEO (ไม่บังคับ)</summary>
+                <label class="block text-xs font-bold">Slug<input v-model="newsForm.slug" :class="detailInputCls" maxlength="100" placeholder="เช่น company-news"></label>
+                <label class="block text-xs font-bold">หัวข้อ SEO<input v-model="newsForm.seoTitle" :class="detailInputCls" maxlength="120"></label>
+                <label class="block text-xs font-bold">คำอธิบาย SEO<textarea v-model="newsForm.seoDescription" :class="detailInputCls" maxlength="320" rows="2" /></label>
+              </details>
             </div>
             <div v-show="newsStep === 'detail'" class="space-y-4">
+              <div class="space-y-4 rounded-2xl border border-current/10 bg-black/[0.015] dark:bg-white/[0.02] p-4 sm:p-5">
+                <div>
+                  <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">เนื้อหาหน้ารายละเอียดข่าว (สลับลำดับขึ้น-ลงได้)</h4>
+                  <p class="text-[11px] opacity-60 mt-0.5">เพิ่มหัวข้อ (ตัวใหญ่ สีเขียว) หัวข้อย่อย (ตัวเล็ก สีดำ) และรูปภาพหลายรูป แล้วกดปุ่ม ↑ ขึ้น / ↓ ลง เพื่อสลับลำดับการแสดงผลในหน้าข่าวสาร</p>
+                </div>
 
+                <div>
+                  <label class="block text-xs font-bold mb-1">ชื่อผู้เขียน (ไม่บังคับ)</label>
+                  <input v-model="newsForm.authorName" :class="detailInputCls" maxlength="150" placeholder="ระบุชื่อผู้เขียนข่าว">
+                </div>
 
-            <section class="space-y-3 border-t border-current/10 pt-4">
-              <NewsBlockEditor v-model="newsForm.blocks" @busy="newsMediaBusy = $event" />
-            </section>
-            <button type="button" class="rounded-xl border border-current/15 px-3 py-2 text-xs font-bold" :aria-expanded="previewNews" @click="previewNews = !previewNews">{{ previewNews ? 'ซ่อนตัวอย่าง' : 'ดูตัวอย่างหน้าข่าว' }}</button>
-            <NewsBlockPreview v-if="previewNews" :article="previewArticle" />
-
+                <section class="space-y-3">
+                  <NewsBlockEditor v-model="newsForm.blocks" @busy="newsMediaBusy = $event" />
+                </section>
+              </div>
+              <div class="space-y-3">
+                <button type="button" class="rounded-xl border border-current/15 px-3.5 py-2 text-xs font-bold cursor-pointer hover:bg-current/5 transition-colors" :aria-expanded="previewNews" @click="previewNews = !previewNews">{{ previewNews ? 'ซ่อนตัวอย่างหน้าข่าว' : 'ดูตัวอย่างหน้าข่าวสาร' }}</button>
+                <NewsBlockPreview v-if="previewNews" :article="previewArticle" />
+              </div>
             </div>
           </div>
+
+          <p v-if="newsSaveError" role="alert" class="rounded-xl bg-red-500/10 border border-red-500/30 px-3.5 py-2 text-xs font-bold text-red-600 dark:text-red-400">
+            {{ newsSaveError }}
+          </p>
 
           <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-current/10">
             <button type="button" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="newsModalOpen = false">ยกเลิก</button>
-            <button v-if="newsStep === 'main'" type="button" class="rounded-xl bg-[#00C864] px-4 py-2.5 text-xs font-bold text-[#022C22]" @click="changeNewsStep('detail')">ถัดไป · หน้ารายละเอียด →</button>
-            <button v-if="newsStep === 'detail'" type="button" :disabled="savingNews || newsMediaBusy || uploadingImage" class="px-4 py-2.5 rounded-xl border border-current/15 text-xs font-bold" @click="saveNews(false)">บันทึกฉบับร่าง</button>
-            <button v-if="newsStep === 'detail'" type="button" :disabled="savingNews || newsMediaBusy || uploadingImage" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md" @click="saveNews(true)">
+            <button v-if="newsStep === 'main'" type="button" class="px-4 py-2.5 rounded-xl bg-emerald-500/15 text-[#008A45] dark:text-[#00FF88] text-xs font-bold cursor-pointer hover:bg-emerald-500/25 transition-colors" @click="changeNewsStep('detail')">ถัดไป · หน้ารายละเอียด →</button>
+            <button type="button" :disabled="savingNews || newsMediaBusy || uploadingImage" class="px-4 py-2.5 rounded-xl border border-current/15 text-xs font-bold cursor-pointer disabled:opacity-50" @click="saveNews(false)">บันทึกฉบับร่าง</button>
+            <button type="button" :disabled="savingNews || newsMediaBusy || uploadingImage" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md disabled:opacity-50" @click="saveNews(true)">
               {{ savingNews ? 'กำลังบันทึก...' : 'บันทึกและเผยแพร่' }}
             </button>
           </div>
@@ -1915,6 +1951,10 @@ onMounted(() => {
               เมื่อกดบันทึกข้อมูล สินค้าจะเผยแพร่ในแคตตาล็อก ปุ่มดูรายละเอียดจะเปิดหน้าต่างข้อมูลสินค้า
             </p>
           </div>
+
+          <p v-if="newsSaveError" role="alert" class="rounded-xl bg-red-500/10 border border-red-500/30 px-3.5 py-2 text-xs font-bold text-red-600 dark:text-red-400">
+            {{ newsSaveError }}
+          </p>
 
           <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-current/10">
             <button type="button" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="productModalOpen = false">ยกเลิก</button>

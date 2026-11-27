@@ -295,7 +295,7 @@ html.dark .public-headings {
   text-wrap: balance;
 }
 
-.public-headings :where(h1, h2):not(:where(#top h1, .sr-only, .flex, .inline-flex, .line-clamp-1, .line-clamp-2, [hidden]))::after {
+.public-headings :where(h1, h2):not(:where(#top h1, .sr-only, .flex, .inline-flex, .line-clamp-1, .line-clamp-2, [hidden], .no-heading-bar, .no-heading-bar h1, .no-heading-bar h2))::after {
   content: '';
   display: block;
   width: clamp(2.75rem, 9vw, 5rem);

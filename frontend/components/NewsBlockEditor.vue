@@ -44,6 +44,13 @@ function move(block: NewsBlock, direction: number) {
   blocks.value.splice(to, 0, block)
 }
 
+function movePhoto(block: NewsBlock, index: number, direction: -1 | 1) {
+  const targetIndex = index + direction
+  if (targetIndex < 0 || targetIndex >= block.data.media.length) return
+  const media = block.data.media
+  ;[media[index], media[targetIndex]] = [media[targetIndex], media[index]]
+}
+
 function markDrop() {
   target.value = null
   if (!dragged.value || !editor.value) return
@@ -112,7 +119,8 @@ function dropBlock(event: PointerEvent) {
 onBeforeUnmount(endDrag)
 
 function remove(block: NewsBlock) {
-  if (window.confirm('ลบบล็อกนี้ออกจากข่าวหรือไม่?')) blocks.value.splice(blocks.value.indexOf(block), 1)
+  const index = blocks.value.indexOf(block)
+  if (index >= 0) blocks.value.splice(index, 1)
 }
 
 async function addPhotos(event: Event, block: NewsBlock) {
@@ -139,12 +147,12 @@ async function addPhotos(event: Event, block: NewsBlock) {
 
 <template>
   <div ref="editor" class="space-y-4">
-    <div class="flex flex-wrap gap-2">
-      <button type="button" class="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white" @click="add('heading')">+ เพิ่มหัวข้อ</button>
-      <button v-if="!editable.some(block => block.type === 'heading')" type="button" :class="button" @click="add('paragraph')">+ เพิ่มหัวข้อย่อย</button>
-      <button type="button" :class="button" @click="add('gallery')">+ เพิ่มรูปภาพ</button>
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-800 transition-colors cursor-pointer" @click="add('heading')">+ เพิ่มหัวข้อ</button>
+      <button type="button" :class="button" class="hover:bg-current/5 transition-colors cursor-pointer" @click="add('paragraph')">+ เพิ่มหัวข้อย่อย</button>
+      <button type="button" :class="button" class="hover:bg-current/5 transition-colors cursor-pointer" @click="add('gallery')">+ เพิ่มรูปภาพ (หลายรูป)</button>
     </div>
-    <p v-if="!editable.length" class="text-sm opacity-75">กดเพิ่มหัวข้อเพื่อเริ่มเขียนข่าว</p>
+    <p v-if="!editable.length" class="text-sm opacity-75">กดปุ่มด้านบนเพื่อเพิ่มหัวข้อ หัวข้อย่อย หรือรูปภาพ แล้วกดปุ่ม ↑ ↓ เพื่อสลับลำดับได้ทันที</p>
     <p v-if="error" role="alert" class="text-sm text-red-600">{{ error }}</p>
     <fieldset v-for="(block, index) in editable" :key="block.id" class="relative space-y-3 rounded-xl border border-current/15 p-3"
       :class="{ 'ml-3 sm:ml-6': block.type === 'paragraph', 'opacity-50': dragged === block }"
@@ -155,34 +163,48 @@ async function addPhotos(event: Event, block: NewsBlock) {
         <span class="h-0.5 flex-1 bg-emerald-600"></span>
         <span class="rounded-full bg-emerald-700 px-2 py-0.5 text-[10px] font-bold text-white">{{ target.after ? 'วางด้านล่าง' : 'วางด้านบน' }}</span>
       </div>
-      <input v-if="block.type === 'heading'" :id="'news-edit-' + block.id" v-model="block.data.title" :class="field" maxlength="200" aria-label="ชื่อหัวข้อ" placeholder="พิมพ์ชื่อหัวข้อ">
+      <input v-if="block.type === 'heading'" :id="'news-edit-' + block.id" v-model="block.data.title" :class="field" class="!text-base sm:!text-lg !font-bold !text-[#008A45] dark:!text-[#00FF88]" maxlength="200" aria-label="ชื่อหัวข้อ" placeholder="พิมพ์ชื่อหัวข้อ (ตัวใหญ่ สีเขียว)">
       <template v-else-if="block.type === 'paragraph'">
-        <textarea :id="'news-edit-' + block.id" v-model="block.data.text" :class="field" rows="4" maxlength="20000" aria-label="ข้อความ" placeholder="พิมพ์ข้อความหรือข้อย่อย" />
+        <textarea :id="'news-edit-' + block.id" v-model="block.data.text" :class="field" class="!text-sm sm:!text-base !text-black dark:!text-white" rows="4" maxlength="20000" aria-label="ข้อความ" placeholder="พิมพ์ข้อความหรือหัวข้อย่อย (ตัวเล็ก สีดำ)" />
         <p class="text-xs opacity-70">ใช้ **ตัวหนา** · *ตัวเอียง* · ขึ้นต้นบรรทัดด้วย - สำหรับข้อย่อย</p>
       </template>
       <template v-else>
-        <label class="inline-flex cursor-pointer rounded-lg bg-emerald-500/15 px-3 py-2 text-xs font-bold">
-          {{ uploading ? 'กำลังอัปโหลด…' : 'เลือกรูปจากเครื่อง' }}
-          <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" class="sr-only" :disabled="uploading" @change="addPhotos($event, block)">
-        </label>
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <label class="inline-flex cursor-pointer rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 px-3 py-2 text-xs font-bold transition-colors">
+            {{ uploading ? 'กำลังอัปโหลด…' : '+ เลือกรูปภาพ (เลือกได้หลายรูป)' }}
+            <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" class="sr-only" :disabled="uploading" @change="addPhotos($event, block)">
+          </label>
+          <span v-if="block.data.media.filter(m => m.url).length" class="text-xs opacity-60">
+            {{ block.data.media.filter(m => m.url).length }} รูป (กด ← → เพื่อสลับลำดับรูป)
+          </span>
+        </div>
+        <div class="flex flex-wrap gap-3">
           <template v-for="(photo, i) in block.data.media" :key="i">
-            <div v-if="photo.url" class="relative">
-              <img :src="resolveNewsImage(photo.url, strapiUrl)" alt="" class="h-16 w-20 rounded-lg object-cover">
-              <button type="button" :disabled="uploading" :aria-label="'ลบรูป ' + (i + 1)" class="absolute right-0 top-0 rounded-full bg-black/75 px-2 text-white" @click="block.data.media.splice(i, 1)">×</button>
+            <div v-if="photo.url" class="relative rounded-xl border border-current/10 p-1.5 bg-black/[0.02] dark:bg-white/[0.03] space-y-1">
+              <div class="relative">
+                <img :src="resolveNewsImage(photo.url, strapiUrl)" alt="" class="h-20 w-28 rounded-lg object-cover">
+                <button type="button" :disabled="uploading" :aria-label="'ลบรูป ' + (i + 1)" class="absolute -right-1 -top-1 rounded-full bg-black/80 w-5 h-5 flex items-center justify-center text-xs text-white hover:bg-red-600 transition-colors cursor-pointer" @click="block.data.media.splice(i, 1)">×</button>
+              </div>
+              <div class="flex items-center justify-between gap-1">
+                <button type="button" class="px-1.5 py-0.5 rounded border border-current/15 text-[11px] font-bold disabled:opacity-30 cursor-pointer" :disabled="i === 0 || uploading" aria-label="เลื่อนรูปไปทางซ้าย" @click="movePhoto(block, i, -1)">←</button>
+                <span class="text-[10px] opacity-60">{{ i + 1 }}</span>
+                <button type="button" class="px-1.5 py-0.5 rounded border border-current/15 text-[11px] font-bold disabled:opacity-30 cursor-pointer" :disabled="i === block.data.media.length - 1 || uploading" aria-label="เลื่อนรูปไปทางขวา" @click="movePhoto(block, i, 1)">→</button>
+              </div>
             </div>
           </template>
         </div>
       </template>
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <span class="touch-none cursor-grab select-none rounded-lg border border-current/15 px-3 py-1.5 text-sm active:cursor-grabbing"
           title="กดค้าง ลาก และหมุนลูกกลิ้งเพื่อเลื่อนฟอร์ม"
           @pointerdown="startDrag($event, block)" @pointermove="moveDrag" @pointerup="dropBlock"
           @pointercancel="endDrag" @lostpointercapture="endDrag">⠿ ลากย้าย</span>
-        <button v-if="block.type === 'heading'" type="button" :class="button" class="mr-auto text-emerald-700 dark:text-emerald-300" @click="add('paragraph', block)">+ เพิ่มหัวข้อย่อย</button>
-        <button type="button" :class="button" :disabled="index === 0 || uploading" aria-label="เลื่อนขึ้น" @click="move(block, -1)">↑</button>
-        <button type="button" :class="button" :disabled="index === editable.length - 1 || uploading" aria-label="เลื่อนลง" @click="move(block, 1)">↓</button>
-        <button type="button" :class="button" :disabled="uploading" class="text-red-600" @click="remove(block)">ลบบล็อก</button>
+        <button v-if="block.type === 'heading'" type="button" :class="button" class="text-emerald-700 dark:text-emerald-300 cursor-pointer" @click="add('paragraph', block)">+ เพิ่มหัวข้อย่อย</button>
+        <div class="ml-auto flex items-center gap-1.5">
+          <button type="button" :class="button" class="cursor-pointer hover:bg-current/5" :disabled="index === 0 || uploading" aria-label="เลื่อนขึ้น" @click="move(block, -1)">↑ ขึ้น</button>
+          <button type="button" :class="button" class="cursor-pointer hover:bg-current/5" :disabled="index === editable.length - 1 || uploading" aria-label="เลื่อนลง" @click="move(block, 1)">↓ ลง</button>
+          <button type="button" :class="button" :disabled="uploading" class="text-red-600 cursor-pointer hover:bg-red-500/10" @click="remove(block)">ลบบล็อก</button>
+        </div>
       </div>
     </fieldset>
   </div>

@@ -1,35 +1,74 @@
 <script setup lang="ts">
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+
 const props = defineProps<{ photos: { url: string; alt: string; caption: string }[]; cover?: boolean }>()
-const track = ref<HTMLElement | null>(null)
 const current = ref(0)
-function sync() {
-  const element = track.value
-  if (!element?.clientWidth) return
-  current.value = Math.min(props.photos.length - 1, Math.round(element.scrollLeft / element.clientWidth))
-}
+
+watch(() => props.photos.length, (len) => {
+  if (current.value >= len) current.value = Math.max(0, len - 1)
+})
+
 function move(offset: number) {
-  const element = track.value
-  if (!element) return
-  const next = Math.min(Math.max(current.value + offset, 0), props.photos.length - 1)
-  element.scrollTo({ left: next * element.clientWidth, behavior: 'instant' })
+  if (props.photos.length <= 1) return
+  current.value = (current.value + offset + props.photos.length) % props.photos.length
 }
 </script>
 
 <template>
-  <div v-if="photos.length" class="space-y-2" role="region" aria-label="แกลเลอรีภาพข่าว">
-    <div ref="track" class="flex snap-x snap-mandatory overflow-x-auto rounded-2xl bg-current/5" tabindex="0"
-      aria-label="ปัดหรือใช้ลูกศรซ้ายขวาเพื่อเลื่อนรูป" @scroll.passive="sync" @keydown.left.self.prevent="move(-1)" @keydown.right.self.prevent="move(1)">
-      <figure v-for="(photo, index) in photos" :key="index" class="w-full shrink-0 snap-start">
-        <a :href="photo.url" target="_blank" rel="noopener noreferrer" class="block">
-          <img :src="photo.url" :alt="photo.alt || photo.caption || 'ภาพประกอบข่าว ' + (index + 1)" :loading="cover && index === 0 ? 'eager' : 'lazy'" :fetchpriority="cover && index === 0 ? 'high' : undefined" class="w-full" :class="cover ? 'aspect-[2/1] object-cover' : 'aspect-[16/10] object-contain'">
-        </a>
-        <figcaption v-if="photo.caption" class="px-4 py-2 text-sm">{{ photo.caption }}</figcaption>
-      </figure>
-    </div>
-    <div v-if="photos.length > 1" class="flex items-center justify-center gap-3 text-sm">
-      <button type="button" aria-label="รูปก่อนหน้า" :disabled="current === 0" class="size-10 rounded-full border border-current/15 disabled:opacity-35" @click="move(-1)">←</button>
-      <span aria-live="polite">{{ current + 1 }} / {{ photos.length }}</span>
-      <button type="button" aria-label="รูปถัดไป" :disabled="current >= photos.length - 1" class="size-10 rounded-full border border-current/15 disabled:opacity-35" @click="move(1)">→</button>
+  <div
+    v-if="photos.length"
+    class="space-y-2"
+    role="region"
+    aria-label="แกลเลอรีภาพข่าว"
+    tabindex="0"
+    @keydown.left.prevent="move(-1)"
+    @keydown.right.prevent="move(1)"
+  >
+    <div class="relative overflow-hidden rounded-2xl bg-current/5">
+      <div
+        class="flex transition-transform duration-300 ease-out"
+        :style="{ transform: `translateX(-${current * 100}%)` }"
+      >
+        <figure v-for="(photo, index) in photos" :key="index" class="w-full shrink-0">
+          <a :href="photo.url" target="_blank" rel="noopener noreferrer" class="block">
+            <img
+              :src="photo.url"
+              :alt="photo.alt || photo.caption || 'ภาพประกอบข่าว ' + (index + 1)"
+              :loading="cover && index === 0 ? 'eager' : 'lazy'"
+              :fetchpriority="cover && index === 0 ? 'high' : undefined"
+              class="w-full"
+              :class="cover ? 'aspect-[2/1] object-cover' : 'aspect-[16/10] object-contain'"
+            >
+          </a>
+          <figcaption v-if="photo.caption" class="px-4 py-2 text-sm text-center opacity-80">{{ photo.caption }}</figcaption>
+        </figure>
+      </div>
+
+      <!-- ปุ่มกดซ้าย-ขวาบนรูปภาพ -->
+      <template v-if="photos.length > 1">
+        <button
+          type="button"
+          aria-label="รูปก่อนหน้า"
+          class="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex size-10 sm:size-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm border border-white/20 shadow-lg hover:bg-black/75 transition-all cursor-pointer"
+          @click.stop.prevent="move(-1)"
+        >
+          <ChevronLeft class="size-5 sm:size-6" />
+        </button>
+        <button
+          type="button"
+          aria-label="รูปถัดไป"
+          class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex size-10 sm:size-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm border border-white/20 shadow-lg hover:bg-black/75 transition-all cursor-pointer"
+          @click.stop.prevent="move(1)"
+        >
+          <ChevronRight class="size-5 sm:size-6" />
+        </button>
+        <div
+          aria-live="polite"
+          class="pointer-events-none absolute bottom-3 right-3 z-10 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm"
+        >
+          {{ current + 1 }} / {{ photos.length }}
+        </div>
+      </template>
     </div>
   </div>
 </template>

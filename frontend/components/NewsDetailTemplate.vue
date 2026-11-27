@@ -13,14 +13,7 @@ const mediaUrl = (url: string) => {
   return /^(https?:\/\/|\/)/.test(value) ? value : ''
 }
 const orderedBlocks = computed(() => blocks.value.filter(block => ['heading', 'paragraph', 'gallery', 'image'].includes(block.type)))
-const coverPhotos = computed(() => {
-  const inlinePictures = new Set(orderedBlocks.value.filter(block => block.visible && ['gallery', 'image'].includes(block.type))
-    .flatMap(block => block.data.media.map(photo => mediaUrl(photo.url))).filter(Boolean))
-  return [...new Set([props.article.image, ...(props.article.coverGallery || [])].map(mediaUrl).filter(url => url && !inlinePictures.has(url)))].map(url => ({
-    url, alt: props.article.title, caption: ''
-  }))
-})
-const visible = computed(() => selectNewsBlocks(orderedBlocks.value, coverPhotos.value.map(photo => photo.url), mediaUrl))
+const visible = computed(() => selectNewsBlocks(orderedBlocks.value, [], mediaUrl))
 const counts = computed(() => {
   const counts = new Map<string, number>()
   for (const news of props.catalog) {
@@ -66,23 +59,16 @@ watch(() => route.path, () => { shareStatus.value = '' })
       </nav>
 
       <div class="grid gap-8 lg:gap-12" :class="counts.length || latest.length ? 'lg:grid-cols-[minmax(0,1fr)_minmax(245px,0.43fr)]' : 'mx-auto max-w-4xl'">
-        <article class="min-w-0 space-y-7 break-words">
+        <article class="no-heading-bar min-w-0 space-y-7 break-words">
           <header class="space-y-3">
             <div v-if="article.category.trim() || article.date.trim() || article.author?.name?.trim()" class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
               <span v-if="article.category.trim()" class="rounded-full bg-[#00c864] px-3 py-1 font-bold text-[#052c22]">{{ article.category }}</span>
               <span v-if="article.date.trim()" class="inline-flex items-center gap-1.5"><CalendarDays class="size-4" />{{ article.date }}</span>
               <span v-if="article.author?.name?.trim()" class="inline-flex items-center gap-1.5"><UserRound class="size-4" />โดย {{ article.author.name }}</span>
             </div>
-            <h1 class="text-[clamp(1.75rem,3.2vw,3rem)] font-extrabold leading-[1.18]">{{ article.title }}</h1>
-            <p v-if="article.subtitle?.trim() && article.subtitle !== article.summary" class="text-base font-semibold">{{ article.subtitle }}</p>
-            <p v-if="article.summary.trim()" class="text-base leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">{{ article.summary }}</p>
+            <h1 class="text-[clamp(1.75rem,3.2vw,3rem)] font-extrabold leading-[1.18] text-[#008A45] dark:text-[#00FF88]">{{ article.title }}</h1>
           </header>
 
-          <NewsPhotoGallery v-if="coverPhotos.length > 1" :photos="coverPhotos" cover />
-          <figure v-else-if="coverPhotos.length">
-            <img :src="coverPhotos[0]?.url" :alt="coverPhotos[0]?.alt || article.title" class="aspect-[2/1] w-full rounded-2xl bg-current/5 object-cover" fetchpriority="high">
-            <figcaption v-if="coverPhotos[0]?.caption" class="mt-2 text-sm opacity-75">{{ coverPhotos[0].caption }}</figcaption>
-          </figure>
           <NewsBlockArticle v-if="visible.length" :blocks="visible" />
 
           <div class="flex flex-wrap items-center gap-2 border-t border-current/10 pt-4">
