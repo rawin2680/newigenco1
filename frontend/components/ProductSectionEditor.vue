@@ -42,7 +42,8 @@ function move(section: ProductSection, direction: -1 | 1) {
 
 function remove(section: ProductSection) {
   const index = sections.value.indexOf(section)
-  if (index >= 0 && confirm('ลบส่วน "' + productSectionTypes[section.type] + '" ?')) sections.value.splice(index, 1)
+  // ลบได้ทันที ถ้าลบผิดกดปุ่ม ↶ ย้อนกลับ ที่หัวหน้าต่างได้
+  if (index >= 0) sections.value.splice(index, 1)
 }
 
 function moveInList<T>(list: T[], index: number, direction: -1 | 1) {

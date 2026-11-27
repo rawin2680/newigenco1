@@ -28,10 +28,13 @@ import {
   ArrowUp,
   ArrowDown,
   GripVertical,
-  Lock
+  Lock,
+  Undo2,
+  Redo2
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 import { notifyContentChanged } from '~/composables/useLiveRefresh'
+import { isTypingElement, useUndoHistory } from '~/composables/useUndoHistory'
 import { newsEditorFields } from '~/shared/newsEditorFields'
 import { articleBlocks } from '~/composables/articleBlocks'
 import { uploadNewsPhotos } from '~/shared/uploadNewsPhotos'
@@ -504,6 +507,7 @@ const openNewsModal = (item?: any) => {
     }
   }
   newsModalOpen.value = true
+  resetNewsHistory()
 }
 
 function newsDetailPayload() {
@@ -796,6 +800,7 @@ const openProductModal = (item?: any) => {
       }
     : blankProductForm()
   productModalOpen.value = true
+  resetProductHistory()
 }
 
 function changeProductStep(step: 'main' | 'detail') {
@@ -804,9 +809,7 @@ function changeProductStep(step: 'main' | 'detail') {
   productEditorBody.value?.scrollTo({ top: 0 })
 }
 
-const closeProductModal = () => {
-  if (!productMediaBusy.value && !uploadingImage.value && !savingProduct.value) productModalOpen.value = false
-}
+const closeProductModal = () => requestCloseEditor('product')
 
 // ข้อมูลสำหรับหน้าตัวอย่าง (รูปแบบเดียวกับที่หน้าเว็บได้รับจาก Strapi)
 const previewProduct = computed(() => {
@@ -887,6 +890,64 @@ const saveProduct = async (publish: boolean) => {
     savingProduct.value = false
   }
 }
+
+// =========================================================================
+// UNDO / REDO และการยืนยันก่อนปิดหน้าต่างแก้ไข (ข่าว และ สินค้า)
+// - ปุ่ม ↶ ย้อนกลับ / ↷ ทำซ้ำ ที่หัวหน้าต่าง ใช้ประวัติของทั้งฟอร์มเสมอ
+// - คีย์ลัด Cmd/Ctrl+Z (ย้อนกลับ), Cmd/Ctrl+Shift+Z หรือ Ctrl+Y (ทำซ้ำ)
+//   ถ้ากำลังพิมพ์อยู่ในช่องข้อความ ปล่อยให้เบราว์เซอร์ย้อนกลับตัวอักษรในช่องนั้นเอง (เหมือนโปรแกรมทั่วไป)
+//   ถ้าไม่ได้อยู่ในช่องข้อความ จะย้อนกลับการกระทำล่าสุดของฟอร์ม (เพิ่ม/ลบ/ย้ายบล็อก เปลี่ยนสี รูป ฯลฯ)
+// - Esc / ปุ่ม X / ยกเลิก / คลิกนอกหน้าต่าง: ถ้ามีการแก้ไขที่ยังไม่บันทึก จะถามยืนยันก่อนปิด
+// =========================================================================
+const {
+  canUndo: newsCanUndo, canRedo: newsCanRedo, undo: undoNews, redo: redoNews,
+  reset: resetNewsHistory, stop: stopNewsHistory, isDirty: newsIsDirty
+} = useUndoHistory(newsForm)
+const {
+  canUndo: productCanUndo, canRedo: productCanRedo, undo: undoProduct, redo: redoProduct,
+  reset: resetProductHistory, stop: stopProductHistory, isDirty: productIsDirty
+} = useUndoHistory(productForm)
+watch(newsModalOpen, open => { if (!open) stopNewsHistory() })
+watch(productModalOpen, open => { if (!open) stopProductHistory() })
+
+const discardTarget = ref<'news' | 'product' | null>(null)
+const editorBusy = (editor: 'news' | 'product') => editor === 'news'
+  ? newsMediaBusy.value || uploadingImage.value || savingNews.value
+  : productMediaBusy.value || uploadingImage.value || savingProduct.value
+function closeEditor(editor: 'news' | 'product') {
+  if (editor === 'news') newsModalOpen.value = false
+  else productModalOpen.value = false
+  discardTarget.value = null
+}
+function requestCloseEditor(editor: 'news' | 'product') {
+  if (editorBusy(editor)) return
+  const dirty = editor === 'news' ? newsIsDirty() : productIsDirty()
+  if (dirty) discardTarget.value = editor
+  else closeEditor(editor)
+}
+
+function onEditorKeydown(event: KeyboardEvent) {
+  const editor = productModalOpen.value ? 'product' : newsModalOpen.value ? 'news' : null
+  if (!editor || deleteTarget.value) return
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    if (discardTarget.value) discardTarget.value = null
+    else requestCloseEditor(editor)
+    return
+  }
+  if (discardTarget.value || !(event.metaKey || event.ctrlKey) || event.altKey) return
+  const key = event.key.toLowerCase()
+  const wantsUndo = key === 'z' && !event.shiftKey
+  const wantsRedo = (key === 'z' && event.shiftKey) || (key === 'y' && event.ctrlKey && !event.metaKey)
+  if (!wantsUndo && !wantsRedo) return
+  const focused = document.activeElement
+  if (isTypingElement(focused) && focused.type !== 'color') return
+  event.preventDefault()
+  if (editor === 'news') (wantsUndo ? undoNews : redoNews)()
+  else (wantsUndo ? undoProduct : redoProduct)()
+}
+onMounted(() => window.addEventListener('keydown', onEditorKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onEditorKeydown))
 
 onMounted(() => {
   checkAuth()
@@ -1825,11 +1886,15 @@ onMounted(() => {
          MODAL 2: NEWS EDITOR
     ========================================================== -->
     <Teleport to="body">
-      <div v-if="newsModalOpen" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto" @click="!newsMediaBusy && !uploadingImage && !savingNews && (newsModalOpen = false)">
+      <div v-if="newsModalOpen" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto" @click="requestCloseEditor('news')">
         <div :class="previewNews ? 'max-w-[1380px]' : 'max-w-4xl'" class="w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
           <div class="flex items-center justify-between border-b border-current/10 pb-3">
             <h3 class="text-lg font-extrabold">{{ newsForm.documentId ? 'แก้ไขข่าวสาร' : 'เพิ่มข่าวสารใหม่' }}</h3>
-            <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" @click="!newsMediaBusy && !uploadingImage && !savingNews && (newsModalOpen = false)"><X class="w-4 h-4" /></button>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed" :disabled="!newsCanUndo" title="ย้อนกลับ (Ctrl/⌘ + Z)" aria-label="ย้อนกลับ" @click="undoNews"><Undo2 class="w-4 h-4" /></button>
+              <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed" :disabled="!newsCanRedo" title="ทำซ้ำ (Ctrl/⌘ + Shift + Z หรือ Ctrl + Y)" aria-label="ทำซ้ำ" @click="redoNews"><Redo2 class="w-4 h-4" /></button>
+              <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" aria-label="ปิด" @click="requestCloseEditor('news')"><X class="w-4 h-4" /></button>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2 rounded-xl bg-current/5 p-1" aria-label="ส่วนแก้ไขข่าว">
@@ -1924,7 +1989,7 @@ onMounted(() => {
           </p>
 
           <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-current/10">
-            <button type="button" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="newsModalOpen = false">ยกเลิก</button>
+            <button type="button" class="px-4 py-2.5 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="requestCloseEditor('news')">ยกเลิก</button>
             <button v-if="newsStep === 'main'" type="button" class="px-4 py-2.5 rounded-xl bg-emerald-500/15 text-[#008A45] dark:text-[#00FF88] text-xs font-bold cursor-pointer hover:bg-emerald-500/25 transition-colors" @click="changeNewsStep('detail')">ถัดไป · หน้ารายละเอียด →</button>
             <button type="button" :disabled="savingNews || newsMediaBusy || uploadingImage" class="px-4 py-2.5 rounded-xl border border-current/15 text-xs font-bold cursor-pointer disabled:opacity-50" @click="saveNews(false)">บันทึกฉบับร่าง</button>
             <button type="button" :disabled="savingNews || newsMediaBusy || uploadingImage" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md disabled:opacity-50" @click="saveNews(true)">
@@ -1943,7 +2008,11 @@ onMounted(() => {
         <div :class="previewProductPage ? 'max-w-[1380px]' : 'max-w-4xl'" class="w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
           <div class="flex items-center justify-between border-b border-current/10 pb-3">
             <h3 class="text-lg font-extrabold">{{ productForm.documentId ? 'แก้ไขสินค้าและบริการ' : 'เพิ่มสินค้าและบริการใหม่' }}</h3>
-            <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" @click="closeProductModal"><X class="w-4 h-4" /></button>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed" :disabled="!productCanUndo" title="ย้อนกลับ (Ctrl/⌘ + Z)" aria-label="ย้อนกลับ" @click="undoProduct"><Undo2 class="w-4 h-4" /></button>
+              <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed" :disabled="!productCanRedo" title="ทำซ้ำ (Ctrl/⌘ + Shift + Z หรือ Ctrl + Y)" aria-label="ทำซ้ำ" @click="redoProduct"><Redo2 class="w-4 h-4" /></button>
+              <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" aria-label="ปิด" @click="closeProductModal"><X class="w-4 h-4" /></button>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2 rounded-xl bg-current/5 p-1" aria-label="ส่วนแก้ไขสินค้า">
@@ -2048,6 +2117,24 @@ onMounted(() => {
             <button type="button" :disabled="savingProduct || productMediaBusy || uploadingImage" class="px-5 py-2.5 rounded-xl bg-[#00C864] text-[#022C22] font-bold text-xs cursor-pointer shadow-md disabled:opacity-50" @click="saveProduct(true)">
               {{ savingProduct ? 'กำลังบันทึก...' : 'บันทึกและเผยแพร่' }}
             </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- =========================================================
+         MODAL: ยืนยันปิดหน้าต่างแก้ไขที่ยังไม่ได้บันทึก
+    ========================================================== -->
+    <Teleport to="body">
+      <div v-if="discardTarget" class="fixed inset-0 z-[130] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4" @click="discardTarget = null">
+        <div class="max-w-md w-full rounded-3xl bg-white dark:bg-[#03150e] border border-amber-500/30 shadow-2xl p-6 space-y-4" role="alertdialog" aria-modal="true" @click.stop>
+          <h3 class="text-base font-extrabold text-amber-600 dark:text-amber-400">ยังไม่ได้บันทึกการแก้ไข</h3>
+          <p class="text-sm opacity-80">
+            มีการแก้ไข{{ discardTarget === 'news' ? 'ข่าว' : 'สินค้า' }}ที่ยังไม่ได้บันทึก ต้องการปิดหน้าต่างและทิ้งการแก้ไขทั้งหมดใช่หรือไม่?
+          </p>
+          <div class="flex items-center justify-end gap-2 pt-2">
+            <button type="button" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="discardTarget = null">กลับไปแก้ไขต่อ</button>
+            <button type="button" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold cursor-pointer" @click="closeEditor(discardTarget)">ปิดโดยไม่บันทึก</button>
           </div>
         </div>
       </div>
