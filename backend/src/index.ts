@@ -48,7 +48,8 @@ export default {
           'api::capability.capability.find',
           'api::capability.capability.findOne',
           'api::case.case.find',
-          'api::case.case.findOne'
+          'api::case.case.findOne',
+          'api::contact-page.contact-page.find'
         ]
 
         for (const action of actionsToEnable) {
@@ -74,6 +75,19 @@ export default {
       }
     } catch (err) {
       console.warn('[IGENCO STRAPI] Permission bootstrap skipped:', err)
+    }
+
+    // 1.1 Contact page single type: create an empty entry once so GET /api/contact-page returns 200.
+    //     Empty fields fall back to the original page text on the website (frontend/shared/contactPage.ts),
+    //     so the content is not duplicated here; admins fill it in from the website admin ("หน้าติดต่อเรา").
+    try {
+      const contactPage = await strapi.documents('api::contact-page.contact-page').findFirst()
+      if (!contactPage) {
+        await strapi.documents('api::contact-page.contact-page').create({ data: {} })
+        console.log('[IGENCO STRAPI] Created empty contact page entry.')
+      }
+    } catch (err) {
+      console.warn('[IGENCO STRAPI] Contact page bootstrap skipped:', err)
     }
 
     // 2. Seed initial News Articles if empty

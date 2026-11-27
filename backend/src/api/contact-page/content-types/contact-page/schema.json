@@ -1,0 +1,96 @@
+{
+  "kind": "singleType",
+  "collectionName": "contact_pages",
+  "info": {
+    "singularName": "contact-page",
+    "pluralName": "contact-pages",
+    "displayName": "Contact Page",
+    "description": "เนื้อหาหน้าติดต่อเรา (แก้ไขจากหน้าแอดมินของเว็บไซต์)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "badge": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "headingMain": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "headingHighlight": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "intro": {
+      "type": "text"
+    },
+    "channelsTitle": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "phonesLabel": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "phones": {
+      "type": "json"
+    },
+    "emailsLabel": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "emails": {
+      "type": "json"
+    },
+    "officeHoursTitle": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "officeHours": {
+      "type": "text"
+    },
+    "locationTitle": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "locationSubtitle": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "address": {
+      "type": "text"
+    },
+    "mapUrl": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "directionsUrl": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "trustBadges": {
+      "type": "json"
+    },
+    "formTitle": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "formSubtitle": {
+      "type": "text"
+    },
+    "topicOptions": {
+      "type": "json"
+    },
+    "seoTitle": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "seoDescription": {
+      "type": "text",
+      "maxLength": 320
+    }
+  }
+}

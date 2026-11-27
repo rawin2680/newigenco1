@@ -8,6 +8,7 @@ import type {
   StrapiPortfolioItem,
   StrapiProductItem
 } from '~/types/strapi'
+import { mergeContactPage, type ContactPageContent } from '~/shared/contactPage'
 
 export const useStrapiContent = () => {
   const config = useRuntimeConfig()
@@ -303,7 +304,18 @@ export const useStrapiContent = () => {
     }
   }
 
+  // เนื้อหาหน้าติดต่อเรา (single type) คืนข้อมูลที่รวมกับค่าเริ่มต้นแล้วเสมอ (Strapi ออฟไลน์/ยังไม่มีข้อมูล = ใช้ข้อความเดิม)
+  const getContactPage = async (): Promise<ContactPageContent> => {
+    try {
+      const res = await $fetch<{ data: unknown }>(`${strapiUrl}/api/contact-page`, { timeout: 2500 })
+      return mergeContactPage(res?.data)
+    } catch {
+      return mergeContactPage(null)
+    }
+  }
+
   return {
+    getContactPage,
     mockSectorBlueprints,
     getCapabilities,
     getCases,

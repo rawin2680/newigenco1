@@ -107,7 +107,7 @@ const userRoleLabel = computed(() => {
 // =========================================================================
 // 2. COLLECTIONS DATA & FETCHING
 // =========================================================================
-type AdminTab = 'dashboard' | 'inquiries' | 'news' | 'products'
+type AdminTab = 'dashboard' | 'inquiries' | 'news' | 'products' | 'contact'
 const activeTab = ref<AdminTab>('dashboard')
 const isLoadingData = ref(false)
 
@@ -910,13 +910,25 @@ const {
 watch(newsModalOpen, open => { if (!open) stopNewsHistory() })
 watch(productModalOpen, open => { if (!open) stopProductHistory() })
 
-const discardTarget = ref<'news' | 'product' | null>(null)
+const discardTarget = ref<'news' | 'product' | 'contact' | null>(null)
+const contactEditor = ref<{ isDirty: () => boolean } | null>(null)
+const pendingTab = ref<AdminTab | null>(null)
+function goTab(tab: AdminTab) {
+  if (activeTab.value === 'contact' && tab !== 'contact' && contactEditor.value?.isDirty()) {
+    pendingTab.value = tab
+    discardTarget.value = 'contact'
+    return
+  }
+  activeTab.value = tab
+}
 const editorBusy = (editor: 'news' | 'product') => editor === 'news'
   ? newsMediaBusy.value || uploadingImage.value || savingNews.value
   : productMediaBusy.value || uploadingImage.value || savingProduct.value
-function closeEditor(editor: 'news' | 'product') {
+function closeEditor(editor: 'news' | 'product' | 'contact') {
   if (editor === 'news') newsModalOpen.value = false
-  else productModalOpen.value = false
+  else if (editor === 'product') productModalOpen.value = false
+  else if (pendingTab.value) activeTab.value = pendingTab.value
+  pendingTab.value = null
   discardTarget.value = null
 }
 function requestCloseEditor(editor: 'news' | 'product') {
@@ -1091,7 +1103,7 @@ onMounted(() => {
                 'w-full px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-3 transition-all cursor-pointer',
                 activeTab === 'dashboard' ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
               ]"
-              @click="activeTab = 'dashboard'"
+              @click="goTab('dashboard')"
             >
               <LayoutDashboard class="w-4 h-4" />
               <span>ภาพรวมระบบ (Dashboard)</span>
@@ -1103,7 +1115,7 @@ onMounted(() => {
                 'w-full px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between transition-all cursor-pointer',
                 activeTab === 'inquiries' ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
               ]"
-              @click="activeTab = 'inquiries'"
+              @click="goTab('inquiries')"
             >
               <span class="flex items-center gap-3">
                 <Mail class="w-4 h-4" />
@@ -1120,7 +1132,7 @@ onMounted(() => {
                 'w-full px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between transition-all cursor-pointer',
                 activeTab === 'news' ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
               ]"
-              @click="activeTab = 'news'"
+              @click="goTab('news')"
             >
               <span class="flex items-center gap-3">
                 <Newspaper class="w-4 h-4" />
@@ -1135,13 +1147,27 @@ onMounted(() => {
                 'w-full px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between transition-all cursor-pointer',
                 activeTab === 'products' ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
               ]"
-              @click="activeTab = 'products'"
+              @click="goTab('products')"
             >
               <span class="flex items-center gap-3">
                 <Box class="w-4 h-4" />
                 <span>จัดการสินค้าและบริการ</span>
               </span>
               <span class="text-[11px] font-mono opacity-60">{{ productsList.length }}</span>
+            </button>
+
+            <button
+              type="button"
+              :class="[
+                'w-full px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between transition-all cursor-pointer',
+                activeTab === 'contact' ? 'bg-[#00C864] text-[#022C22] dark:bg-[#00FF88] dark:text-[#020806] shadow-md' : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-80 hover:opacity-100'
+              ]"
+              @click="goTab('contact')"
+            >
+              <span class="flex items-center gap-3">
+                <Phone class="w-4 h-4" />
+                <span>หน้าติดต่อเรา</span>
+              </span>
             </button>
           </nav>
         </div>
@@ -1193,6 +1219,7 @@ onMounted(() => {
                 จัดการข่าวสารและกิจกรรม
               </span>
               <span v-else-if="activeTab === 'products'">จัดการสินค้าและบริการ</span>
+              <span v-else-if="activeTab === 'contact'">แก้ไขหน้าติดต่อเรา</span>
             </h1>
           </div>
 
@@ -1235,7 +1262,7 @@ onMounted(() => {
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div
               class="p-6 rounded-3xl spatial-glass border border-[#00C864]/25 shadow-lg space-y-2 cursor-pointer hover:-translate-y-1 transition-all"
-              @click="activeTab = 'inquiries'"
+              @click="goTab('inquiries')"
             >
               <div class="flex items-center justify-between text-xs font-mono opacity-70">
                 <span>ข้อความติดต่อลูกค้า</span>
@@ -1249,7 +1276,7 @@ onMounted(() => {
 
             <div
               class="p-6 rounded-3xl spatial-glass border border-[#00C864]/25 shadow-lg space-y-2 cursor-pointer hover:-translate-y-1 transition-all"
-              @click="activeTab = 'news'"
+              @click="goTab('news')"
             >
               <div class="flex items-center justify-between text-xs font-mono opacity-70">
                 <span>ข่าวสารและกิจกรรม</span>
@@ -1261,7 +1288,7 @@ onMounted(() => {
 
             <div
               class="p-6 rounded-3xl spatial-glass border border-[#00C864]/25 shadow-lg space-y-2 cursor-pointer hover:-translate-y-1 transition-all"
-              @click="activeTab = 'products'"
+              @click="goTab('products')"
             >
               <div class="flex items-center justify-between text-xs font-mono opacity-70">
                 <span>สินค้าและบริการ</span>
@@ -1280,7 +1307,7 @@ onMounted(() => {
                   <Mail class="w-4 h-4 text-[#00C864]" />
                   <span>ข้อความติดต่อสอบถามล่าสุด</span>
                 </h2>
-                <button type="button" class="text-xs font-bold text-[#00A854] dark:text-[#00FF88] hover:underline cursor-pointer" @click="activeTab = 'inquiries'">
+                <button type="button" class="text-xs font-bold text-[#00A854] dark:text-[#00FF88] hover:underline cursor-pointer" @click="goTab('inquiries')">
                   ดูทั้งหมด →
                 </button>
               </div>
@@ -1614,6 +1641,8 @@ onMounted(() => {
         <!-- =====================================================
              TAB 4: PRODUCTS MANAGEMENT (Compact List Layout)
         ====================================================== -->
+        <ContactPageEditor v-if="activeTab === 'contact'" ref="contactEditor" />
+
         <div v-if="activeTab === 'products'" class="space-y-5">
           <!-- Category Filter Pills & Instant Search Bar -->
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
@@ -2130,11 +2159,11 @@ onMounted(() => {
         <div class="max-w-md w-full rounded-3xl bg-white dark:bg-[#03150e] border border-amber-500/30 shadow-2xl p-6 space-y-4" role="alertdialog" aria-modal="true" @click.stop>
           <h3 class="text-base font-extrabold text-amber-600 dark:text-amber-400">ยังไม่ได้บันทึกการแก้ไข</h3>
           <p class="text-sm opacity-80">
-            มีการแก้ไข{{ discardTarget === 'news' ? 'ข่าว' : 'สินค้า' }}ที่ยังไม่ได้บันทึก ต้องการปิดหน้าต่างและทิ้งการแก้ไขทั้งหมดใช่หรือไม่?
+            มีการแก้ไข{{ discardTarget === 'news' ? 'ข่าว' : discardTarget === 'product' ? 'สินค้า' : 'หน้าติดต่อเรา' }}ที่ยังไม่ได้บันทึก ต้องการ{{ discardTarget === 'contact' ? 'ออกจากหน้านี้' : 'ปิดหน้าต่าง' }}และทิ้งการแก้ไขทั้งหมดใช่หรือไม่?
           </p>
           <div class="flex items-center justify-end gap-2 pt-2">
-            <button type="button" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="discardTarget = null">กลับไปแก้ไขต่อ</button>
-            <button type="button" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold cursor-pointer" @click="closeEditor(discardTarget)">ปิดโดยไม่บันทึก</button>
+            <button type="button" class="px-4 py-2 rounded-xl bg-black/5 dark:bg-white/10 text-xs font-bold cursor-pointer" @click="discardTarget = null; pendingTab = null">กลับไปแก้ไขต่อ</button>
+            <button type="button" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold cursor-pointer" @click="closeEditor(discardTarget)">{{ discardTarget === 'contact' ? 'ออกโดยไม่บันทึก' : 'ปิดโดยไม่บันทึก' }}</button>
           </div>
         </div>
       </div>

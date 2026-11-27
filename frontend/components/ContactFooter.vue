@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import {
   Send,
   Phone,
@@ -18,8 +18,14 @@ import {
 } from 'lucide-vue-next'
 import { useStrapiContent } from '~/composables/useStrapiContent'
 import { useTheme } from '~/composables/useTheme'
+import { useLiveRefresh } from '~/composables/useLiveRefresh'
+import { mergeContactPage, telDigits } from '~/shared/contactPage'
 
-const { submitInquiry } = useStrapiContent()
+const { submitInquiry, getContactPage } = useStrapiContent()
+// ที่อยู่และเบอร์โทร ใช้ข้อมูลเดียวกับหน้าติดต่อเรา (แก้ได้จากแอดมิน แท็บ "หน้าติดต่อเรา")
+const { data: fetchedContact, refresh: refreshContact } = await useAsyncData('contact-page-content', getContactPage)
+const contact = computed(() => fetchedContact.value || mergeContactPage(null))
+useLiveRefresh(async () => { await refreshContact() })
 const { showToast } = useTheme()
 
 const solutionOptions = [
@@ -380,7 +386,7 @@ const scrollToTop = () => {
             <div class="flex items-start gap-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
               <MapPin class="w-4 h-4 text-[#00FF88] shrink-0 mt-1" />
               <span>
-                89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร 10210
+                {{ contact.address }}
               </span>
             </div>
 
@@ -401,26 +407,15 @@ const scrollToTop = () => {
               <div class="text-xs font-semibold text-slate-400">เบอร์โทรศัพท์ติดต่อ (คลิกเพื่อโทรหรือคัดลอก) :</div>
               <div class="flex flex-wrap items-center gap-2">
                 <a
-                  href="tel:025233559"
-                  title="โทร 0-2523-3559 (ชั้น 2)"
-                  class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all flex items-center gap-1.5"
-                >
-                  <Phone class="w-3 h-3 text-[#00FF88]" />
-                  <span>0-2523-3559 (ชั้น 2)</span>
-                </a>
-                <a
-                  href="tel:025233560"
-                  title="โทร 0-2523-3560 (ชั้น 3)"
+                  v-for="(phone, i) in contact.phones"
+                  :key="phone.number + phone.label"
+                  :href="'tel:' + telDigits(phone.number)"
+                  :title="'โทร ' + phone.number + (phone.label ? ' (' + phone.label + ')' : '')"
                   class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all"
+                  :class="i === 0 && 'flex items-center gap-1.5'"
                 >
-                  0-2523-3560 (ชั้น 3)
-                </a>
-                <a
-                  href="tel:0635254850"
-                  title="โทร 063-5254850"
-                  class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] text-xs font-mono font-semibold transition-all"
-                >
-                  063-5254850
+                  <Phone v-if="i === 0" class="w-3 h-3 text-[#00FF88]" />
+                  <span>{{ phone.number }}{{ phone.label ? ' (' + phone.label + ')' : '' }}</span>
                 </a>
 
                 <!-- One-Click Copy Phone Button -->
@@ -428,7 +423,7 @@ const scrollToTop = () => {
                   type="button"
                   title="คัดลอกเบอร์โทรติดต่อทั้งหมด"
                   class="p-1.5 rounded-xl bg-white/10 hover:bg-[#00FF88] hover:text-[#020806] transition-all text-xs cursor-pointer"
-                  @click="copyToClipboard('0-2523-3559, 0-2523-3560, 063-5254850', 'phone')"
+                  @click="copyToClipboard(contact.phones.map(phone => phone.number).join(', '), 'phone')"
                 >
                   <Check v-if="copiedPhone" class="w-3.5 h-3.5 text-[#00FF88]" />
                   <Copy v-else class="w-3.5 h-3.5" />

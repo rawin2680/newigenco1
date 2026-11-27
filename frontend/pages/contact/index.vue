@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
 import {
@@ -21,34 +21,23 @@ import {
 } from 'lucide-vue-next'
 import { useStrapiContent } from '~/composables/useStrapiContent'
 import { useTheme } from '~/composables/useTheme'
+import { useLiveRefresh } from '~/composables/useLiveRefresh'
+import { mergeContactPage, telDigits } from '~/shared/contactPage'
+import { inlineNewsText } from '~/shared/newsBlocks'
 
-useHead({
-  title: 'ติดต่อสอบถามหรือ ขอคำปรึกษา - บริษัท ไอเจนโก้ จำกัด (IGENCO)',
-  meta: [
-    {
-      name: 'description',
-      content: 'ติดต่อสอบถามข้อมูลระบบซอฟต์แวร์ หรือขอรับคำปรึกษาด้านการพัฒนาระบบสารสนเทศองค์กรจากทีมผู้เชี่ยวชาญ บริษัท ไอเจนโก้ จำกัด มาตรฐานสากล ISO/IEC 29110 โทร 0-2523-3559'
-    }
-  ]
-})
-
-const { submitInquiry } = useStrapiContent()
+const { submitInquiry, getContactPage } = useStrapiContent()
 const { showToast } = useTheme()
 
-const solutionOptions = [
-  'ปรึกษาเรื่องทั่วไป / สนใจนำระบบไปใช้ในองค์กร',
-  'Regist.ai (ระบบบริหารการลงทะเบียนอัจฉริยะ)',
-  'HR.ai (ระบบบริหารทรัพยากรมนุษย์อัจฉริยะ)',
-  'iGenQ (ระบบบริหารคิวอัจฉริยะแบบ New Normal)',
-  'Software OnDemand (บริการพัฒนาซอฟต์แวร์ตามสั่ง)',
-  'OutSource Service (บริการจัดหาทีมงานไอที)',
-  'iMme Application (แอปพลิเคชันระบบสั่งซื้อสินค้า)',
-  'i-RealEstate (ระบบบริหารอสังหาริมทรัพย์)',
-  'iPOS (ระบบบริหารจุดขายหน้าร้าน)',
-  'iSmartFlow (ระบบงานสารบรรณอิเล็กทรอนิกส์)',
-  'i-FinSoft (ระบบการเงินและบัญชี)',
-  'อื่นๆ / ขอใบเสนอราคา'
-]
+// เนื้อหาหน้า (แก้ได้จากแอดมิน แท็บ "หน้าติดต่อเรา") ถ้า Strapi ยังไม่มีข้อมูลจะใช้ข้อความเดิม
+const { data: fetchedContent, refresh: refreshContent } = await useAsyncData('contact-page-content', getContactPage)
+const content = computed(() => fetchedContent.value || mergeContactPage(null))
+useLiveRefresh(async () => { await refreshContent() })
+const badgeIcons = [ShieldCheck, Award, Sparkles]
+
+useSeoMeta({
+  title: () => content.value.seoTitle,
+  description: () => content.value.seoDescription
+})
 
 const form = ref({
   name: '',
@@ -86,7 +75,7 @@ const handleSubmit = async () => {
 
 // One-Click Copy
 const copiedPhone = ref<string | null>(null)
-const copiedEmail = ref(false)
+const copiedEmail = ref<string | null>(null)
 
 const copyToClipboard = (text: string, type: 'phone' | 'email') => {
   if (import.meta.client) {
@@ -96,9 +85,9 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
       showToast(`คัดลอกเบอร์โทร ${text} เรียบร้อยแล้ว`)
       setTimeout(() => { copiedPhone.value = null }, 2500)
     } else {
-      copiedEmail.value = true
+      copiedEmail.value = text
       showToast(`คัดลอกอีเมล ${text} เรียบร้อยแล้ว`)
-      setTimeout(() => { copiedEmail.value = false }, 2500)
+      setTimeout(() => { copiedEmail.value = null }, 2500)
     }
   }
 }
@@ -119,20 +108,20 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
         <span>/</span>
         <span class="opacity-60">ติดต่อเรา</span>
         <span>/</span>
-        <span class="text-[#00C864] dark:text-[#00FF88] font-bold">ติดต่อสอบถามหรือ ขอคำปรึกษา</span>
+        <span class="text-[#00C864] dark:text-[#00FF88] font-bold">{{ content.headingMain }} {{ content.headingHighlight }}</span>
       </nav>
 
       <!-- Page Header Banner -->
       <div class="mb-12">
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider bg-[#00C864]/10 text-[#00A854] dark:text-[#00FF88] border border-[#00C864]/20 mb-4 font-bold">
           <Headphones class="w-3.5 h-3.5" />
-          <span>CONSULTATION & INQUIRY // ติดต่อสอบถาม</span>
+          <span>{{ content.badge }}</span>
         </div>
         <h1 class="font-display font-extrabold text-3xl sm:text-5xl tracking-tight leading-tight uppercase">
-          ติดต่อสอบถามหรือ <span class="text-[#00C864] dark:text-[#00FF88]">ขอคำปรึกษา</span>
+          {{ content.headingMain }} <span class="text-[#00C864] dark:text-[#00FF88]">{{ content.headingHighlight }}</span>
         </h1>
         <p class="text-sm sm:text-base opacity-75 mt-3 max-w-3xl leading-relaxed">
-          ยินดีให้คำปรึกษาด้านการวางระบบสารสนเทศระดับองค์กร การพัฒนาซอฟต์แวร์ตามสั่ง และการนำเทคโนโลยีดิจิทัลมาเพิ่มประสิทธิภาพการทำงาน สามารถกรอกแบบฟอร์มด้านล่าง หรือติดต่อโดยตรงผ่านช่องทางต่าง ๆ ได้ทันที
+          {{ content.intro }}
         </p>
       </div>
 
@@ -148,69 +137,29 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
           <div class="p-6 sm:p-8 rounded-3xl spatial-glass border border-current/10 shadow-xl space-y-6">
             <h2 class="text-base font-bold uppercase tracking-wider flex items-center gap-2 text-[#00C864] dark:text-[#00FF88]">
               <Phone class="w-4 h-4" />
-              <span>ช่องทางการติดต่อโดยตรง</span>
+              <span>{{ content.channelsTitle }}</span>
             </h2>
 
             <!-- Phone Numbers -->
             <div class="space-y-3">
-              <span class="text-xs font-semibold uppercase opacity-70 block">เบอร์โทรศัพท์สำนักงาน</span>
+              <span class="text-xs font-semibold uppercase opacity-70 block">{{ content.phonesLabel }}</span>
               
               <div class="space-y-2">
-                <div class="flex items-center justify-between p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-current/10">
+                <div v-for="phone in content.phones" :key="phone.number + phone.label" class="flex items-center justify-between p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-current/10">
                   <div class="flex items-center gap-2.5">
                     <Phone class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-                    <span class="text-sm font-mono font-bold">0-2523-3559</span>
-                    <span class="text-xs opacity-60">(ชั้น 2)</span>
+                    <span class="text-sm font-mono font-bold">{{ phone.number }}</span>
+                    <span v-if="phone.label" class="text-xs opacity-60">({{ phone.label }})</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <a href="tel:025233559" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#00C864]/15 hover:bg-[#00C864] hover:text-white text-[#00C864] dark:text-[#00FF88] transition-all">โทร</a>
+                    <a :href="'tel:' + telDigits(phone.number)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#00C864]/15 hover:bg-[#00C864] hover:text-white text-[#00C864] dark:text-[#00FF88] transition-all">โทร</a>
                     <button
                       type="button"
-                      aria-label="คัดลอกเบอร์โทร 0-2523-3559"
+                      :aria-label="'คัดลอกเบอร์โทร ' + phone.number"
                       class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 opacity-70 hover:opacity-100 transition-all"
-                      @click="copyToClipboard('025233559', 'phone')"
+                      @click="copyToClipboard(telDigits(phone.number), 'phone')"
                     >
-                      <Check v-if="copiedPhone === '025233559'" class="w-3.5 h-3.5 text-[#00C864]" />
-                      <Copy v-else class="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-current/10">
-                  <div class="flex items-center gap-2.5">
-                    <Phone class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-                    <span class="text-sm font-mono font-bold">0-2523-3560</span>
-                    <span class="text-xs opacity-60">(ชั้น 3)</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <a href="tel:025233560" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#00C864]/15 hover:bg-[#00C864] hover:text-white text-[#00C864] dark:text-[#00FF88] transition-all">โทร</a>
-                    <button
-                      type="button"
-                      aria-label="คัดลอกเบอร์โทร 0-2523-3560"
-                      class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 opacity-70 hover:opacity-100 transition-all"
-                      @click="copyToClipboard('025233560', 'phone')"
-                    >
-                      <Check v-if="copiedPhone === '025233560'" class="w-3.5 h-3.5 text-[#00C864]" />
-                      <Copy v-else class="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-current/10">
-                  <div class="flex items-center gap-2.5">
-                    <Phone class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-                    <span class="text-sm font-mono font-bold">06-3525-4850</span>
-                    <span class="text-xs opacity-60">(สายด่วน)</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <a href="tel:0635254850" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#00C864]/15 hover:bg-[#00C864] hover:text-white text-[#00C864] dark:text-[#00FF88] transition-all">โทร</a>
-                    <button
-                      type="button"
-                      aria-label="คัดลอกเบอร์โทร 06-3525-4850"
-                      class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 opacity-70 hover:opacity-100 transition-all"
-                      @click="copyToClipboard('0635254850', 'phone')"
-                    >
-                      <Check v-if="copiedPhone === '0635254850'" class="w-3.5 h-3.5 text-[#00C864]" />
+                      <Check v-if="copiedPhone === telDigits(phone.number)" class="w-3.5 h-3.5 text-[#00C864]" />
                       <Copy v-else class="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -220,19 +169,20 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
 
             <!-- Email -->
             <div class="space-y-2 pt-2 border-t border-current/10">
-              <span class="text-xs font-semibold uppercase opacity-70 block">อีเมลสำหรับติดต่อ</span>
-              <div class="flex items-center justify-between p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-current/10">
+              <span class="text-xs font-semibold uppercase opacity-70 block">{{ content.emailsLabel }}</span>
+              <div v-for="email in content.emails" :key="email.address" class="flex items-center justify-between p-3 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-current/10">
                 <div class="flex items-center gap-2.5">
                   <Mail class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-                  <span class="text-sm font-mono font-medium">support@igenco.co.th</span>
+                  <span class="text-sm font-mono font-medium">{{ email.address }}</span>
+                  <span v-if="email.label" class="text-xs opacity-60">({{ email.label }})</span>
                 </div>
                 <button
                   type="button"
-                  aria-label="คัดลอกอีเมล support@igenco.co.th"
+                  :aria-label="'คัดลอกอีเมล ' + email.address"
                   class="p-1.5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 opacity-70 hover:opacity-100 transition-all"
-                  @click="copyToClipboard('support@igenco.co.th', 'email')"
+                  @click="copyToClipboard(email.address, 'email')"
                 >
-                  <Check v-if="copiedEmail" class="w-3.5 h-3.5 text-[#00C864]" />
+                  <Check v-if="copiedEmail === email.address" class="w-3.5 h-3.5 text-[#00C864]" />
                   <Copy v-else class="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -242,8 +192,8 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
             <div class="p-3.5 rounded-xl bg-[#00C864]/5 dark:bg-[#00FF88]/5 border border-[#00C864]/20 flex items-start gap-3">
               <Clock class="w-4 h-4 text-[#00C864] dark:text-[#00FF88] shrink-0 mt-0.5" />
               <div class="text-xs leading-relaxed">
-                <span class="font-bold block">เวลาทำการสำหรับติดต่อ:</span>
-                <span class="opacity-80">วันจันทร์ - วันศุกร์ เวลา 08:30 - 17:30 น. (หยุดวันเสาร์-อาทิตย์ และวันหยุดนักขัตฤกษ์)</span>
+                <span class="font-bold block">{{ content.officeHoursTitle }}</span>
+                <span class="opacity-80">{{ content.officeHours }}</span>
               </div>
             </div>
           </div>
@@ -259,26 +209,18 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
               </div>
               <div>
                 <span class="text-xs font-mono uppercase text-[#00C864] dark:text-[#00FF88] font-bold block">OFFICE LOCATION</span>
-                <h3 class="text-base font-bold mt-0.5 group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] transition-colors">ตำแหน่งที่ตั้งและแผนที่สำนักงาน</h3>
-                <p class="text-xs opacity-70 mt-0.5">อาคารจูเคี่ยวเล้ง ชั้น 3 ใกล้สนามบินดอนเมือง</p>
+                <h3 class="text-base font-bold mt-0.5 group-hover:text-[#00C864] dark:group-hover:text-[#00FF88] transition-colors">{{ content.locationTitle }}</h3>
+                <p class="text-xs opacity-70 mt-0.5">{{ content.locationSubtitle }}</p>
               </div>
             </div>
             <ArrowRight class="w-5 h-5 text-[#00C864] dark:text-[#00FF88] group-hover:translate-x-1.5 transition-transform" />
           </NuxtLink>
 
           <!-- Trust Badges -->
-          <div class="p-5 rounded-2xl spatial-glass border border-current/10 space-y-3 text-xs">
-            <div class="flex items-center gap-3">
-              <ShieldCheck class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-              <span>มาตรฐานวิศวกรรมซอฟต์แวร์สากล <strong>ISO/IEC 29110:2011</strong></span>
-            </div>
-            <div class="flex items-center gap-3">
-              <Award class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-              <span>ที่ปรึกษาขึ้นทะเบียนกระทรวงการคลัง (ประเภทนิติบุคคล 4232 ระดับ 2)</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <Sparkles class="w-4 h-4 text-[#00C864] dark:text-[#00FF88]" />
-              <span>ได้รับการส่งเสริมการลงทุนจากสำนักงาน <strong>BOI</strong></span>
+          <div v-if="content.trustBadges.length" class="p-5 rounded-2xl spatial-glass border border-current/10 space-y-3 text-xs">
+            <div v-for="(badge, i) in content.trustBadges" :key="i" class="flex items-center gap-3">
+              <component :is="badgeIcons[i % badgeIcons.length]" class="w-4 h-4 text-[#00C864] dark:text-[#00FF88] shrink-0" />
+              <span><template v-for="(part, p) in inlineNewsText(badge)" :key="p"><strong v-if="part.tag === 'strong'">{{ part.text }}</strong><template v-else>{{ part.text }}</template></template></span>
             </div>
           </div>
 
@@ -291,10 +233,10 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
           <div class="p-8 sm:p-12 rounded-3xl spatial-glass border border-current/10 shadow-2xl backdrop-blur-2xl">
             <div class="mb-6">
               <h2 class="text-2xl font-extrabold uppercase tracking-tight flex items-center gap-2">
-                <span>กรอกแบบฟอร์มขอรับคำปรึกษา</span>
+                <span>{{ content.formTitle }}</span>
               </h2>
               <p class="text-xs opacity-75 mt-1">
-                กรุณากรอกข้อมูลของท่านเพื่อให้ทีมผู้เชี่ยวชาญเตรียมข้อมูลและติดต่อกลับได้อย่างตรงจุด
+                {{ content.formSubtitle }}
               </p>
             </div>
 
@@ -347,7 +289,7 @@ const copyToClipboard = (text: string, type: 'phone' | 'email') => {
                       -- เลือกหัวข้อหรือโซลูชันที่ต้องการ --
                     </option>
                     <option
-                      v-for="opt in solutionOptions"
+                      v-for="opt in content.topicOptions"
                       :key="opt"
                       :value="opt"
                       class="text-[#0A1A12] dark:text-[#F8FAFC] bg-white dark:bg-[#0A1A12] py-1.5"

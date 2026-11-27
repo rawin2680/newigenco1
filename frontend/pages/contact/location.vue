@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
 import {
@@ -26,6 +26,9 @@ import {
   X
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
+import { useStrapiContent } from '~/composables/useStrapiContent'
+import { useLiveRefresh } from '~/composables/useLiveRefresh'
+import { mergeContactPage, telDigits } from '~/shared/contactPage'
 
 useHead({
   title: 'ตำแหน่งที่ตั้งและแผนที่สำนักงาน (Headquarters Location & Map) - บริษัท ไอเจนโก้ จำกัด (IGENCO)',
@@ -39,11 +42,16 @@ useHead({
 
 const { showToast } = useTheme()
 
-const companyAddress = '89/35 อาคารจูเคี่ยวเล้ง ชั้น 3 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กรุงเทพมหานคร 10210'
+// ที่อยู่ ลิงก์แผนที่ เบอร์โทร และอีเมล ใช้ข้อมูลเดียวกับหน้าติดต่อเรา (แก้ได้จากแอดมิน แท็บ "หน้าติดต่อเรา")
+const { getContactPage } = useStrapiContent()
+const { data: fetchedContact, refresh: refreshContact } = await useAsyncData('contact-page-content', getContactPage)
+const contact = computed(() => fetchedContact.value || mergeContactPage(null))
+useLiveRefresh(async () => { await refreshContact() })
+const companyAddress = computed(() => contact.value.address)
 // ลิงก์หมุดพิกัดบริษัท ไอเจนโก้ จำกัด บน Google Maps (จากที่ผู้ใช้ระบุ)
-const googleMapsPinUrl = 'https://maps.app.goo.gl/ogodVkNqs3Fvs3rx7'
+const googleMapsPinUrl = computed(() => contact.value.mapUrl)
 // ลิงก์นำทางอัตโนมัติจากตำแหน่งปัจจุบันของผู้ใช้มายังบริษัท ไอเจนโก้ จำกัด (Turn-by-Turn Navigation)
-const googleMapsDirectionsUrl = 'https://www.google.com/maps/dir/?api=1&destination=13.9352181,100.6120949'
+const googleMapsDirectionsUrl = computed(() => contact.value.directionsUrl)
 const mapImagePath = '/images/contact/igenco-office-map.jpg'
 
 const copiedAddress = ref(false)
@@ -188,29 +196,13 @@ const landmarkSteps = [
             <div class="space-y-2.5">
               <span class="text-xs font-semibold uppercase opacity-70 block">เบอร์โทรศัพท์สำหรับติดต่อสอบถาม</span>
               <div class="space-y-2 text-xs">
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-current/10">
+                <div v-for="phone in contact.phones" :key="phone.number + phone.label" class="flex items-center justify-between p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-current/10">
                   <div class="flex items-center gap-2">
                     <Phone class="w-3.5 h-3.5 text-[#00C864] dark:text-[#00FF88]" />
-                    <span class="font-mono font-bold">0-2523-3559</span>
-                    <span class="opacity-60">(ชั้น 2)</span>
+                    <span class="font-mono font-bold">{{ phone.number }}</span>
+                    <span v-if="phone.label" class="opacity-60">({{ phone.label }})</span>
                   </div>
-                  <a href="tel:025233559" class="px-2 py-0.5 rounded text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline">โทรออก</a>
-                </div>
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-current/10">
-                  <div class="flex items-center gap-2">
-                    <Phone class="w-3.5 h-3.5 text-[#00C864] dark:text-[#00FF88]" />
-                    <span class="font-mono font-bold">0-2523-3560</span>
-                    <span class="opacity-60">(ชั้น 3)</span>
-                  </div>
-                  <a href="tel:025233560" class="px-2 py-0.5 rounded text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline">โทรออก</a>
-                </div>
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-current/10">
-                  <div class="flex items-center gap-2">
-                    <Phone class="w-3.5 h-3.5 text-[#00C864] dark:text-[#00FF88]" />
-                    <span class="font-mono font-bold">063-5254850</span>
-                    <span class="opacity-60">(สายด่วน)</span>
-                  </div>
-                  <a href="tel:0635254850" class="px-2 py-0.5 rounded text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline">โทรออก</a>
+                  <a :href="'tel:' + telDigits(phone.number)" class="px-2 py-0.5 rounded text-xs font-bold text-[#00C864] dark:text-[#00FF88] hover:underline">โทรออก</a>
                 </div>
               </div>
             </div>
@@ -219,7 +211,7 @@ const landmarkSteps = [
             <div class="space-y-2 pt-2 border-t border-current/10 text-xs">
               <div class="flex items-center gap-2 opacity-80">
                 <Mail class="w-3.5 h-3.5 text-[#00C864] dark:text-[#00FF88]" />
-                <span>อีเมล : support@igenco.co.th</span>
+                <span>อีเมล : {{ contact.emails[0]?.address }}</span>
               </div>
               <div class="flex items-center gap-2 opacity-80 font-mono">
                 <FileText class="w-3.5 h-3.5 text-[#00C864] dark:text-[#00FF88]" />
