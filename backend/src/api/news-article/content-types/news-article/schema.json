@@ -46,6 +46,13 @@
     },
     "fallbackImageUrl": {
       "type": "string"
+    },
+    "sortOrder": {
+      "type": "integer",
+      "default": 0
+    },
+    "detail": {
+      "type": "json"
     }
   }
 }

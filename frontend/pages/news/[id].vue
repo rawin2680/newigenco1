@@ -34,7 +34,8 @@ import {
 } from 'lucide-vue-next'
 import AppHeader from '~/components/AppHeader.vue'
 import ContactFooter from '~/components/ContactFooter.vue'
-import { useNews, type NewsItem } from '~/composables/useNews'
+import { useNews, matchesStaticNews, mergeStrapiNews, type NewsItem } from '~/composables/useNews'
+import { useLiveRefresh, contentSignature } from '~/composables/useLiveRefresh'
 import { useStrapiContent } from '~/composables/useStrapiContent'
 import { useTheme } from '~/composables/useTheme'
 
@@ -42,29 +43,34 @@ const route = useRoute()
 const { getNewsById, newsList } = useNews()
 const { getNewsArticles } = useStrapiContent()
 const { showToast } = useTheme()
+const runtimeStrapiUrl = useRuntimeConfig().public.strapiUrl as string
 
 const strapiArticle = ref<NewsItem | null>(null)
 const articleId = computed(() => Number(route.params.id))
 
-const { data: fetchedStrapiArticle } = await useAsyncData(`news-strapi-${route.params.id}`, async () => {
-  if (getNewsById(articleId.value)) return null
+// ดึงข่าวล่าสุดจาก Strapi เสมอ: ถ้าเป็นข่าวที่มีในโค้ด จะใช้หัวข้อ/หมวด/วันที่/คำโปรย/รูปจาก Strapi ทับ
+// ถ้าเป็นข่าวที่สร้างจากหลังบ้านอย่างเดียว จะค้นจาก id ของ Strapi (ข่าวในโค้ดใช้เป็นค่าสำรองเมื่อ Strapi ออฟไลน์)
+const loadStrapiArticle = async (): Promise<NewsItem | null> => {
   const all = await getNewsArticles()
-  const found = all?.find(a => a.id === articleId.value)
-  if (!found) return null
-  return {
-    id: found.id,
-    title: found.title,
-    category: found.category,
-    date: found.date,
-    readTime: found.readTime,
-    excerpt: found.excerpt,
-    image: found.image,
-    aiSummary: [found.excerpt],
-    content: found.content ? found.content.split('\n').filter(Boolean) : [found.excerpt]
-  } as NewsItem
-})
+  if (!all) return null
+  const staticItem = getNewsById(articleId.value)
+  const found = staticItem
+    ? all.find(a => matchesStaticNews(staticItem, a))
+    : all.find(a => a.id === articleId.value)
+  return found ? mergeStrapiNews(found, staticItem, articleId.value, runtimeStrapiUrl) : null
+}
 
-const article = computed(() => getNewsById(articleId.value) || fetchedStrapiArticle.value || strapiArticle.value)
+const { data: fetchedStrapiArticle } = await useAsyncData(`news-strapi-${route.params.id}`, loadStrapiArticle)
+
+const article = computed(() => fetchedStrapiArticle.value || getNewsById(articleId.value) || strapiArticle.value)
+
+// อัปเดตอัตโนมัติ (กลับมาที่แท็บ / ทุก 15 วินาที / เมื่อหน้าแอดมินบันทึก) เฉพาะเมื่อข้อมูลเปลี่ยน
+useLiveRefresh(async () => {
+  const latest = await loadStrapiArticle()
+  if (latest && contentSignature(latest) !== contentSignature(fetchedStrapiArticle.value)) {
+    fetchedStrapiArticle.value = latest
+  }
+})
 
 // Navigation: Previous & Next Article
 const currentIndex = computed(() => newsList.findIndex(n => n.id === articleId.value))
@@ -381,10 +387,10 @@ useHead(() => ({
                   <div class="flex items-center gap-3.5">
                     <div
                       class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-1 bg-white dark:bg-white/95 shadow-md flex items-center justify-center shrink-0 border border-slate-200 cursor-pointer hover:scale-105 transition-transform"
-                      @click="openLightbox('/images/news/tuv-nord-iso29110-logo.png', 'TÜV NORD (Thailand) Ltd.', 'ตราสัญลักษณ์รับรองมาตรฐานสากล ISO/IEC 29110')"
+                      @click="openLightbox(article.certifier.logoImage || '/images/news/tuv-nord-iso29110-logo.png', article.certifier.organization || 'TÜV NORD (Thailand) Ltd.', 'ตราสัญลักษณ์รับรองมาตรฐานสากล ' + (article.certifier.standardLabel || 'ISO/IEC 29110'))"
                     >
                       <img
-                        :src="'/images/news/tuv-nord-iso29110-logo.png'"
+                        :src="article.certifier.logoImage || '/images/news/tuv-nord-iso29110-logo.png'"
                         alt="TÜV NORD ISO/IEC 29110 Emblem"
                         class="w-full h-full object-contain"
                       >
@@ -392,41 +398,41 @@ useHead(() => ({
                     <div>
                       <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#00C864]/15 dark:bg-[#00FF88]/15 border border-[#00C864]/30 text-[11px] font-mono font-bold text-[#00A854] dark:text-[#00FF88]">
                         <ShieldCheck class="w-3.5 h-3.5" />
-                        <span>TÜV NORD CERTIFIED</span>
+                        <span>{{ article.certifier.logoText || 'TÜV NORD CERTIFIED' }}</span>
                       </div>
                       <div class="text-xs font-mono font-bold text-slate-700 dark:text-slate-200 mt-1">
-                        ISO/IEC 29110:2011
+                        {{ article.certifier.standardLabel || 'ISO/IEC 29110:2011' }}
                       </div>
                     </div>
                   </div>
 
                   <h3 class="text-lg font-bold leading-snug">
-                    การรับรองคุณภาพมาตรฐานวิศวกรรมซอฟต์แวร์สากล
+                    {{ article.certifier.heading || 'การรับรองคุณภาพมาตรฐานวิศวกรรมซอฟต์แวร์สากล' }}
                   </h3>
 
                   <p class="text-xs sm:text-sm opacity-80 leading-relaxed">
-                    สถาบัน <strong class="text-[#022C22] dark:text-white">TÜV NORD (Thailand) Co., Ltd.</strong> ได้ประเมินและให้การรับรองบริษัท ไอเจนโก้ จำกัด ใน 2 กระบวนการหลัก:
+                    สถาบัน <strong class="text-[#022C22] dark:text-white">{{ article.certifier.organization || 'TÜV NORD (Thailand) Co., Ltd.' }}</strong> {{ article.certifier.description || 'ได้ประเมินและให้การรับรองบริษัท ไอเจนโก้ จำกัด ใน 2 กระบวนการหลัก:' }}
                   </p>
 
                   <ul class="space-y-1.5 text-xs font-mono opacity-90 text-[#022C22] dark:text-emerald-300">
-                    <li class="flex items-center gap-1.5">
+                    <li
+                      v-for="(proc, procIdx) in (article.certifier.processes?.length ? article.certifier.processes : ['Software Implementation Process (SI)', 'Project Management Process (PM)'])"
+                      :key="procIdx"
+                      class="flex items-center gap-1.5"
+                    >
                       <span class="w-1.5 h-1.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
-                      <span>Software Implementation Process (SI)</span>
-                    </li>
-                    <li class="flex items-center gap-1.5">
-                      <span class="w-1.5 h-1.5 rounded-full bg-[#00C864] dark:bg-[#00FF88]" />
-                      <span>Project Management Process (PM)</span>
+                      <span>{{ proc }}</span>
                     </li>
                   </ul>
                 </div>
 
                 <div class="pt-2 text-[11px] font-mono opacity-60 border-t border-current/10">
-                  วันรับรอง: 25 กรกฎาคม 2561 • ขอบข่ายระดับสากล
+                  วันรับรอง: {{ article.certifier.certificateDate || '25 กรกฎาคม 2561' }} • {{ article.certifier.scopeLabel || 'ขอบข่ายระดับสากล' }}
                 </div>
               </div>
 
               <!-- Right: Award Ceremony Photo with Lightbox Zoom (7 Cols) -->
-              <div class="md:col-span-7 relative group rounded-2xl overflow-hidden shadow-lg border border-black/10 dark:border-white/10 bg-black/15 cursor-pointer" @click="openLightbox(article.image, article.title, 'พิธีมอบใบรับรองมาตรฐาน ISO/IEC 29110 โดย TÜV NORD และ SIPA')">
+              <div class="md:col-span-7 relative group rounded-2xl overflow-hidden shadow-lg border border-black/10 dark:border-white/10 bg-black/15 cursor-pointer" @click="openLightbox(article.image, article.title, article.certifier.photoCaption || 'พิธีมอบใบรับรองมาตรฐาน ISO/IEC 29110 โดย TÜV NORD และ SIPA')">
                 <img
                   :src="article.image"
                   :alt="article.title"
@@ -434,7 +440,7 @@ useHead(() => ({
                 >
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4 justify-between">
                   <span class="text-xs text-white font-medium drop-shadow-md">
-                    พิธีมอบใบรับรองมาตรฐาน ISO 29110 โดย SIPA & สภาอุตสาหกรรมฯ
+                    {{ article.certifier.photoCaption || 'พิธีมอบใบรับรองมาตรฐาน ISO 29110 โดย SIPA & สภาอุตสาหกรรมฯ' }}
                   </span>
                   <span class="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-[11px] font-mono flex items-center gap-1 group-hover:bg-[#00C864] group-hover:text-[#022C22] transition-colors shadow">
                     <ZoomIn class="w-3.5 h-3.5" />
@@ -1477,16 +1483,16 @@ useHead(() => ({
               ?
             </div>
             <h4 class="text-sm font-bold text-white">
-              ต้องการยกระดับมาตรฐานซอฟต์แวร์องค์กร?
+              {{ article.sidebarCta?.title || 'ต้องการยกระดับมาตรฐานซอฟต์แวร์องค์กร?' }}
             </h4>
             <p class="text-xs text-slate-300 leading-relaxed">
-              IGENCO ให้คำปรึกษาและพัฒนาระบบตามมาตรฐาน ISO/IEC 29110 พร้อมทีมงานมืออาชีพ
+              {{ article.sidebarCta?.text || 'IGENCO ให้คำปรึกษาและพัฒนาระบบตามมาตรฐาน ISO/IEC 29110 พร้อมทีมงานมืออาชีพ' }}
             </p>
             <a
-              href="#contact"
+              :href="article.sidebarCta?.buttonLink || '#contact'"
               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#00FF88] text-[#020806] text-xs font-bold hover:scale-105 active:scale-95 transition-transform"
             >
-              <span>สอบถามเพิ่มเติม</span>
+              <span>{{ article.sidebarCta?.buttonLabel || 'สอบถามเพิ่มเติม' }}</span>
               <ArrowRight class="w-3.5 h-3.5" />
             </a>
           </div>

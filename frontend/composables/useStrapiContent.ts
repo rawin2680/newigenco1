@@ -182,7 +182,7 @@ export const useStrapiContent = () => {
   // Fetch News Articles from Strapi (with graceful fallback if backend is offline)
   const getNewsArticles = async (): Promise<StrapiNewsItem[] | null> => {
     try {
-      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/news-articles?populate=*&sort=createdAt:desc,id:desc`, {
+      const res = await $fetch<{ data: any[] }>(`${strapiUrl}/api/news-articles?populate=*&sort=sortOrder:asc,createdAt:desc,id:desc`, {
         timeout: 2500
       })
       if (res && Array.isArray(res.data) && res.data.length > 0) {
@@ -195,7 +195,8 @@ export const useStrapiContent = () => {
           readTime: item.readTime || '3 นาทีในการอ่าน',
           excerpt: item.excerpt || '',
           content: item.content || '',
-          image: resolveMediaUrl(item.coverImage, item.fallbackImageUrl)
+          image: resolveMediaUrl(item.coverImage, item.fallbackImageUrl),
+          detail: item.detail && typeof item.detail === 'object' ? item.detail : null
         }))
       }
     } catch {
@@ -256,7 +257,7 @@ export const useStrapiContent = () => {
         const res = await $fetch<{ data: unknown[]; meta: { pagination: { pageCount: number } } }>(
           `${strapiUrl}/api/products`,
           {
-            query: { populate: 'image', sort: 'id:asc', status: 'published', 'pagination[page]': page, 'pagination[pageSize]': 100 },
+            query: { populate: 'image', sort: 'sortOrder:asc,id:asc', status: 'published', 'pagination[page]': page, 'pagination[pageSize]': 100 },
             timeout: 2500
           }
         )

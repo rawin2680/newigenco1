@@ -78,6 +78,8 @@ export interface StrapiNewsItem {
   excerpt: string
   content?: string
   image: string
+  // เนื้อหาหน้ารายละเอียดข่าวทั้งหมด (แก้ได้จากหน้าแอดมิน) รูปแบบเดียวกับ NewsDetail ใน composables/useNews.ts
+  detail?: Record<string, any> | null
 }
 
 // 6. iGenQ Portfolio Case from Strapi

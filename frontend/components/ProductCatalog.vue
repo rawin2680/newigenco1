@@ -21,6 +21,7 @@ import {
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
 import { useStrapiContent } from '~/composables/useStrapiContent'
+import { useLiveRefresh, contentSignature } from '~/composables/useLiveRefresh'
 
 const { showToast } = useTheme()
 const { getProducts } = useStrapiContent()
@@ -40,9 +41,14 @@ const inquiryButtonThemes: Record<string, string> = {
   '/products/ipos': 'bg-pink-700 text-white'
 }
 
-onMounted(async () => {
+// โหลดสินค้าล่าสุดจาก Strapi และอัปเดตเฉพาะเมื่อข้อมูลเปลี่ยนจริง (Strapi ออฟไลน์ = ใช้สินค้าในโค้ด)
+let lastProductsSignature = ''
+const loadStrapiProducts = async () => {
   const strapiProducts = await getProducts()
   if (strapiProducts && strapiProducts.length > 0) {
+    const signature = contentSignature(strapiProducts)
+    if (signature === lastProductsSignature) return
+    lastProductsSignature = signature
     const mapped = strapiProducts.map((sp, idx) => ({
       id: sp.id || (2000 + idx),
       title: sp.name,
@@ -58,35 +64,31 @@ onMounted(async () => {
       icon: 'Box',
       link: sp.detailRoute || undefined
     }))
-    const featuredProducts = products.slice(0, itemsPerPage)
     const matchesProduct = (first: ProductItem, second: ProductItem) =>
       first.title.trim() === second.title.trim() || Boolean(first.link && first.link === second.link)
-    const catalogProducts = mapped
-      .filter(product => !featuredProducts.some(featured => matchesProduct(product, featured)))
-      .map(product => {
-        const local = products.find(candidate => matchesProduct(product, candidate))
-        const theme = local?.link && inquiryButtonThemes[local.link] ? local : product
-        return {
-          ...product,
-          link: product.link || local?.link,
-          accentColor: theme.accentColor,
-          glowColor: theme.glowColor
-        }
-      })
-    const remainingStatic = products.slice(itemsPerPage).filter(product => !catalogProducts.some(cmsProduct => matchesProduct(product, cmsProduct)))
-    const orderedProducts = featuredProducts.map(product => {
-      const cmsProduct = mapped.find(candidate => matchesProduct(product, candidate))
-      return cmsProduct ? {
-        ...cmsProduct,
-        link: product.link || cmsProduct.link,
-        image: product === finsoftProduct ? product.image : cmsProduct.image,
-        accentColor: product.accentColor,
-        glowColor: product.glowColor
-      } : product
+    // เรียงตามลำดับจาก Strapi (sortOrder ที่จัดในหน้าแอดมิน) ทั้งหมด
+    // แต่ยังใช้สีธีม/ลิงก์ของสินค้าที่กำหนดไว้ในโค้ด (ถ้าชื่อหรือลิงก์ตรงกัน) เพื่อคงหน้าตาการ์ดเดิม
+    const orderedProducts = mapped.map(product => {
+      const local = products.find(candidate => matchesProduct(product, candidate))
+      if (!local) return product
+      const theme = local.link && inquiryButtonThemes[local.link] ? local : product
+      return {
+        ...product,
+        link: local.link || product.link,
+        image: local === finsoftProduct ? local.image : product.image,
+        accentColor: theme.accentColor,
+        glowColor: theme.glowColor
+      }
     })
-    activeProductsList.value = [...orderedProducts, ...catalogProducts, ...remainingStatic]
+    // สินค้าในโค้ดที่ไม่มีใน Strapi ต่อท้ายตามลำดับเดิม
+    const remainingStatic = products.filter(product => !mapped.some(cmsProduct => matchesProduct(product, cmsProduct)))
+    activeProductsList.value = [...orderedProducts, ...remainingStatic]
   }
-})
+}
+
+onMounted(loadStrapiProducts)
+// อัปเดตอัตโนมัติ: กลับมาที่แท็บ / ทุก 15 วินาที / ทันทีเมื่อหน้าแอดมินบันทึก
+useLiveRefresh(loadStrapiProducts)
 
 export interface ProductItem {
   id: number

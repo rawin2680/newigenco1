@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, type Ref } from 'vue'
 import {
   LayoutDashboard,
   Mail,
@@ -25,9 +25,14 @@ import {
   Send,
   Image as ImageIcon,
   ArrowUpRight,
+  ArrowUp,
+  ArrowDown,
+  GripVertical,
   Lock
 } from 'lucide-vue-next'
 import { useTheme } from '~/composables/useTheme'
+import { notifyContentChanged } from '~/composables/useLiveRefresh'
+import { resolveNewsImage } from '~/composables/useNews'
 
 useHead({
   title: 'IGENCO Admin Portal - ระบบจัดการเว็บไซต์องค์กร',
@@ -103,9 +108,12 @@ const inquiries = ref<any[]>([])
 const newsList = ref<any[]>([])
 const productsList = ref<any[]>([])
 
-const fetchCollection = async (uid: string) => {
+// ข่าวและสินค้าเรียงตาม sortOrder (จัดลำดับได้จากปุ่มเลื่อนขึ้น/ลง) ส่วนรายการอื่นเรียงจากใหม่ไปเก่า
+const ORDERED_SORT = 'sortOrder:asc,id:desc'
+
+const fetchCollection = async (uid: string, sort = 'id:desc') => {
   const res: any = await $fetch(`/api/admin/collection/${encodeURIComponent(uid)}`, {
-    query: { page: 1, pageSize: 100, sort: 'id:desc' }
+    query: { page: 1, pageSize: 100, sort }
   })
   return res?.results || res?.data || []
 }
@@ -115,8 +123,8 @@ const fetchAllCollections = async () => {
   try {
     const [inq, news, prod] = await Promise.all([
       fetchCollection('api::inquiry.inquiry'),
-      fetchCollection('api::news-article.news-article'),
-      fetchCollection('api::product.product')
+      fetchCollection('api::news-article.news-article', ORDERED_SORT),
+      fetchCollection('api::product.product', ORDERED_SORT)
     ])
     inquiries.value = inq
     newsList.value = news
@@ -150,9 +158,14 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   closed: { label: 'ปิดการขาย', color: 'bg-slate-500/15 text-slate-600 dark:text-slate-400 border-slate-500/30' }
 }
 
+// สถานะการติดตามงานของข้อความติดต่อ (ฟิลด์ followUpStatus ใน Strapi; ชื่อ "status" ใช้ไม่ได้เพราะ Strapi v5 สงวนไว้
+// สำหรับสถานะฉบับร่าง/เผยแพร่) ค่าว่างหรือค่าที่ไม่รู้จักถือเป็น "รอติดต่อกลับ"
+const inquiryStatusOf = (item: any): string =>
+  item?.followUpStatus && statusLabels[item.followUpStatus] ? item.followUpStatus : 'pending'
+
 const filteredInquiries = computed(() => {
   return inquiries.value.filter((item) => {
-    const matchStatus = inquiryFilter.value === 'all' || (item.status || 'pending') === inquiryFilter.value
+    const matchStatus = inquiryFilter.value === 'all' || inquiryStatusOf(item) === inquiryFilter.value
     const q = inquirySearch.value.trim().toLowerCase()
     if (!q) return matchStatus
     return (
@@ -165,12 +178,12 @@ const filteredInquiries = computed(() => {
   })
 })
 
-const pendingCount = computed(() => inquiries.value.filter(i => (i.status || 'pending') === 'pending').length)
+const pendingCount = computed(() => inquiries.value.filter(i => inquiryStatusOf(i) === 'pending').length)
 
 const openInquiryModal = (item: any) => {
   selectedInquiry.value = {
     ...item,
-    status: item.status || 'pending',
+    followUpStatus: inquiryStatusOf(item),
     adminNote: item.adminNote || ''
   }
 }
@@ -183,15 +196,16 @@ const saveInquiryUpdate = async () => {
     await $fetch(`/api/admin/collection/${encodeURIComponent('api::inquiry.inquiry')}/${docId}`, {
       method: 'PUT',
       body: {
-        status: selectedInquiry.value.status,
+        followUpStatus: selectedInquiry.value.followUpStatus,
         adminNote: selectedInquiry.value.adminNote
       }
     })
     showToast('บันทึกสถานะและโน้ตติดตามงานเรียบร้อยแล้ว')
     selectedInquiry.value = null
     inquiries.value = await fetchCollection('api::inquiry.inquiry')
-  } catch {
-    showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
+  } catch (err: any) {
+    const reason = err?.data?.statusMessage || err?.data?.message || err?.statusMessage
+    showToast(reason ? `บันทึกไม่สำเร็จ: ${reason}` : 'เกิดข้อผิดพลาดในการบันทึกข้อมูล')
   } finally {
     savingInquiry.value = false
   }
@@ -207,6 +221,7 @@ const deleteEntry = async (uid: string, item: any, refreshFn: () => Promise<void
       method: 'DELETE'
     })
     showToast('ลบข้อมูลเรียบร้อยแล้ว')
+    notifyContentChanged(uid)
     await refreshFn()
   } catch {
     showToast('ไม่สามารถลบข้อมูลได้')
@@ -222,10 +237,124 @@ const togglePublish = async (uid: string, item: any, refreshFn: () => Promise<vo
       body: { action }
     })
     showToast(action === 'publish' ? 'เผยแพร่ขึ้นหน้าเว็บหลักเรียบร้อยแล้ว' : 'เปลี่ยนสถานะเป็นฉบับร่างแล้ว')
+    notifyContentChanged(uid)
     await refreshFn()
   } catch {
     showToast('ไม่สามารถเปลี่ยนสถานะเผยแพร่ได้')
   }
+}
+
+// =========================================================================
+// 3.1 REORDER (เลื่อนลำดับข่าว / สินค้า ขึ้น-ลง)
+// =========================================================================
+const reorderingUid = ref<string | null>(null)
+// ส่ง Ref ตัวจริงจาก template (template จะ unwrap ref ระดับบนสุดให้อัตโนมัติ)
+const reorderLists = { news: newsList, products: productsList }
+
+const isPublishedEntry = (item: any) =>
+  Boolean(item?.publishedAt) || item?.status === 'published' || item?.status === 'modified'
+
+const getTopSortOrder = (list: any[]) =>
+  list.length ? Math.min(...list.map(i => Number(i.sortOrder ?? 0))) - 1 : 0
+
+// บันทึกลำดับใหม่ (ใช้ร่วมกันทั้งปุ่มลูกศรและการลากวาง): เรียง sortOrder = 0..n-1 แล้วบันทึกเฉพาะรายการที่เปลี่ยน
+const applyOrder = async (uid: string, listRef: Ref<any[]>, newFullList: any[]) => {
+  const changed: any[] = []
+  const reindexed = newFullList.map((entry, index) => {
+    if (entry.sortOrder === index) return entry
+    const next = { ...entry, sortOrder: index }
+    changed.push(next)
+    return next
+  })
+  if (!changed.length) return
+
+  listRef.value = reindexed
+  reorderingUid.value = uid
+  try {
+    // ส่งทีละ 5 รายการ เพื่อไม่ให้ยิง Strapi พร้อมกันมากเกินไป
+    for (let i = 0; i < changed.length; i += 5) {
+      await Promise.all(
+        changed.slice(i, i + 5).map(entry =>
+          $fetch(`/api/admin/collection/${encodeURIComponent(uid)}/${entry.documentId || entry.id}`, {
+            method: 'PUT',
+            body: { sortOrder: entry.sortOrder, _publish: isPublishedEntry(entry) }
+          })
+        )
+      )
+    }
+    showToast('จัดลำดับเรียบร้อยแล้ว')
+    notifyContentChanged(uid)
+  } catch {
+    showToast('จัดลำดับไม่สำเร็จ กรุณาลองใหม่อีกครั้ง')
+    listRef.value = await fetchCollection(uid, ORDERED_SORT).catch(() => listRef.value)
+  } finally {
+    reorderingUid.value = null
+  }
+}
+
+const moveItem = async (uid: string, listRef: Ref<any[]>, visibleList: any[], item: any, direction: -1 | 1) => {
+  if (reorderingUid.value) return
+  const visibleIndex = visibleList.findIndex(i => i.id === item.id)
+  const neighbour = visibleList[visibleIndex + direction]
+  if (visibleIndex < 0 || !neighbour) return
+
+  const full = listRef.value.slice()
+  const a = full.findIndex(i => i.id === item.id)
+  const b = full.findIndex(i => i.id === neighbour.id)
+  if (a < 0 || b < 0) return
+  ;[full[a], full[b]] = [full[b], full[a]]
+  await applyOrder(uid, listRef, full)
+}
+
+// ---- ลากวาง (กดค้างที่ไอคอนจับ แล้วลากไปวางตำแหน่งใหม่) ----
+const dragArmedId = ref<number | null>(null) // เปิดให้ลากได้เฉพาะเมื่อกดที่ไอคอนจับ
+const draggedItem = ref<any>(null)
+const dragOverId = ref<number | null>(null)
+
+const armDrag = (item: any) => {
+  if (!reorderingUid.value) dragArmedId.value = item.id
+}
+
+const onDragStart = (event: DragEvent, item: any) => {
+  if (dragArmedId.value !== item.id || reorderingUid.value) {
+    event.preventDefault()
+    return
+  }
+  draggedItem.value = item
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', String(item.id))
+  }
+}
+
+const onDragOver = (event: DragEvent, item: any) => {
+  if (!draggedItem.value) return
+  event.preventDefault()
+  if (event.dataTransfer) event.dataTransfer.dropEffect = 'move'
+  dragOverId.value = item.id
+}
+
+const onDragEnd = () => {
+  draggedItem.value = null
+  dragOverId.value = null
+  dragArmedId.value = null
+}
+
+const onDrop = async (uid: string, listRef: Ref<any[]>, visibleList: any[], target: any) => {
+  const dragged = draggedItem.value
+  onDragEnd()
+  if (!dragged || dragged.id === target.id || reorderingUid.value) return
+
+  const fromVisible = visibleList.findIndex(i => i.id === dragged.id)
+  const toVisible = visibleList.findIndex(i => i.id === target.id)
+  if (fromVisible < 0 || toVisible < 0) return
+
+  // ย้ายในรายการทั้งหมด: ลากลง = วางหลังรายการเป้าหมาย, ลากขึ้น = วางก่อนรายการเป้าหมาย
+  const full = listRef.value.filter(i => i.id !== dragged.id)
+  const targetIndex = full.findIndex(i => i.id === target.id)
+  if (targetIndex < 0) return
+  full.splice(toVisible > fromVisible ? targetIndex + 1 : targetIndex, 0, dragged)
+  await applyOrder(uid, listRef, full)
 }
 
 // =========================================================================
@@ -302,6 +431,123 @@ watch([newsSearch, newsCategoryFilter, newsStatusFilter, newsPageSize], () => {
 
 const newsModalOpen = ref(false)
 const savingNews = ref(false)
+// ---- ฟอร์มเนื้อหาหน้ารายละเอียดข่าว (เก็บใน Strapi ฟิลด์ `detail`) เรียงตามลำดับบล็อกในหน้า /news/[id] ----
+const detailInputCls = 'w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm'
+
+const emptyNewsDetail = () => ({
+  subtitle: '',
+  certifierEnabled: false,
+  certifier: {
+    organization: '', standardLabel: '', logoText: '', logoImage: '', heading: '', description: '',
+    processes: [] as string[], certificateDate: '', scopeLabel: '', photoCaption: '', standard: '', scope: ''
+  },
+  gallery: [] as { url: string; caption: string }[],
+  aiSummary: [] as string[],
+  lead: '',
+  milestones: [] as { label: string; value: string; sub: string }[],
+  sectionTitles: { history: '', services: '', servicesSubtitle: '', philosophy: '', partnerships: '', partnershipsSubtitle: '' },
+  historyText: '',
+  services: [] as { code: string; title: string; thaiTitle: string; desc: string }[],
+  philosophyText: '',
+  partnerships: [] as { name: string; role: string; desc: string }[],
+  extraParagraphs: [] as string[],
+  flowcharts: [] as any[],
+  author: { name: '', role: '', avatar: '', bio: '' },
+  sidebarCta: { title: '', text: '', buttonLabel: '', buttonLink: '' }
+})
+
+const newsDetailForm = ref(emptyNewsDetail())
+const newsDetailOriginal = ref<Record<string, any>>({}) // เก็บฟิลด์อื่นใน detail ที่ฟอร์มไม่ได้แก้ (เช่น rating, likes)
+
+const str = (value: unknown) => (typeof value === 'string' ? value : value == null ? '' : String(value))
+const splitLines = (value: string) => value.split('\n').map(v => v.trim()).filter(Boolean)
+const splitComma = (value: string) => value.split(',').map(v => v.trim()).filter(Boolean)
+const moveInList = (list: any[], index: number, direction: -1 | 1) => {
+  const target = index + direction
+  if (target < 0 || target >= list.length) return
+  ;[list[index], list[target]] = [list[target], list[index]]
+}
+const removeFromList = (list: any[], index: number) => list.splice(index, 1)
+const detailImageSrc = (url: string) => resolveNewsImage(url, strapiUrl)
+const emptyFlowchart = () => ({ id: `chart-${Date.now()}`, figureNumber: '', title: '', englishTitle: '', description: '', image: '', steps: [] as any[] })
+const emptyFlowStep = (index: number) => ({ id: `step-${Date.now()}`, code: String(index + 1).padStart(2, '0'), title: '', description: '', inputs: [] as string[], outputs: [] as string[] })
+
+const loadNewsDetailForm = (detail: any) => {
+  const d = detail && typeof detail === 'object' ? detail : {}
+  const form = emptyNewsDetail()
+  const paragraphs: string[] = Array.isArray(d.fullContent) ? d.fullContent.map(str) : []
+  form.subtitle = str(d.subtitle)
+  if (d.certifier && typeof d.certifier === 'object') {
+    form.certifierEnabled = true
+    for (const key of Object.keys(form.certifier) as (keyof typeof form.certifier)[]) {
+      if (key === 'processes') form.certifier.processes = Array.isArray(d.certifier.processes) ? d.certifier.processes.map(str) : []
+      else (form.certifier as any)[key] = str(d.certifier[key])
+    }
+  }
+  form.gallery = Array.isArray(d.gallery) ? d.gallery.map((g: any) => ({ url: str(g?.url), caption: str(g?.caption) })) : []
+  form.aiSummary = Array.isArray(d.aiSummary) ? d.aiSummary.map(str) : []
+  form.lead = paragraphs[0] || ''
+  form.historyText = paragraphs[1] || ''
+  form.philosophyText = paragraphs[2] || ''
+  form.extraParagraphs = paragraphs.slice(3)
+  form.milestones = Array.isArray(d.milestones) ? d.milestones.map((m: any) => ({ label: str(m?.label), value: str(m?.value), sub: str(m?.sub) })) : []
+  for (const key of Object.keys(form.sectionTitles) as (keyof typeof form.sectionTitles)[]) form.sectionTitles[key] = str(d.sectionTitles?.[key])
+  form.services = Array.isArray(d.services) ? d.services.map((x: any) => ({ code: str(x?.code), title: str(x?.title), thaiTitle: str(x?.thaiTitle), desc: str(x?.desc) })) : []
+  form.partnerships = Array.isArray(d.partnerships) ? d.partnerships.map((x: any) => ({ name: str(x?.name), role: str(x?.role), desc: str(x?.desc) })) : []
+  form.flowcharts = Array.isArray(d.flowcharts)
+    ? d.flowcharts.map((c: any) => ({
+        id: str(c?.id) || `chart-${Math.random().toString(36).slice(2, 8)}`,
+        figureNumber: str(c?.figureNumber), title: str(c?.title), englishTitle: str(c?.englishTitle),
+        description: str(c?.description), image: str(c?.image),
+        steps: Array.isArray(c?.steps)
+          ? c.steps.map((st: any) => ({
+              id: str(st?.id), code: str(st?.code), title: str(st?.title), description: str(st?.description),
+              inputs: Array.isArray(st?.inputs) ? st.inputs.map(str) : [], outputs: Array.isArray(st?.outputs) ? st.outputs.map(str) : []
+            }))
+          : []
+      }))
+    : []
+  for (const key of Object.keys(form.author) as (keyof typeof form.author)[]) form.author[key] = str(d.author?.[key])
+  for (const key of Object.keys(form.sidebarCta) as (keyof typeof form.sidebarCta)[]) form.sidebarCta[key] = str(d.sidebarCta?.[key])
+  newsDetailForm.value = form
+  newsDetailOriginal.value = { ...d }
+}
+
+const trimObject = <T extends Record<string, any>>(obj: T) =>
+  Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v])) as T
+const hasText = (obj: Record<string, any>) => Object.values(obj).some(v => (Array.isArray(v) ? v.length > 0 : typeof v === 'string' ? v.trim() !== '' : Boolean(v)))
+
+// แปลงฟอร์มเป็น `detail` ที่บันทึกใน Strapi (ช่องที่ว่างจะไม่ถูกบันทึก หน้าเว็บจะใช้ค่าเดิมในโค้ดหรือซ่อนบล็อกนั้น)
+const buildNewsDetailPayload = () => {
+  const f = newsDetailForm.value
+  const fullContent = [f.lead, f.historyText, f.philosophyText, ...f.extraParagraphs.filter(p => p.trim())].map(p => p.trim())
+  while (fullContent.length && !fullContent[fullContent.length - 1]) fullContent.pop()
+
+  const detail: Record<string, any> = { ...newsDetailOriginal.value }
+  detail.subtitle = f.subtitle.trim()
+  detail.certifier = f.certifierEnabled
+    ? { ...trimObject(f.certifier), processes: f.certifier.processes.map(p => p.trim()).filter(Boolean) }
+    : null
+  detail.gallery = f.gallery.filter(g => g.url.trim()).map(trimObject)
+  detail.aiSummary = f.aiSummary.map(p => p.trim()).filter(Boolean)
+  detail.fullContent = fullContent
+  detail.milestones = f.milestones.map(trimObject).filter(hasText)
+  detail.sectionTitles = trimObject(f.sectionTitles)
+  detail.services = f.services.map(trimObject).filter(hasText)
+  detail.partnerships = f.partnerships.map(trimObject).filter(hasText)
+  detail.flowcharts = f.flowcharts
+    .map(c => ({ ...trimObject(c), steps: c.steps.map((st: any) => trimObject(st)).filter(hasText) }))
+    .filter(c => c.title || c.image || c.steps.length)
+  detail.author = trimObject(f.author)
+  detail.sidebarCta = trimObject(f.sidebarCta)
+  return { detail, content: fullContent.filter(Boolean).join('\n\n') }
+}
+
+const uploadDetailImage = async (event: Event, apply: (url: string) => void) => {
+  const uploaded = await uploadImageFile(event)
+  if (uploaded?.url) apply(uploaded.url)
+}
+
 const newsForm = ref<any>({
   documentId: null,
   title: '',
@@ -329,7 +575,9 @@ const openNewsModal = (item?: any) => {
       previewUrl: resolveImage(item.coverImage, item.fallbackImageUrl),
       fallbackImageUrl: item.fallbackImageUrl || ''
     }
+    loadNewsDetailForm(item.detail)
   } else {
+    loadNewsDetailForm(null)
     const todayThai = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })
     newsForm.value = {
       documentId: null,
@@ -369,10 +617,12 @@ const saveNews = async (publish: boolean) => {
       dateText: newsForm.value.dateText || 'วันนี้',
       readTime: newsForm.value.readTime || '3 นาทีในการอ่าน',
       excerpt: newsForm.value.excerpt,
-      content: newsForm.value.content || newsForm.value.excerpt,
       fallbackImageUrl: newsForm.value.fallbackImageUrl || '/images/news/igenco-iso29110-ceremony.jpg',
       _publish: publish
     }
+    const { detail, content } = buildNewsDetailPayload()
+    payload.detail = detail
+    payload.content = content || newsForm.value.excerpt
     if (newsForm.value.coverImageId) {
       payload.coverImage = newsForm.value.coverImageId
     }
@@ -380,11 +630,13 @@ const saveNews = async (publish: boolean) => {
     if (newsForm.value.documentId) {
       await $fetch(`/api/admin/collection/${uid}/${newsForm.value.documentId}`, { method: 'PUT', body: payload })
     } else {
+      payload.sortOrder = getTopSortOrder(newsList.value)
       await $fetch(`/api/admin/collection/${uid}`, { method: 'POST', body: payload })
     }
     showToast(publish ? 'บันทึกและเผยแพร่ข่าวขึ้นหน้าเว็บเรียบร้อยแล้ว!' : 'บันทึกฉบับร่างเรียบร้อยแล้ว')
+    notifyContentChanged('api::news-article.news-article')
     newsModalOpen.value = false
-    newsList.value = await fetchCollection('api::news-article.news-article')
+    newsList.value = await fetchCollection('api::news-article.news-article', ORDERED_SORT)
   } catch {
     showToast('เกิดข้อผิดพลาดในการบันทึกข่าว')
   } finally {
@@ -520,11 +772,13 @@ const saveProduct = async (publish: boolean) => {
     if (productForm.value.documentId) {
       await $fetch(`/api/admin/collection/${uid}/${productForm.value.documentId}`, { method: 'PUT', body: payload })
     } else {
+      payload.sortOrder = getTopSortOrder(productsList.value)
       await $fetch(`/api/admin/collection/${uid}`, { method: 'POST', body: payload })
     }
     showToast(publish ? 'บันทึกและเผยแพร่สินค้าขึ้นหน้าเว็บเรียบร้อยแล้ว!' : 'บันทึกฉบับร่างเรียบร้อยแล้ว')
+    notifyContentChanged('api::product.product')
     productModalOpen.value = false
-    productsList.value = await fetchCollection('api::product.product')
+    productsList.value = await fetchCollection('api::product.product', ORDERED_SORT)
   } catch {
     showToast('เกิดข้อผิดพลาดในการบันทึกสินค้า')
   } finally {
@@ -878,8 +1132,8 @@ onMounted(() => {
                     <div class="text-sm font-bold truncate">{{ inq.name }}</div>
                     <div class="text-xs opacity-70 truncate">{{ inq.projectSummary }}</div>
                   </div>
-                  <span :class="['px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0', (statusLabels[inq.status || 'pending'] || statusLabels.pending).color]">
-                    {{ (statusLabels[inq.status || 'pending'] || statusLabels.pending).label }}
+                  <span :class="['px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0', statusLabels[inquiryStatusOf(inq)].color]">
+                    {{ statusLabels[inquiryStatusOf(inq)].label }}
                   </span>
                 </div>
               </div>
@@ -965,8 +1219,8 @@ onMounted(() => {
               <div class="space-y-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="font-bold text-base">{{ inq.name }}</span>
-                  <span :class="['px-2.5 py-0.5 rounded-full text-[11px] font-bold border', (statusLabels[inq.status || 'pending'] || statusLabels.pending).color]">
-                    {{ (statusLabels[inq.status || 'pending'] || statusLabels.pending).label }}
+                  <span :class="['px-2.5 py-0.5 rounded-full text-[11px] font-bold border', statusLabels[inquiryStatusOf(inq)].color]">
+                    {{ statusLabels[inquiryStatusOf(inq)].label }}
                   </span>
                 </div>
                 <div class="text-xs opacity-75 flex flex-wrap items-center gap-3 font-mono">
@@ -1050,9 +1304,30 @@ onMounted(() => {
               v-for="item in paginatedNewsList"
               :key="item.id"
               class="p-3.5 sm:p-4 rounded-2xl spatial-glass border border-current/10 hover:border-[#00C864]/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              :class="{
+                'opacity-40': draggedItem?.id === item.id,
+                'ring-2 ring-[#00C864] bg-[#00C864]/10': dragOverId === item.id && draggedItem?.id !== item.id
+              }"
+              :draggable="dragArmedId === item.id"
+              @dragstart="onDragStart($event, item)"
+              @dragover="onDragOver($event, item)"
+              @dragleave="dragOverId === item.id && (dragOverId = null)"
+              @drop.prevent="onDrop('api::news-article.news-article', reorderLists.news, paginatedNewsList, item)"
+              @dragend="onDragEnd"
             >
               <!-- Left: Compact Thumbnail + Center Details -->
               <div class="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                <!-- Drag handle: กดค้างแล้วลากเพื่อจัดลำดับ -->
+                <div
+                  title="กดค้างแล้วลากเพื่อจัดลำดับ"
+                  class="hidden sm:flex self-stretch items-center px-0.5 -ml-1 rounded-lg opacity-40 hover:opacity-100 hover:text-[#00A854] dark:hover:text-[#00FF88] transition-all select-none"
+                  :class="reorderingUid ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'"
+                  @mousedown="armDrag(item)"
+                  @mouseup="dragArmedId = null"
+                  @click.stop
+                >
+                  <GripVertical class="w-4 h-4" />
+                </div>
                 <div class="w-20 h-14 sm:w-24 sm:h-16 rounded-xl overflow-hidden bg-black/10 border border-current/10 shrink-0">
                   <img
                     :src="resolveImage(item.coverImage, item.fallbackImageUrl)"
@@ -1082,6 +1357,24 @@ onMounted(() => {
               <div class="flex items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
+                  title="เลื่อนขึ้น"
+                  class="p-2 rounded-xl bg-current/5 hover:bg-[#00C864]/15 text-current hover:text-[#00A854] dark:hover:text-[#00FF88] transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-current/5"
+                  :disabled="reorderingUid !== null || filteredNewsList[0]?.id === item.id"
+                  @click="moveItem('api::news-article.news-article', reorderLists.news, filteredNewsList, item, -1)"
+                >
+                  <ArrowUp class="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  title="เลื่อนลง"
+                  class="p-2 rounded-xl bg-current/5 hover:bg-[#00C864]/15 text-current hover:text-[#00A854] dark:hover:text-[#00FF88] transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-current/5"
+                  :disabled="reorderingUid !== null || filteredNewsList[filteredNewsList.length - 1]?.id === item.id"
+                  @click="moveItem('api::news-article.news-article', reorderLists.news, filteredNewsList, item, 1)"
+                >
+                  <ArrowDown class="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
                   title="แก้ไขข่าว"
                   class="p-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white transition-all cursor-pointer"
                   @click="openNewsModal(item)"
@@ -1092,7 +1385,7 @@ onMounted(() => {
                   type="button"
                   title="ลบข่าว"
                   class="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer"
-                  @click="deleteEntry('api::news-article.news-article', item, async () => { newsList = await fetchCollection('api::news-article.news-article') })"
+                  @click="deleteEntry('api::news-article.news-article', item, async () => { newsList = await fetchCollection('api::news-article.news-article', ORDERED_SORT) })"
                 >
                   <Trash2 class="w-4 h-4" />
                 </button>
@@ -1196,9 +1489,30 @@ onMounted(() => {
               v-for="item in paginatedProductsList"
               :key="item.id"
               class="p-3.5 sm:p-4 rounded-2xl spatial-glass border border-current/10 hover:border-[#00C864]/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              :class="{
+                'opacity-40': draggedItem?.id === item.id,
+                'ring-2 ring-[#00C864] bg-[#00C864]/10': dragOverId === item.id && draggedItem?.id !== item.id
+              }"
+              :draggable="dragArmedId === item.id"
+              @dragstart="onDragStart($event, item)"
+              @dragover="onDragOver($event, item)"
+              @dragleave="dragOverId === item.id && (dragOverId = null)"
+              @drop.prevent="onDrop('api::product.product', reorderLists.products, paginatedProductsList, item)"
+              @dragend="onDragEnd"
             >
               <!-- Left: Compact Thumbnail + Center Details -->
               <div class="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                <!-- Drag handle: กดค้างแล้วลากเพื่อจัดลำดับ -->
+                <div
+                  title="กดค้างแล้วลากเพื่อจัดลำดับ"
+                  class="hidden sm:flex self-stretch items-center px-0.5 -ml-1 rounded-lg opacity-40 hover:opacity-100 hover:text-[#00A854] dark:hover:text-[#00FF88] transition-all select-none"
+                  :class="reorderingUid ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'"
+                  @mousedown="armDrag(item)"
+                  @mouseup="dragArmedId = null"
+                  @click.stop
+                >
+                  <GripVertical class="w-4 h-4" />
+                </div>
                 <div class="w-20 h-14 sm:w-24 sm:h-16 rounded-xl overflow-hidden bg-black/10 border border-current/10 shrink-0">
                   <img
                     :src="resolveImage(item.image, item.fallbackImageUrl)"
@@ -1228,6 +1542,24 @@ onMounted(() => {
               <div class="flex items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
+                  title="เลื่อนขึ้น"
+                  class="p-2 rounded-xl bg-current/5 hover:bg-[#00C864]/15 text-current hover:text-[#00A854] dark:hover:text-[#00FF88] transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-current/5"
+                  :disabled="reorderingUid !== null || filteredProductsList[0]?.id === item.id"
+                  @click="moveItem('api::product.product', reorderLists.products, filteredProductsList, item, -1)"
+                >
+                  <ArrowUp class="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  title="เลื่อนลง"
+                  class="p-2 rounded-xl bg-current/5 hover:bg-[#00C864]/15 text-current hover:text-[#00A854] dark:hover:text-[#00FF88] transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-current/5"
+                  :disabled="reorderingUid !== null || filteredProductsList[filteredProductsList.length - 1]?.id === item.id"
+                  @click="moveItem('api::product.product', reorderLists.products, filteredProductsList, item, 1)"
+                >
+                  <ArrowDown class="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
                   title="แก้ไขสินค้า"
                   class="p-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white transition-all cursor-pointer"
                   @click="openProductModal(item)"
@@ -1238,7 +1570,7 @@ onMounted(() => {
                   type="button"
                   title="ลบสินค้า"
                   class="p-2 rounded-xl bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer"
-                  @click="deleteEntry('api::product.product', item, async () => { productsList = await fetchCollection('api::product.product') })"
+                  @click="deleteEntry('api::product.product', item, async () => { productsList = await fetchCollection('api::product.product', ORDERED_SORT) })"
                 >
                   <Trash2 class="w-4 h-4" />
                 </button>
@@ -1319,7 +1651,7 @@ onMounted(() => {
           <div class="space-y-3">
             <div>
               <label class="block text-xs font-bold mb-1">สถานะการติดตามงาน</label>
-              <select v-model="selectedInquiry.status" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
+              <select v-model="selectedInquiry.followUpStatus" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
                 <option value="pending">รอติดต่อกลับ</option>
                 <option value="in_progress">กำลังประสานงาน</option>
                 <option value="contacted">ติดต่อแล้ว</option>
@@ -1348,13 +1680,17 @@ onMounted(() => {
     ========================================================== -->
     <Teleport to="body">
       <div v-if="newsModalOpen" class="fixed inset-0 z-[100] bg-black/75 backdrop-blur-lg flex items-center justify-center p-4 overflow-y-auto" @click="newsModalOpen = false">
-        <div class="max-w-2xl w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
+        <div class="max-w-3xl w-full rounded-3xl bg-white dark:bg-[#03150e] border border-[#00C864]/30 shadow-2xl p-6 sm:p-8 space-y-5 my-auto" @click.stop>
           <div class="flex items-center justify-between border-b border-current/10 pb-3">
             <h3 class="text-lg font-extrabold">{{ newsForm.documentId ? 'แก้ไขข่าวสาร' : 'เพิ่มข่าวสารใหม่' }}</h3>
             <button type="button" class="p-2 rounded-xl bg-black/5 dark:bg-white/10 cursor-pointer" @click="newsModalOpen = false"><X class="w-4 h-4" /></button>
           </div>
 
           <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+            <div class="">
+              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">1. ข้อมูลหลัก (การ์ดหน้าแรก + ส่วนหัวข่าว)</h4>
+              <p class="text-[11px] opacity-60 mt-0.5">รูปปก หัวข้อ หมวดหมู่ วันที่ และคำโปรย ใช้ทั้งการ์ดหน้าแรกและส่วนหัวของหน้ารายละเอียด</p>
+            </div>
             <!-- Cover Image Upload -->
             <div>
               <label class="block text-xs font-bold mb-1.5">รูปภาพปกข่าว</label>
@@ -1397,9 +1733,292 @@ onMounted(() => {
               <textarea v-model="newsForm.excerpt" rows="2" placeholder="สรุปสั้นๆ 1-2 บรรทัด..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
             </div>
 
-            <div>
-              <label class="block text-xs font-bold mb-1">เนื้อหาข่าวฉบับเต็ม</label>
-              <textarea v-model="newsForm.content" rows="4" placeholder="รายละเอียดข่าวทั้งหมด..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold mb-1">เวลาในการอ่าน</label>
+                <input v-model="newsForm.readTime" type="text" placeholder="3 นาทีในการอ่าน" :class="detailInputCls">
+              </div>
+              <div>
+                <label class="block text-xs font-bold mb-1">หัวข้อรอง (ใต้หัวข้อข่าว)</label>
+                <input v-model="newsDetailForm.subtitle" type="text" placeholder="ไม่บังคับ" :class="detailInputCls">
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-current/10">
+              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">2. การ์ดการรับรองมาตรฐาน (ถ้ามี)</h4>
+              <p class="text-[11px] opacity-60 mt-0.5">แสดงใต้หัวข้อข่าว พร้อมตราสัญลักษณ์และรูปพิธีมอบ (ใช้รูปปกข่าว) เปิดใช้เฉพาะข่าวที่เกี่ยวกับการรับรอง</p>
+            </div>
+            <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
+              <input v-model="newsDetailForm.certifierEnabled" type="checkbox" class="accent-[#00C864]">
+              <span>แสดงการ์ดการรับรองมาตรฐาน</span>
+            </label>
+            <div v-if="newsDetailForm.certifierEnabled" class="space-y-3">
+              <div class="flex items-center gap-3">
+                    <div class="w-24 h-16 rounded-lg overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
+                      <img v-if="newsDetailForm.certifier.logoImage" :src="detailImageSrc(newsDetailForm.certifier.logoImage)" class="w-full h-full object-cover">
+                      <ImageIcon v-else class="w-5 h-5 opacity-40" />
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                      <label class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all">
+                        <Upload class="w-3.5 h-3.5" />
+                        <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'อัปโหลดตราสัญลักษณ์' }}</span>
+                        <input type="file" accept="image/*" class="hidden" @change="uploadDetailImage($event, url => { newsDetailForm.certifier.logoImage = url })">
+                      </label>
+                      <input v-model="newsDetailForm.certifier.logoImage" type="text" placeholder="หรือวางที่อยู่รูป เช่น /images/news/xxx.jpg" :class="detailInputCls">
+                    </div>
+                  </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><label class="block text-xs font-bold mb-1">ข้อความป้ายตรา</label><input v-model="newsDetailForm.certifier.logoText" type="text" placeholder="TÜV NORD CERTIFIED" :class="detailInputCls"></div>
+                <div><label class="block text-xs font-bold mb-1">บรรทัดมาตรฐาน</label><input v-model="newsDetailForm.certifier.standardLabel" type="text" placeholder="ISO/IEC 29110:2011" :class="detailInputCls"></div>
+              </div>
+              <div><label class="block text-xs font-bold mb-1">หัวข้อการ์ด</label><input v-model="newsDetailForm.certifier.heading" type="text" placeholder="การรับรองคุณภาพมาตรฐานวิศวกรรมซอฟต์แวร์สากล" :class="detailInputCls"></div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><label class="block text-xs font-bold mb-1">ชื่อสถาบันผู้รับรอง</label><input v-model="newsDetailForm.certifier.organization" type="text" placeholder="TÜV NORD (Thailand) Co., Ltd." :class="detailInputCls"></div>
+                <div><label class="block text-xs font-bold mb-1">วันรับรอง</label><input v-model="newsDetailForm.certifier.certificateDate" type="text" placeholder="25 กรกฎาคม 2561" :class="detailInputCls"></div>
+              </div>
+              <div><label class="block text-xs font-bold mb-1">ข้อความต่อจากชื่อสถาบัน</label><input v-model="newsDetailForm.certifier.description" type="text" placeholder="ได้ประเมินและให้การรับรองบริษัท ไอเจนโก้ จำกัด ใน 2 กระบวนการหลัก:" :class="detailInputCls"></div>
+              <div><label class="block text-xs font-bold mb-1">กระบวนการที่ได้รับการรับรอง (บรรทัดละ 1 รายการ)</label><textarea :value="newsDetailForm.certifier.processes.join('\n')" rows="2" :class="detailInputCls" @input="newsDetailForm.certifier.processes = splitLines(($event.target as HTMLTextAreaElement).value)" /></div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><label class="block text-xs font-bold mb-1">ข้อความต่อจากวันรับรอง</label><input v-model="newsDetailForm.certifier.scopeLabel" type="text" placeholder="ขอบข่ายระดับสากล" :class="detailInputCls"></div>
+                <div><label class="block text-xs font-bold mb-1">คำบรรยายรูปพิธีมอบ</label><input v-model="newsDetailForm.certifier.photoCaption" type="text" placeholder="พิธีมอบใบรับรอง..." :class="detailInputCls"></div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-current/10">
+              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">3. แกลเลอรีภาพ</h4>
+              <p class="text-[11px] opacity-60 mt-0.5">ถ้ามีมากกว่า 1 รูป หน้าข่าวจะแสดงเป็นสไลด์ภาพพร้อมคำบรรยาย ถ้าไม่มีจะแสดงรูปปกข่าว</p>
+            </div>
+            <div class="space-y-2">
+              <div v-for="(img, i) in newsDetailForm.gallery" :key="i" class="flex items-start gap-2">
+                <div class="flex-1 p-3 rounded-2xl border border-current/10 bg-black/[0.02] dark:bg-white/[0.03] space-y-2">
+                  <div class="text-[11px] font-mono font-bold opacity-60">ภาพที่ {{ i + 1 }}</div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-24 h-16 rounded-lg overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
+                      <img v-if="img.url" :src="detailImageSrc(img.url)" class="w-full h-full object-cover">
+                      <ImageIcon v-else class="w-5 h-5 opacity-40" />
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                      <label class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all">
+                        <Upload class="w-3.5 h-3.5" />
+                        <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปภาพ' }}</span>
+                        <input type="file" accept="image/*" class="hidden" @change="uploadDetailImage($event, url => { img.url = url })">
+                      </label>
+                      <input v-model="img.url" type="text" placeholder="หรือวางที่อยู่รูป เช่น /images/news/xxx.jpg" :class="detailInputCls">
+                    </div>
+                  </div>
+                  <input v-model="img.caption" type="text" placeholder="คำบรรยายภาพ" :class="detailInputCls">
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" title="เลื่อนขึ้น" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === 0" @click="moveInList(newsDetailForm.gallery, i, -1)"><ArrowUp class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="เลื่อนลง" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === newsDetailForm.gallery.length - 1" @click="moveInList(newsDetailForm.gallery, i, 1)"><ArrowDown class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="ลบรายการนี้" class="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer" @click="removeFromList(newsDetailForm.gallery, i)"><Trash2 class="w-3.5 h-3.5" /></button>
+                  </div>
+              </div>
+              <button type="button" class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all" @click="newsDetailForm.gallery.push({ url: '', caption: '' })"><Plus class="w-3.5 h-3.5" />เพิ่มรูปภาพ</button>
+            </div>
+
+            <div class="pt-4 border-t border-current/10">
+              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">4. สรุปสาระสำคัญ (AI Quick Summary)</h4>
+              <p class="text-[11px] opacity-60 mt-0.5">ข้อสรุปสั้น ๆ แสดงเป็นการ์ดใต้รูปภาพ (ถ้าว่างจะใช้คำโปรยแทน)</p>
+            </div>
+            <div class="space-y-2">
+              <div v-for="(point, i) in newsDetailForm.aiSummary" :key="i" class="flex items-start gap-2">
+                <textarea v-model="newsDetailForm.aiSummary[i]" rows="2" :placeholder="'ข้อสรุปที่ ' + (i + 1)" :class="detailInputCls" />
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" title="เลื่อนขึ้น" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === 0" @click="moveInList(newsDetailForm.aiSummary, i, -1)"><ArrowUp class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="เลื่อนลง" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === newsDetailForm.aiSummary.length - 1" @click="moveInList(newsDetailForm.aiSummary, i, 1)"><ArrowDown class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="ลบรายการนี้" class="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer" @click="removeFromList(newsDetailForm.aiSummary, i)"><Trash2 class="w-3.5 h-3.5" /></button>
+                  </div>
+              </div>
+              <button type="button" class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all" @click="newsDetailForm.aiSummary.push('')"><Plus class="w-3.5 h-3.5" />เพิ่มข้อสรุป</button>
+            </div>
+
+            <div class="pt-4 border-t border-current/10">
+              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">5. เนื้อหาข่าว</h4>
+              <p class="text-[11px] opacity-60 mt-0.5">เรียงตามหน้าข่าว: ย่อหน้านำ → ตัวเลขไฮไลต์ → หัวข้อที่ 1 → บริการ/ขอบเขต → หัวข้อที่ 2 → พันธมิตร → ย่อหน้าเพิ่มเติม (ช่องที่ว่างจะไม่แสดง)</p>
+            </div>
+            <div><label class="block text-xs font-bold mb-1">5.1 ย่อหน้านำ (กรอบเน้นสีเขียว)</label><textarea v-model="newsDetailForm.lead" rows="4" :class="detailInputCls" /></div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-bold mb-1">5.2 ตัวเลขไฮไลต์ (แถบสถิติ 3 ช่อง)</label>
+              <div v-for="(stat, i) in newsDetailForm.milestones" :key="i" class="flex items-start gap-2">
+                <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input v-model="stat.label" type="text" placeholder="หัวข้อ เช่น ก่อตั้งบริษัท" :class="detailInputCls">
+                  <input v-model="stat.value" type="text" placeholder="ค่า เช่น 8 ปี" :class="detailInputCls">
+                  <input v-model="stat.sub" type="text" placeholder="คำอธิบายเพิ่มเติม" :class="detailInputCls">
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" title="เลื่อนขึ้น" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === 0" @click="moveInList(newsDetailForm.milestones, i, -1)"><ArrowUp class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="เลื่อนลง" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === newsDetailForm.milestones.length - 1" @click="moveInList(newsDetailForm.milestones, i, 1)"><ArrowDown class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="ลบรายการนี้" class="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer" @click="removeFromList(newsDetailForm.milestones, i)"><Trash2 class="w-3.5 h-3.5" /></button>
+                  </div>
+              </div>
+              <button type="button" class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all" @click="newsDetailForm.milestones.push({ label: '', value: '', sub: '' })"><Plus class="w-3.5 h-3.5" />เพิ่มตัวเลข</button>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-bold mb-1">5.3 หัวข้อที่ 1 + เนื้อหา</label>
+              <input v-model="newsDetailForm.sectionTitles.history" type="text" placeholder="ชื่อหัวข้อ (ค่าเริ่มต้น: รายละเอียดการดำเนินงาน)" :class="detailInputCls">
+              <textarea v-model="newsDetailForm.historyText" rows="4" placeholder="เนื้อหาของหัวข้อนี้" :class="detailInputCls" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-bold mb-1">5.4 บริการ / ขอบเขตงาน (การ์ดเรียงเป็นตาราง)</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input v-model="newsDetailForm.sectionTitles.services" type="text" placeholder="ชื่อหัวข้อในสารบัญ เช่น ขอบเขตการให้บริการ IT" :class="detailInputCls">
+                <input v-model="newsDetailForm.sectionTitles.servicesSubtitle" type="text" placeholder="ป้ายหัวตาราง เช่น COMPREHENSIVE IT SERVICES // ..." :class="detailInputCls">
+              </div>
+              <div v-for="(svc, i) in newsDetailForm.services" :key="i" class="flex items-start gap-2">
+                <div class="flex-1 p-3 rounded-2xl border border-current/10 bg-black/[0.02] dark:bg-white/[0.03] space-y-2">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input v-model="svc.code" type="text" placeholder="รหัส เช่น SI" :class="detailInputCls">
+                    <input v-model="svc.title" type="text" placeholder="ชื่อ (อังกฤษ)" :class="detailInputCls">
+                    <input v-model="svc.thaiTitle" type="text" placeholder="ชื่อ (ไทย)" :class="detailInputCls">
+                  </div>
+                  <textarea v-model="svc.desc" rows="2" placeholder="คำอธิบาย" :class="detailInputCls" />
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" title="เลื่อนขึ้น" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === 0" @click="moveInList(newsDetailForm.services, i, -1)"><ArrowUp class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="เลื่อนลง" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === newsDetailForm.services.length - 1" @click="moveInList(newsDetailForm.services, i, 1)"><ArrowDown class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="ลบรายการนี้" class="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer" @click="removeFromList(newsDetailForm.services, i)"><Trash2 class="w-3.5 h-3.5" /></button>
+                  </div>
+              </div>
+              <button type="button" class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all" @click="newsDetailForm.services.push({ code: '', title: '', thaiTitle: '', desc: '' })"><Plus class="w-3.5 h-3.5" />เพิ่มบริการ</button>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-bold mb-1">5.5 หัวข้อที่ 2 + เนื้อหา</label>
+              <input v-model="newsDetailForm.sectionTitles.philosophy" type="text" placeholder="ชื่อหัวข้อ (ค่าเริ่มต้น: แนวทางการดำเนินงาน)" :class="detailInputCls">
+              <textarea v-model="newsDetailForm.philosophyText" rows="4" placeholder="เนื้อหาของหัวข้อนี้" :class="detailInputCls" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-bold mb-1">5.6 พันธมิตรและการรับรอง</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input v-model="newsDetailForm.sectionTitles.partnerships" type="text" placeholder="ชื่อหัวข้อในสารบัญ เช่น พันธมิตรและการรับรอง" :class="detailInputCls">
+                <input v-model="newsDetailForm.sectionTitles.partnershipsSubtitle" type="text" placeholder="ป้ายหัวส่วน เช่น NATIONAL ACCREDITATIONS // ..." :class="detailInputCls">
+              </div>
+              <div v-for="(part, i) in newsDetailForm.partnerships" :key="i" class="flex items-start gap-2">
+                <div class="flex-1 p-3 rounded-2xl border border-current/10 bg-black/[0.02] dark:bg-white/[0.03] space-y-2">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input v-model="part.name" type="text" placeholder="ชื่อหน่วยงาน" :class="detailInputCls">
+                    <input v-model="part.role" type="text" placeholder="บทบาท" :class="detailInputCls">
+                  </div>
+                  <textarea v-model="part.desc" rows="2" placeholder="คำอธิบาย" :class="detailInputCls" />
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" title="เลื่อนขึ้น" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === 0" @click="moveInList(newsDetailForm.partnerships, i, -1)"><ArrowUp class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="เลื่อนลง" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === newsDetailForm.partnerships.length - 1" @click="moveInList(newsDetailForm.partnerships, i, 1)"><ArrowDown class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="ลบรายการนี้" class="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer" @click="removeFromList(newsDetailForm.partnerships, i)"><Trash2 class="w-3.5 h-3.5" /></button>
+                  </div>
+              </div>
+              <button type="button" class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all" @click="newsDetailForm.partnerships.push({ name: '', role: '', desc: '' })"><Plus class="w-3.5 h-3.5" />เพิ่มพันธมิตร</button>
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-bold mb-1">5.7 ย่อหน้าเพิ่มเติม (ต่อท้ายเนื้อหา)</label>
+              <div v-for="(para, i) in newsDetailForm.extraParagraphs" :key="i" class="flex items-start gap-2">
+                <textarea v-model="newsDetailForm.extraParagraphs[i]" rows="3" :placeholder="'ย่อหน้าที่ ' + (i + 1)" :class="detailInputCls" />
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" title="เลื่อนขึ้น" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === 0" @click="moveInList(newsDetailForm.extraParagraphs, i, -1)"><ArrowUp class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="เลื่อนลง" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === newsDetailForm.extraParagraphs.length - 1" @click="moveInList(newsDetailForm.extraParagraphs, i, 1)"><ArrowDown class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="ลบรายการนี้" class="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer" @click="removeFromList(newsDetailForm.extraParagraphs, i)"><Trash2 class="w-3.5 h-3.5" /></button>
+                  </div>
+              </div>
+              <button type="button" class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all" @click="newsDetailForm.extraParagraphs.push('')"><Plus class="w-3.5 h-3.5" />เพิ่มย่อหน้า</button>
+            </div>
+
+            <div class="pt-4 border-t border-current/10">
+              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">6. แผนผังกระบวนการ (ถ้ามี)</h4>
+              <p class="text-[11px] opacity-60 mt-0.5">แผนผังพร้อมรูปและขั้นตอน แสดงต่อจากเนื้อหาข่าว (มีหลายแผนผังจะแสดงเป็นแท็บ)</p>
+            </div>
+            <div class="space-y-3">
+              <div v-for="(chart, i) in newsDetailForm.flowcharts" :key="chart.id" class="flex items-start gap-2">
+                <div class="flex-1 p-3 rounded-2xl border border-current/10 bg-black/[0.02] dark:bg-white/[0.03] space-y-2">
+                  <div class="text-[11px] font-mono font-bold opacity-60">แผนผังที่ {{ i + 1 }}</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input v-model="chart.figureNumber" type="text" placeholder="เลขภาพ เช่น ภาพที่ 1" :class="detailInputCls">
+                    <input v-model="chart.title" type="text" placeholder="ชื่อแผนผัง (ไทย)" :class="detailInputCls">
+                    <input v-model="chart.englishTitle" type="text" placeholder="ชื่อแผนผัง (อังกฤษ)" :class="detailInputCls">
+                  </div>
+                  <textarea v-model="chart.description" rows="2" placeholder="คำอธิบายแผนผัง" :class="detailInputCls" />
+                  <div class="flex items-center gap-3">
+                    <div class="w-24 h-16 rounded-lg overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
+                      <img v-if="chart.image" :src="detailImageSrc(chart.image)" class="w-full h-full object-cover">
+                      <ImageIcon v-else class="w-5 h-5 opacity-40" />
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                      <label class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all">
+                        <Upload class="w-3.5 h-3.5" />
+                        <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปแผนผัง' }}</span>
+                        <input type="file" accept="image/*" class="hidden" @change="uploadDetailImage($event, url => { chart.image = url })">
+                      </label>
+                      <input v-model="chart.image" type="text" placeholder="หรือวางที่อยู่รูป เช่น /images/news/xxx.jpg" :class="detailInputCls">
+                    </div>
+                  </div>
+                  <div class="text-xs font-bold pt-1">ขั้นตอน</div>
+                  <div v-for="(st, si) in chart.steps" :key="si" class="flex items-start gap-2">
+                    <div class="flex-1 p-2.5 rounded-xl border border-current/10 space-y-2">
+                      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                        <input v-model="st.code" type="text" placeholder="รหัส" :class="detailInputCls">
+                        <input v-model="st.title" type="text" placeholder="ชื่อขั้นตอน" class="sm:col-span-3 w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-black/50 border border-current/15 text-sm">
+                      </div>
+                      <textarea v-model="st.description" rows="2" placeholder="คำอธิบายขั้นตอน" :class="detailInputCls" />
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input :value="st.inputs.join(', ')" type="text" placeholder="Input (คั่นด้วย ,)" :class="detailInputCls" @change="st.inputs = splitComma(($event.target as HTMLInputElement).value)">
+                        <input :value="st.outputs.join(', ')" type="text" placeholder="Output (คั่นด้วย ,)" :class="detailInputCls" @change="st.outputs = splitComma(($event.target as HTMLInputElement).value)">
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" title="เลื่อนขึ้น" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="si === 0" @click="moveInList(chart.steps, si, -1)"><ArrowUp class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="เลื่อนลง" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="si === chart.steps.length - 1" @click="moveInList(chart.steps, si, 1)"><ArrowDown class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="ลบรายการนี้" class="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer" @click="removeFromList(chart.steps, si)"><Trash2 class="w-3.5 h-3.5" /></button>
+                  </div>
+                  </div>
+                  <button type="button" class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all" @click="chart.steps.push(emptyFlowStep(chart.steps.length))"><Plus class="w-3.5 h-3.5" />เพิ่มขั้นตอน</button>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" title="เลื่อนขึ้น" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === 0" @click="moveInList(newsDetailForm.flowcharts, i, -1)"><ArrowUp class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="เลื่อนลง" class="p-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-[#00C864]/15 disabled:opacity-30 cursor-pointer" :disabled="i === newsDetailForm.flowcharts.length - 1" @click="moveInList(newsDetailForm.flowcharts, i, 1)"><ArrowDown class="w-3.5 h-3.5" /></button>
+                    <button type="button" title="ลบรายการนี้" class="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer" @click="removeFromList(newsDetailForm.flowcharts, i)"><Trash2 class="w-3.5 h-3.5" /></button>
+                  </div>
+              </div>
+              <button type="button" class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] dark:text-[#00FF88] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all" @click="newsDetailForm.flowcharts.push(emptyFlowchart())"><Plus class="w-3.5 h-3.5" />เพิ่มแผนผัง</button>
+            </div>
+
+            <div class="pt-4 border-t border-current/10">
+              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">7. ผู้เขียน</h4>
+              <p class="text-[11px] opacity-60 mt-0.5">การ์ดผู้เขียนท้ายบทความ (ถ้าว่างจะใช้ ทีมประชาสัมพันธ์ IGENCO)</p>
+            </div>
+            <div class="flex items-center gap-3">
+                    <div class="w-24 h-16 rounded-lg overflow-hidden bg-black/10 border border-current/15 shrink-0 flex items-center justify-center">
+                      <img v-if="newsDetailForm.author.avatar" :src="detailImageSrc(newsDetailForm.author.avatar)" class="w-full h-full object-cover">
+                      <ImageIcon v-else class="w-5 h-5 opacity-40" />
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                      <label class="px-3 py-2 rounded-xl bg-[#00C864]/15 hover:bg-[#00C864] text-[#00A854] hover:text-white text-xs font-bold cursor-pointer inline-flex items-center gap-1.5 transition-all">
+                        <Upload class="w-3.5 h-3.5" />
+                        <span>{{ uploadingImage ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปผู้เขียน' }}</span>
+                        <input type="file" accept="image/*" class="hidden" @change="uploadDetailImage($event, url => { newsDetailForm.author.avatar = url })">
+                      </label>
+                      <input v-model="newsDetailForm.author.avatar" type="text" placeholder="หรือวางที่อยู่รูป เช่น /images/news/xxx.jpg" :class="detailInputCls">
+                    </div>
+                  </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div><label class="block text-xs font-bold mb-1">ชื่อผู้เขียน</label><input v-model="newsDetailForm.author.name" type="text" :class="detailInputCls"></div>
+              <div><label class="block text-xs font-bold mb-1">ตำแหน่ง</label><input v-model="newsDetailForm.author.role" type="text" :class="detailInputCls"></div>
+            </div>
+            <div><label class="block text-xs font-bold mb-1">ประวัติย่อ</label><textarea v-model="newsDetailForm.author.bio" rows="2" :class="detailInputCls" /></div>
+
+            <div class="pt-4 border-t border-current/10">
+              <h4 class="text-sm font-extrabold text-[#00A854] dark:text-[#00FF88]">8. กล่องข้อความด้านข้าง (CTA)</h4>
+              <p class="text-[11px] opacity-60 mt-0.5">กล่องสีเข้มในแถบด้านขวาของหน้าข่าว (ถ้าว่างจะใช้ข้อความเริ่มต้น)</p>
+            </div>
+            <div><label class="block text-xs font-bold mb-1">หัวข้อ</label><input v-model="newsDetailForm.sidebarCta.title" type="text" placeholder="ต้องการยกระดับมาตรฐานซอฟต์แวร์องค์กร?" :class="detailInputCls"></div>
+            <div><label class="block text-xs font-bold mb-1">ข้อความ</label><textarea v-model="newsDetailForm.sidebarCta.text" rows="2" placeholder="IGENCO ให้คำปรึกษาและพัฒนาระบบ..." :class="detailInputCls" /></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div><label class="block text-xs font-bold mb-1">ข้อความบนปุ่ม</label><input v-model="newsDetailForm.sidebarCta.buttonLabel" type="text" placeholder="สอบถามเพิ่มเติม" :class="detailInputCls"></div>
+              <div><label class="block text-xs font-bold mb-1">ลิงก์ของปุ่ม</label><input v-model="newsDetailForm.sidebarCta.buttonLink" type="text" placeholder="#contact หรือ /contact" :class="detailInputCls"></div>
             </div>
           </div>
 

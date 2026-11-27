@@ -29,7 +29,7 @@
     "blueprintSpec": {
       "type": "text"
     },
-    "status": {
+    "followUpStatus": {
       "type": "enumeration",
       "enum": [
         "pending",

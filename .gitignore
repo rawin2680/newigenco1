@@ -25,3 +25,16 @@ backend/.cache
 Thumbs.db
 .vscode/*
 !.vscode/settings.json
+
+# Strapi local state, uploads and temp files
+backend/.strapi
+backend/.tmp
+backend/.strapi-updater.json
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+
+# Logs, database dumps/backups, local docker overrides
+*.log
+*.dump
+*backup*.sql
+docker-compose.override*.yml

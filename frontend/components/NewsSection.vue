@@ -1,44 +1,40 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { Calendar, ArrowRight, ArrowUpRight, Sparkles, BookOpen, ChevronLeft, ChevronRight, Clock, X } from 'lucide-vue-next'
-import { useNews, type NewsItem } from '~/composables/useNews'
+import { useNews, matchesStaticNews, mergeStrapiNews, type NewsItem } from '~/composables/useNews'
+import { useLiveRefresh, contentSignature } from '~/composables/useLiveRefresh'
 import { useStrapiContent } from '~/composables/useStrapiContent'
 import { useTheme } from '~/composables/useTheme'
 
 const { showToast } = useTheme()
 const { newsList: staticNewsList } = useNews()
 const { getNewsArticles } = useStrapiContent()
+const newsStrapiUrl = useRuntimeConfig().public.strapiUrl as string
 
 const activeNewsList = ref<NewsItem[]>(staticNewsList)
 
-onMounted(async () => {
+// โหลดข่าวล่าสุดจาก Strapi (ฟิลด์จาก Strapi มาก่อนข่าวในโค้ด) และอัปเดตเฉพาะเมื่อข้อมูลเปลี่ยนจริง
+let lastNewsSignature = ''
+const loadStrapiNews = async () => {
   const strapiNews = await getNewsArticles()
-  if (strapiNews && strapiNews.length > 0) {
-    // Merge Strapi articles at the top, or use them if titles differ from static
-    const mapped: NewsItem[] = strapiNews.map((sn, index) => {
-      const matchingStatic = staticNewsList.find(
-        s => s.title.trim() === sn.title.trim() || (sn.date && s.date.trim() === sn.date.trim())
-      )
-      return {
-        ...(matchingStatic || {}),
-        id: matchingStatic ? matchingStatic.id : (sn.id || (1000 + index)),
-        title: sn.title,
-        category: sn.category,
-        date: sn.date,
-        readTime: sn.readTime,
-        excerpt: sn.excerpt,
-        image: sn.image,
-        aiSummary: matchingStatic?.aiSummary || [sn.excerpt],
-        content: matchingStatic?.content || (sn.content ? [sn.content] : [sn.excerpt])
-      }
-    })
-    // Avoid duplicates by ID (and title), keeping Strapi items first so admin edits reflect immediately
-    const matchedIds = new Set(mapped.map(m => m.id))
-    const strapiTitles = new Set(mapped.map(m => m.title.trim()))
-    const remainingStatic = staticNewsList.filter(s => !matchedIds.has(s.id) && !strapiTitles.has(s.title.trim()))
-    activeNewsList.value = [...mapped, ...remainingStatic]
-  }
-})
+  if (!strapiNews || strapiNews.length === 0) return // Strapi ออฟไลน์: ใช้ข่าวในโค้ดเป็นค่าสำรอง
+  const signature = contentSignature(strapiNews)
+  if (signature === lastNewsSignature) return
+  lastNewsSignature = signature
+
+  const mapped: NewsItem[] = strapiNews.map((sn, index) =>
+    mergeStrapiNews(sn, staticNewsList.find(s => matchesStaticNews(s, sn)), 1000 + index, newsStrapiUrl)
+  )
+  // ข่าวในโค้ดที่ไม่มีใน Strapi ต่อท้าย (กันซ้ำทั้ง id และหัวข้อ)
+  const matchedIds = new Set(mapped.map(m => m.id))
+  const strapiTitles = new Set(mapped.map(m => m.title.trim()))
+  const remainingStatic = staticNewsList.filter(s => !matchedIds.has(s.id) && !strapiTitles.has(s.title.trim()))
+  activeNewsList.value = [...mapped, ...remainingStatic]
+}
+
+onMounted(loadStrapiNews)
+// อัปเดตอัตโนมัติ: กลับมาที่แท็บ / ทุก 15 วินาที / ทันทีเมื่อหน้าแอดมินบันทึก
+useLiveRefresh(loadStrapiNews)
 
 // -------------------------------------------------------------
 // หมวดหมู่ข่าวสาร

@@ -46,6 +46,12 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
       })
     }
+    if (status === 429) {
+      throw createError({
+        statusCode: 429,
+        statusMessage: 'พยายามเข้าสู่ระบบบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่'
+      })
+    }
     throw createError({
       statusCode: 503,
       statusMessage: `ไม่สามารถเชื่อมต่อหลังบ้าน Strapi (${strapiUrl}) ได้ — หากใช้งานบน Vercel กรุณา Deploy Strapi ขึ้น Cloud และตั้งค่า NUXT_PUBLIC_STRAPI_URL`
